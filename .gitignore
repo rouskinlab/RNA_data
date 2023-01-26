@@ -1,0 +1,3 @@
+# Ignore all files in datasets except sequences_half.txt
+datasets/*
+!datasets/sequences_half.txt
