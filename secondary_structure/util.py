@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import numpy as np
 
-def import_structure(path_to_structures):
+def import_structure(path_to_structures=None):
     """
     Import the secondary structure dataset and convert to one-hot encoding.
 
@@ -25,6 +25,13 @@ def import_structure(path_to_structures):
         'Y': [0, 1, 0, 1, 0],
         'R': [1, 0, 1, 0, 0],
         'K': [0, 0, 1, 1, 0],
+        'W': [1, 0, 0, 1, 0],
+        'S': [0, 1, 1, 0, 0],
+        'M': [1, 0, 1, 0, 0],
+        'B': [0, 1, 1, 1, 0],
+        'D': [1, 0, 1, 1, 0],
+        'H': [1, 1, 0, 1, 0],
+        'V': [1, 1, 1, 0, 0],
         'N': [1, 1, 1, 1, 0],
         'X': [0, 0, 0, 0, 1]
     }
@@ -40,6 +47,8 @@ def import_structure(path_to_structures):
     }
 
     # Import the dataset as a pandas dataframe
+    if path_to_structures is None:
+        path_to_structures = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dataset', 'secondary_structure.json')
     df = pd.read_json(path_to_structures)
 
     # Get max length of sequence 
@@ -52,8 +61,8 @@ def import_structure(path_to_structures):
     # Iterate over the rows of the dataframe
     for i, row in df.iterrows():
 
-        if i%100:
-            print(i/len(df)*100, "%")
+        # if i%1000:
+        #     print(i/len(df)*100, "%")
         
         # Apply zero padding to each row (sequence and structure)
         row['sequence'] = row['sequence'].upper().ljust(max_seq_len, 'X')
@@ -70,8 +79,19 @@ def import_structure(path_to_structures):
     return sequences, structures
 
 
+# def compute_accuracy(y_pred, y_true):
+#     """
+#     Compute the accuracy of the predictions.
+
+#     :param y_pred: Predicted structures   
+#     :param y_true: True structures
+#     :return: Accuracy
+#     """
+#     return np.sum(y_pred == y_true) / y_true.size
+
+
 if __name__ == '__main__':
-    path_to_structures = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dataset', 'secondary_structure.json')
-    sequences, structures = import_structure(path_to_structures)
+    # path_to_structures = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dataset', 'secondary_structure.json')
+    sequences, structures = import_structure()
 
     print("done")
