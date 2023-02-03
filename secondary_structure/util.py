@@ -4,7 +4,7 @@ import numpy as np
 
 import sys
 
-def import_structure(path_to_structures=None):
+def import_structure(path_to_structures=None, size=None, save=False, reload=True):
     """
     Import the secondary structure dataset and convert to one-hot encoding.
 
@@ -13,6 +13,10 @@ def import_structure(path_to_structures=None):
     The structures contains f, t, i, h, m, or s characters.
 
     :param path_to_structures: Path to the secondary structure dataset in json format
+    :param size: The number of datapoints to import
+    :param save: Whether to save the dataset as a numpy array
+    :param reload: Whether to reload the dataset from the numpy array
+
     :return: A tuple with the one-hot encoded sequences and structures in numpy arrays
     """
 
@@ -48,39 +52,78 @@ def import_structure(path_to_structures=None):
         'X': [0, 0, 0, 0, 0, 0, 1]
     }
 
-    # Import the dataset as a pandas dataframe
+    # Paths to the dataset
+    dirname = os.path.dirname(os.path.abspath(__file__))
+    save_path = [os.path.join(dirname, 'dataset', 'processed_sequences.npy'),
+                 os.path.join(dirname, 'dataset', 'processed_structures.npy')]
+
     if path_to_structures is None:
-        path_to_structures = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dataset', 'secondary_structure.json')
+            path_to_structures = os.path.join(dirname, 'dataset', 'secondary_structure.json')
+
+    # Import the dataset and checck size
     df = pd.read_json(path_to_structures)
+    if size is None:
+        size = len(df)
+    elif size > len(df):
+        print("Requested size too large, using full dataset")
+        size = len(df)
 
-    # Get max length of sequence 
-    max_seq_len = df['sequence'].str.len().max()
+    # Check if the dataset is already saved
+    if reload:
+        if os.path.exists(save_path[0]) and os.path.exists(save_path[1]):
+            print("Loading saved dataset")
+            sequences = np.load(save_path[0])
+            structures = np.load(save_path[1])
 
-    # Init numpy arrays for sequences and structures
-    sequences = np.zeros((len(df), len(seq2vec['A']), max_seq_len))
-    structures = np.zeros((len(df), len(struct2vec['f']), max_seq_len))
-
-    # Iterate over the rows of the dataframe
-    for i, row in df.iterrows():
-
-        if i%1000:
-            # print(i/len(df)*100, "%")
-            sys.stdout.write("Processing dataset: %d%%   \r" % (100*i/len(df)) )
-            sys.stdout.flush()
+            if len(sequences) < size or len(structures) < size:
+                print("Dataset too small, creating new one")
+                return import_structure(path_to_structures, size, save, False)
+            else:
+                return sequences[:size], structures[:size]
+        else:
+            print("Dataset not found, creating new one")
+            return import_structure(path_to_structures, size, save, False)
         
-        # Apply zero padding to each row (sequence and structure)
-        row['sequence'] = row['sequence'].upper().ljust(max_seq_len, 'X')
-        row['structure'] = row['structure'].lower().ljust(max_seq_len, 'X') 
 
-        # One hot encoding of the sequence, with padding as 'X' 
-        for j, base in enumerate(row['sequence']):
-            sequences[i, :, j] = seq2vec[base]
-
-        # One hot encoding of the structure, with padding as 'X' 
-        for j, struct in enumerate(row['structure']):
-            structures[i, :, j] = struct2vec[struct]
+    else:        
         
-    return sequences, structures
+        # Slice the dataset with requested size
+        df = df[:size]
+
+        # Get max sequence length
+        max_seq_len = df['sequence'].str.len().max()
+
+        # Init numpy arrays for sequences and structures
+        sequences = np.zeros((len(df), len(seq2vec['A']), max_seq_len))
+        structures = np.zeros((len(df), len(struct2vec['f']), max_seq_len))
+
+        # Iterate over the rows of the dataframe
+        for i, row in df.iterrows():
+
+            # Print progress
+            if i%1000:
+                sys.stdout.write("Processing dataset: %d%%   \r" % (100*i/len(df)) )
+                sys.stdout.flush()
+            
+            # Apply zero padding to each row (sequence and structure)
+            row['sequence'] = row['sequence'].upper().ljust(max_seq_len, 'X')
+            row['structure'] = row['structure'].lower().ljust(max_seq_len, 'X') 
+
+            # One hot encoding of the sequence, with padding as 'X' 
+            for j, base in enumerate(row['sequence']):
+                sequences[i, :, j] = seq2vec[base]
+
+            # One hot encoding of the structure, with padding as 'X' 
+            for j, struct in enumerate(row['structure']):
+                structures[i, :, j] = struct2vec[struct]
+
+        # Save sequences and structures as numpy arrays
+        if save:
+            np.save(save_path[0], sequences)
+            np.save(save_path[1], structures)
+
+        
+        return sequences, structures
 
 
 # def compute_accuracy(y_pred, y_true):
@@ -95,7 +138,6 @@ def import_structure(path_to_structures=None):
 
 
 if __name__ == '__main__':
-    # path_to_structures = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'dataset', 'secondary_structure.json')
-    sequences, structures = import_structure()
 
-    print("done")
+    sequences, structures = import_structure(save=True, size=10000000)
+    print("Loaded dataset with shape: \n", sequences.shape, "\n", structures.shape)
