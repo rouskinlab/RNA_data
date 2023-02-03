@@ -2,6 +2,8 @@ import pandas as pd
 import os
 import numpy as np
 
+import sys
+
 def import_structure(path_to_structures=None):
     """
     Import the secondary structure dataset and convert to one-hot encoding.
@@ -61,8 +63,10 @@ def import_structure(path_to_structures=None):
     # Iterate over the rows of the dataframe
     for i, row in df.iterrows():
 
-        # if i%1000:
-        #     print(i/len(df)*100, "%")
+        if i%1000:
+            # print(i/len(df)*100, "%")
+            sys.stdout.write("Processing dataset: %d%%   \r" % (100*i/len(df)) )
+            sys.stdout.flush()
         
         # Apply zero padding to each row (sequence and structure)
         row['sequence'] = row['sequence'].upper().ljust(max_seq_len, 'X')
