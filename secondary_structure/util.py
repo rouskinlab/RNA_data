@@ -77,12 +77,15 @@ def import_structure(path_to_structures=None, size=None, save=False, reload=True
 
             if len(sequences) < size or len(structures) < size:
                 print("Dataset too small, creating new one")
-                return import_structure(path_to_structures, size, save, False)
+                return import_structure(path_to_structures, size, save, reload=False)
             else:
+                if save:
+                    np.save(save_path[0], sequences[:size])
+                    np.save(save_path[1], structures[:size])
                 return sequences[:size], structures[:size]
         else:
             print("Dataset not found, creating new one")
-            return import_structure(path_to_structures, size, save, False)
+            return import_structure(path_to_structures, size, save, reload=False)
         
 
     else:        
@@ -139,5 +142,5 @@ def import_structure(path_to_structures=None, size=None, save=False, reload=True
 
 if __name__ == '__main__':
 
-    sequences, structures = import_structure(save=True, size=10000000)
+    sequences, structures = import_structure(size=100000, save=True)
     print("Loaded dataset with shape: \n", sequences.shape, "\n", structures.shape)
