@@ -1,6 +1,7 @@
 # Ignore all files in datasets except sequences_half.txt
 secondary_structure/dataset/*
-!secondary_structure/dataset/sequences_half.fasta
+dataset/*
+!dataset/sequences_half.fasta
 
 __pycache__/
 .DS_Store

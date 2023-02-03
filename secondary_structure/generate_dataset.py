@@ -72,7 +72,7 @@ if __name__ == '__main__':
     if len(sys.argv) >= 2:
         path_to_fasta = sys.argv[1]
     else:
-        path_to_fasta = os.path.join(dir_name, 'dataset', 'sequences_small.fasta')
+        path_to_fasta = os.path.join(dir_name, '..', 'dataset', 'sequences_small.fasta')
 
     # Compile LinearPartition if it hasn't been compiled yet
     if not os.path.exists(os.path.join(dir_name, 'LinearPartition', 'bin')):
