@@ -72,7 +72,7 @@ if __name__ == '__main__':
     if len(sys.argv) >= 2:
         path_to_fasta = sys.argv[1]
     else:
-        path_to_fasta = os.path.join(dir_name, '..', 'dataset', 'sequences_small.fasta')
+        path_to_fasta = os.path.join(dir_name, '..', 'dataset', 'sequences_half.fasta')
 
     # Compile LinearPartition if it hasn't been compiled yet
     if not os.path.exists(os.path.join(dir_name, 'LinearPartition', 'bin')):
@@ -83,8 +83,34 @@ if __name__ == '__main__':
 
     # Get the secondary structure sequences
     path_to_linearpartition = os.path.join(dir_name, 'LinearPartition', 'linearpartition')
-    sequences, structure_seqs = get_mea_structures(path_to_fasta, path_to_linearpartition, training=False)
+    sequences, structures = get_mea_structures(path_to_fasta, path_to_linearpartition, training=False)
+
+    # Separate the daatset into a training and testing set
+    test_indices = np.random.choice(len(sequences), 1000, replace=False)
+
+    sequences_train = [sequences[i] for i in range(len(sequences)) if i not in test_indices]
+    structures_train = [structures[i] for i in range(len(sequences)) if i not in test_indices]
+
+    sequences_test = [sequences[i] for i in test_indices]
+    structures_test = [structures[i] for i in test_indices]
     
     # Save the secondary structure sequences and sequences as json
-    df = pd.DataFrame({'sequence': sequences, 'structure': structure_seqs})
-    df.to_json(os.path.join(dir_name, 'dataset', 'secondary_structure.json'), indent=2)
+
+    # Create directories if they don't exist
+    if not os.path.exists(os.path.join(dir_name, 'dataset', 'train')):
+        os.makedirs(os.path.join(dir_name, 'dataset', 'train'))
+    if not os.path.exists(os.path.join(dir_name, 'dataset', 'test')):
+        os.makedirs(os.path.join(dir_name, 'dataset', 'test'))
+
+    # Save the dataframes as json
+
+    # Full dataset
+    df = pd.DataFrame({'sequence': sequences, 'structure': structures})
+    df.to_json(os.path.join(dir_name, 'dataset', 'full', 'secondary_structure.json'), indent=2)
+
+    # Training and testing datasets
+    df_train = pd.DataFrame({'sequence': sequences_train, 'structure': structures_train})
+    df_train.to_json(os.path.join(dir_name, 'dataset', 'train', 'secondary_structure.json'), indent=2)
+
+    df_test = pd.DataFrame({'sequence': sequences_test, 'structure': structures_test})
+    df_test.to_json(os.path.join(dir_name, 'dataset', 'test', 'secondary_structure.json'), indent=2)

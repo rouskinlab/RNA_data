@@ -4,7 +4,7 @@ import numpy as np
 
 import sys
 
-def import_structure(path_to_structures=None, size=None, save=False, reload=True):
+def import_structure(path_to_structures=None, type = 'full', size=None, save=False, reload=True):
     """
     Import the secondary structure dataset and convert to one-hot encoding.
 
@@ -16,6 +16,7 @@ def import_structure(path_to_structures=None, size=None, save=False, reload=True
     :param size: The number of datapoints to import
     :param save: Whether to save the dataset as a numpy array
     :param reload: Whether to reload the dataset from the numpy array
+    :param test: Whether to import the test dataset
 
     :return: A tuple with the one-hot encoded sequences and structures in numpy arrays
     """
@@ -52,13 +53,15 @@ def import_structure(path_to_structures=None, size=None, save=False, reload=True
         'X': [0, 0, 0, 0, 0, 0, 1]
     }
 
+    assert type in ['full', 'test', 'train'], "Type must be 'full', 'test' or 'train'"
+
     # Paths to the dataset
     dirname = os.path.dirname(os.path.abspath(__file__))
-    save_path = [os.path.join(dirname, 'dataset', 'processed_sequences.npy'),
-                 os.path.join(dirname, 'dataset', 'processed_structures.npy')]
+    save_path = [os.path.join(dirname, 'dataset', type, 'processed_sequences.npy'),
+                 os.path.join(dirname, 'dataset', type, 'processed_structures.npy')]
 
     if path_to_structures is None:
-            path_to_structures = os.path.join(dirname, 'dataset', 'secondary_structure.json')
+        path_to_structures = os.path.join(dirname, 'dataset', type, 'secondary_structure.json')
 
     # Import the dataset and checck size
     df = pd.read_json(path_to_structures)
@@ -77,7 +80,7 @@ def import_structure(path_to_structures=None, size=None, save=False, reload=True
 
             if len(sequences) < size or len(structures) < size:
                 print("Dataset too small, creating new one")
-                return import_structure(path_to_structures, size, save, reload=False)
+                return import_structure(path_to_structures, type=type, size=size, save=save, reload=False)
             else:
                 if save:
                     np.save(save_path[0], sequences[:size])
@@ -85,7 +88,7 @@ def import_structure(path_to_structures=None, size=None, save=False, reload=True
                 return sequences[:size], structures[:size]
         else:
             print("Dataset not found, creating new one")
-            return import_structure(path_to_structures, size, save, reload=False)
+            return import_structure(path_to_structures, type=type, size=size, save=save, reload=False)
         
 
     else:        
@@ -142,5 +145,11 @@ def import_structure(path_to_structures=None, size=None, save=False, reload=True
 
 if __name__ == '__main__':
 
-    sequences, structures = import_structure(size=100000, save=True)
-    print("Loaded dataset with shape: \n", sequences.shape, "\n", structures.shape)
+    sequences, structures = import_structure(type='full', save=True, reload=False)
+    print("Loaded full dataset with shape: \n", sequences.shape, "\n", structures.shape)
+
+    sequences, structures = import_structure(type='train', save=True, reload=False)
+    print("Loaded train dataset with shape: \n", sequences.shape, "\n", structures.shape)
+
+    sequences, structures = import_structure(type='test', save=True, reload=False)
+    print("Loaded test dataset with shape: \n", sequences.shape, "\n", structures.shape)
