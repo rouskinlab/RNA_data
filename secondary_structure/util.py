@@ -4,26 +4,8 @@ import numpy as np
 
 import sys
 
-def import_structure(path_to_structures=None, type = 'full', size=None, save=False, reload=True):
-    """
-    Import the secondary structure dataset and convert to one-hot encoding.
-
-    Each row of the dataset contains a sequence and a structure.
-    The sequences contains A, U, C, G and Y, R, N bases.
-    The structures contains f, t, i, h, m, or s characters.
-
-    :param path_to_structures: Path to the secondary structure dataset in json format
-    :param size: The number of datapoints to import
-    :param save: Whether to save the dataset as a numpy array
-    :param reload: Whether to reload the dataset from the numpy array
-    :param test: Whether to import the test dataset
-
-    :return: A tuple with the one-hot encoded sequences and structures in numpy arrays
-    """
-
-    # Define the one-hot encodings for the sequences and structures
-
-    seq2vec = {
+# Define the one-hot encodings for the sequences and structures
+seq2vec = {
         'A': [1, 0, 0, 0, 0],
         'C': [0, 1, 0, 0, 0],
         'G': [0, 0, 1, 0, 0],
@@ -43,15 +25,32 @@ def import_structure(path_to_structures=None, type = 'full', size=None, save=Fal
         'X': [0, 0, 0, 0, 1]
     }
 
-    struct2vec = {
-        'f': [1, 0, 0, 0, 0, 0, 0],
-        't': [0, 1, 0, 0, 0, 0, 0],
-        'i': [0, 0, 1, 0, 0, 0, 0],
-        'h': [0, 0, 0, 1, 0, 0, 0],
-        'm': [0, 0, 0, 0, 1, 0, 0],
-        's': [0, 0, 0, 0, 0, 1, 0],
-        'X': [0, 0, 0, 0, 0, 0, 1]
-    }
+struct2vec = {
+    'f': [1, 0, 0, 0, 0, 0, 0],
+    't': [0, 1, 0, 0, 0, 0, 0],
+    'i': [0, 0, 1, 0, 0, 0, 0],
+    'h': [0, 0, 0, 1, 0, 0, 0],
+    'm': [0, 0, 0, 0, 1, 0, 0],
+    's': [0, 0, 0, 0, 0, 1, 0],
+    'X': [0, 0, 0, 0, 0, 0, 1]
+}
+
+def import_structure(path_to_structures=None, type = 'full', size=None, save=False, reload=True):
+    """
+    Import the secondary structure dataset and convert to one-hot encoding.
+
+    Each row of the dataset contains a sequence and a structure.
+    The sequences contains A, U, C, G and Y, R, N bases.
+    The structures contains f, t, i, h, m, or s characters.
+
+    :param path_to_structures: Path to the secondary structure dataset in json format
+    :param size: The number of datapoints to import
+    :param save: Whether to save the dataset as a numpy array
+    :param reload: Whether to reload the dataset from the numpy array
+    :param test: Whether to import the test dataset
+
+    :return: A tuple with the one-hot encoded sequences and structures in numpy arrays
+    """
 
     assert type in ['full', 'test', 'train'], "Type must be 'full', 'test' or 'train'"
 
@@ -85,7 +84,9 @@ def import_structure(path_to_structures=None, type = 'full', size=None, save=Fal
                 if save:
                     np.save(save_path[0], sequences[:size])
                     np.save(save_path[1], structures[:size])
-                return sequences[:size], structures[:size]
+                
+                idx = np.random.choice(len(sequences), size=size, replace=False)
+                return sequences[idx], structures[idx]
         else:
             print("Dataset not found, creating new one")
             return import_structure(path_to_structures, type=type, size=size, save=save, reload=False)
@@ -93,8 +94,9 @@ def import_structure(path_to_structures=None, type = 'full', size=None, save=Fal
 
     else:        
         
-        # Slice the dataset with requested size
-        df = df[:size]
+        # Get a random sample of the dataset
+        idx = np.random.choice(len(df), size=size, replace=False)
+        df = df.iloc[idx].reset_index(drop=True)
 
         # Get max sequence length
         max_seq_len = df['sequence'].str.len().max()
@@ -131,16 +133,6 @@ def import_structure(path_to_structures=None, type = 'full', size=None, save=Fal
         
         return sequences, structures
 
-
-# def compute_accuracy(y_pred, y_true):
-#     """
-#     Compute the accuracy of the predictions.
-
-#     :param y_pred: Predicted structures   
-#     :param y_true: True structures
-#     :return: Accuracy
-#     """
-#     return np.sum(y_pred == y_true) / y_true.size
 
 
 if __name__ == '__main__':
