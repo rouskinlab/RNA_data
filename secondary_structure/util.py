@@ -59,10 +59,13 @@ def import_structure(path_to_structures=None, type = 'full', size=None, save=Fal
     save_path = [os.path.join(dirname, 'dataset', type, 'processed_sequences.npy'),
                  os.path.join(dirname, 'dataset', type, 'processed_structures.npy')]
 
+    if not os.path.exists(os.path.join(dirname, 'dataset', type)):
+        os.makedirs(os.path.join(dirname, 'dataset', type))
+
     if path_to_structures is None:
         path_to_structures = os.path.join(dirname, 'dataset', type, 'secondary_structure.json')
 
-    # Import the dataset and checck size
+    # Import the dataset and check size
     df = pd.read_json(path_to_structures)
     if size is None:
         size = len(df)
@@ -140,8 +143,8 @@ if __name__ == '__main__':
     sequences, structures = import_structure(type='full', save=True, reload=False)
     print("Loaded full dataset with shape: \n", sequences.shape, "\n", structures.shape)
 
-    sequences, structures = import_structure(type='train', save=True, reload=False)
-    print("Loaded train dataset with shape: \n", sequences.shape, "\n", structures.shape)
+    # sequences, structures = import_structure(type='train', save=True, reload=False)
+    # print("Loaded train dataset with shape: \n", sequences.shape, "\n", structures.shape)
 
-    sequences, structures = import_structure(type='test', save=True, reload=False)
-    print("Loaded test dataset with shape: \n", sequences.shape, "\n", structures.shape)
+    # sequences, structures = import_structure(type='test', save=True, reload=False)
+    # print("Loaded test dataset with shape: \n", sequences.shape, "\n", structures.shape)
