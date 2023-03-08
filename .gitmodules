@@ -1,3 +1,6 @@
 [submodule "secondary_structure/LinearPartition"]
 	path = secondary_structure/LinearPartition
 	url = git@github.com:LinearFold/LinearPartition.git
+[submodule "RNA-FM"]
+	path = RNA-FM
+	url = https://github.com/ml4bio/RNA-FM.git

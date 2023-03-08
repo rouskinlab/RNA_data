@@ -5,34 +5,34 @@ import numpy as np
 import sys
 
 # Define the one-hot encodings for the sequences and structures
-seq2vec = {
-        'A': [1, 0, 0, 0, 0],
-        'C': [0, 1, 0, 0, 0],
-        'G': [0, 0, 1, 0, 0],
-        'T': [0, 0, 0, 1, 0],
-        'U': [0, 0, 0, 1, 0],
-        'Y': [0, 1, 0, 1, 0],
-        'R': [1, 0, 1, 0, 0],
-        'K': [0, 0, 1, 1, 0],
-        'W': [1, 0, 0, 1, 0],
-        'S': [0, 1, 1, 0, 0],
-        'M': [1, 0, 1, 0, 0],
-        'B': [0, 1, 1, 1, 0],
-        'D': [1, 0, 1, 1, 0],
-        'H': [1, 1, 0, 1, 0],
-        'V': [1, 1, 1, 0, 0],
-        'N': [1, 1, 1, 1, 0],
-        'X': [0, 0, 0, 0, 1]
+seq2int = {
+        'A': 0,
+        'C': 1,
+        'G': 2,
+        'T': 3,
+        'U': 3,
+        'Y': 4,
+        'R': 5,
+        'K': 6,
+        'W': 7,
+        'S': 8,
+        'M': 9,
+        'B': 10,
+        'D': 11,
+        'H': 12,
+        'V': 13,
+        'N': 14,
+        'X': 15
     }
 
-struct2vec = {
-    'f': [1, 0, 0, 0, 0, 0, 0],
-    't': [0, 1, 0, 0, 0, 0, 0],
-    'i': [0, 0, 1, 0, 0, 0, 0],
-    'h': [0, 0, 0, 1, 0, 0, 0],
-    'm': [0, 0, 0, 0, 1, 0, 0],
-    's': [0, 0, 0, 0, 0, 1, 0],
-    'X': [0, 0, 0, 0, 0, 0, 1]
+struct2int = {
+    'f': 0,
+    't': 1,
+    'i': 2,
+    'h': 3,
+    'm': 4,
+    's': 5,
+    'X': 6
 }
 
 def import_structure(path_to_structures=None, type = 'full', size=None, save=False, reload=True):
@@ -59,10 +59,13 @@ def import_structure(path_to_structures=None, type = 'full', size=None, save=Fal
     save_path = [os.path.join(dirname, 'dataset', type, 'processed_sequences.npy'),
                  os.path.join(dirname, 'dataset', type, 'processed_structures.npy')]
 
+    if not os.path.exists(os.path.join(dirname, 'dataset', type)):
+        os.makedirs(os.path.join(dirname, 'dataset', type))
+
     if path_to_structures is None:
         path_to_structures = os.path.join(dirname, 'dataset', type, 'secondary_structure.json')
 
-    # Import the dataset and checck size
+    # Import the dataset and check size
     df = pd.read_json(path_to_structures)
     if size is None:
         size = len(df)
@@ -102,8 +105,8 @@ def import_structure(path_to_structures=None, type = 'full', size=None, save=Fal
         max_seq_len = df['sequence'].str.len().max()
 
         # Init numpy arrays for sequences and structures
-        sequences = np.zeros((len(df), len(seq2vec['A']), max_seq_len))
-        structures = np.zeros((len(df), len(struct2vec['f']), max_seq_len))
+        sequences = np.zeros((len(df), max_seq_len))
+        structures = np.zeros((len(df), max_seq_len))
 
         # Iterate over the rows of the dataframe
         for i, row in df.iterrows():
@@ -119,11 +122,11 @@ def import_structure(path_to_structures=None, type = 'full', size=None, save=Fal
 
             # One hot encoding of the sequence, with padding as 'X' 
             for j, base in enumerate(row['sequence']):
-                sequences[i, :, j] = seq2vec[base]
+                sequences[i,j] = seq2int[base]
 
             # One hot encoding of the structure, with padding as 'X' 
             for j, struct in enumerate(row['structure']):
-                structures[i, :, j] = struct2vec[struct]
+                structures[i,j] = struct2int[struct]
 
         # Save sequences and structures as numpy arrays
         if save:
@@ -140,8 +143,8 @@ if __name__ == '__main__':
     sequences, structures = import_structure(type='full', save=True, reload=False)
     print("Loaded full dataset with shape: \n", sequences.shape, "\n", structures.shape)
 
-    sequences, structures = import_structure(type='train', save=True, reload=False)
-    print("Loaded train dataset with shape: \n", sequences.shape, "\n", structures.shape)
+    # sequences, structures = import_structure(type='train', save=True, reload=False)
+    # print("Loaded train dataset with shape: \n", sequences.shape, "\n", structures.shape)
 
-    sequences, structures = import_structure(type='test', save=True, reload=False)
-    print("Loaded test dataset with shape: \n", sequences.shape, "\n", structures.shape)
+    # sequences, structures = import_structure(type='test', save=True, reload=False)
+    # print("Loaded test dataset with shape: \n", sequences.shape, "\n", structures.shape)
