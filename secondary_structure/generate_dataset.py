@@ -7,7 +7,7 @@ import lib_forgi
 import pandas as pd
 
 # Function from https://github.com/kkyamada/bert-rbp
-def get_mea_structures(path_to_fasta, path_to_linearpartition, training=False):
+def get_mea_structures(path_to_fasta, path_to_linearpartition):
     
     command = 'cat {} | {} -M'.format(path_to_fasta, path_to_linearpartition)
     
@@ -27,40 +27,23 @@ def get_mea_structures(path_to_fasta, path_to_linearpartition, training=False):
                 ans.add(n)  # should be range a,b+1 but the biologists are weired
         return ans
     
-    structures = output.stdout.decode().strip().split('\n')
+    outputs = output.stdout.decode().strip().split('\n')
     
     # f: 'dangling start', 't': 'dangling end', 'i': 'internal loop', 'h': 'hairpin loop', 'm': 'multi loop', 's': 'stem'
     entity_lookup = {'f': 0, 't': 1, 'i': 2, 'h': 3, 'm': 4, 's': 5}
 
     structure_seqs = []
     sequences = []
-    for i_s, structure in enumerate(structures):
+    dot2binary = {'(': 1, ')': 1, '.': 0}
+    for i_s, row in enumerate(outputs):
 
         # If the structure is the sequence information:
         if i_s%4 == 0:
-            sequences.append(structure)
+            sequences.append(row)
 
         # If the structure is a dot-bracket structure:
         if (i_s-2)%4 == 0:
-            bg = lib_forgi.BulgeGraph()
-            bg.from_dotbracket(structure, None)
-            forgi = bg.to_bg_string()
-
-            # Save the structure sequence as a numpy array of characters
-            structure_sequence = [0]*len(structure)
-            for line in forgi.split('\n')[:-1]:
-                # if the line starts with 'define' we know that annotation follows...
-                if line[0] == 'd':
-                    l = line.split()
-                    # first we see the type
-                    entity = l[1][0]
-                    # then we see a list of nodes of that type.
-                    entity_index = entity_lookup[entity]
-                    for n in make_node_set(l[2:]):
-                        structure_sequence[n] = entity
-
-            structure_sequence = ''.join(structure_sequence)
-            structure_seqs.append(structure_sequence)
+            structure_seqs.append([dot2binary[c] for c in row])
                         
     return sequences, structure_seqs
 
@@ -83,34 +66,12 @@ if __name__ == '__main__':
 
     # Get the secondary structure sequences
     path_to_linearpartition = os.path.join(dir_name, 'LinearPartition', 'linearpartition')
-    sequences, structures = get_mea_structures(path_to_fasta, path_to_linearpartition, training=False)
-
-    # Separate the daatset into a training and testing set
-    test_indices = np.random.choice(len(sequences), 1000, replace=False)
-
-    sequences_train = [sequences[i] for i in range(len(sequences)) if i not in test_indices]
-    structures_train = [structures[i] for i in range(len(sequences)) if i not in test_indices]
-
-    sequences_test = [sequences[i] for i in test_indices]
-    structures_test = [structures[i] for i in test_indices]
-    
-    # Save the secondary structure sequences and sequences as json
-
-    # Create directories if they don't exist
-    if not os.path.exists(os.path.join(dir_name, 'dataset', 'train')):
-        os.makedirs(os.path.join(dir_name, 'dataset', 'train'))
-    if not os.path.exists(os.path.join(dir_name, 'dataset', 'test')):
-        os.makedirs(os.path.join(dir_name, 'dataset', 'test'))
+    sequences, structures = get_mea_structures(path_to_fasta, path_to_linearpartition)
 
     # Save the dataframes as json
-
-    # Full dataset
+    save_dir = os.path.join(dir_name, 'dataset', 'binary')
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    
     df = pd.DataFrame({'sequence': sequences, 'structure': structures})
-    df.to_json(os.path.join(dir_name, 'dataset', 'full', 'secondary_structure.json'), indent=2)
-
-    # Training and testing datasets
-    df_train = pd.DataFrame({'sequence': sequences_train, 'structure': structures_train})
-    df_train.to_json(os.path.join(dir_name, 'dataset', 'train', 'secondary_structure.json'), indent=2)
-
-    df_test = pd.DataFrame({'sequence': sequences_test, 'structure': structures_test})
-    df_test.to_json(os.path.join(dir_name, 'dataset', 'test', 'secondary_structure.json'), indent=2)
+    df.to_json(os.path.join(save_dir, 'secondary_structure.json'), indent=2)
