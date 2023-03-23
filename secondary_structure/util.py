@@ -6,34 +6,36 @@ import sys
 
 # Define the one-hot encodings for the sequences and structures
 seq2int = {
-        'A': 0,
-        'C': 1,
-        'G': 2,
-        'T': 3,
-        'U': 3,
-        'Y': 4,
-        'R': 5,
-        'K': 6,
-        'W': 7,
-        'S': 8,
-        'M': 9,
-        'B': 10,
-        'D': 11,
-        'H': 12,
-        'V': 13,
-        'N': 14,
-        'X': 15
+        'A': 1,
+        'C': 2,
+        'G': 3,
+        'T': 4,
+        'U': 4,
+        'Y': 5,
+        'R': 6,
+        'K': 7,
+        'W': 8,
+        'S': 9,
+        'M': 10,
+        'B': 11,
+        'D': 12,
+        'H': 13,
+        'V': 14,
+        'N': 15,
+        'X': 0
     }
 
 struct2int = {
-    'f': 0,
-    't': 1,
-    'i': 2,
-    'h': 3,
-    'm': 4,
-    's': 5,
-    'X': 6
+    'f': 1,
+    't': 2,
+    'i': 3,
+    'h': 4,
+    'm': 5,
+    's': 6,
+    'X': 0
 }
+
+dot2int = {'(': 2, ')': 2, '.': 1, 'X': 0}
 
 def import_structure(path_to_structures=None, type = 'full', size=None, save=False, reload=True):
     """
@@ -52,7 +54,7 @@ def import_structure(path_to_structures=None, type = 'full', size=None, save=Fal
     :return: A tuple with the one-hot encoded sequences and structures in numpy arrays
     """
 
-    assert type in ['full', 'test', 'train'], "Type must be 'full', 'test' or 'train'"
+    assert type in ['full', 'test', 'train', 'binary'], "Type must be 'full', 'test', 'binary', or 'train'"
 
     # Paths to the dataset
     dirname = os.path.dirname(os.path.abspath(__file__))
@@ -118,15 +120,17 @@ def import_structure(path_to_structures=None, type = 'full', size=None, save=Fal
             
             # Apply zero padding to each row (sequence and structure)
             row['sequence'] = row['sequence'].upper().ljust(max_seq_len, 'X')
-            row['structure'] = row['structure'].lower().ljust(max_seq_len, 'X') 
+            row['structure'] = row['structure'].ljust(max_seq_len, 'X')
+            # row['structure'] = row['structure'] + [0]*(max_seq_len-len(row['structure']))
 
-            # One hot encoding of the sequence, with padding as 'X' 
+            # Integer encoding of the sequence, with padding as 'X' 
             for j, base in enumerate(row['sequence']):
                 sequences[i,j] = seq2int[base]
 
             # One hot encoding of the structure, with padding as 'X' 
             for j, struct in enumerate(row['structure']):
-                structures[i,j] = struct2int[struct]
+                structures[i,j] = dot2int[struct]
+                # structures[i,j] = struct
 
         # Save sequences and structures as numpy arrays
         if save:
@@ -140,11 +144,5 @@ def import_structure(path_to_structures=None, type = 'full', size=None, save=Fal
 
 if __name__ == '__main__':
 
-    sequences, structures = import_structure(type='full', save=True, reload=False)
+    sequences, structures = import_structure(type='binary', save=True, reload=False)
     print("Loaded full dataset with shape: \n", sequences.shape, "\n", structures.shape)
-
-    # sequences, structures = import_structure(type='train', save=True, reload=False)
-    # print("Loaded train dataset with shape: \n", sequences.shape, "\n", structures.shape)
-
-    # sequences, structures = import_structure(type='test', save=True, reload=False)
-    # print("Loaded test dataset with shape: \n", sequences.shape, "\n", structures.shape)

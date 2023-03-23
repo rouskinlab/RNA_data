@@ -30,11 +30,10 @@ def get_mea_structures(path_to_fasta, path_to_linearpartition):
     outputs = output.stdout.decode().strip().split('\n')
     
     # f: 'dangling start', 't': 'dangling end', 'i': 'internal loop', 'h': 'hairpin loop', 'm': 'multi loop', 's': 'stem'
-    entity_lookup = {'f': 0, 't': 1, 'i': 2, 'h': 3, 'm': 4, 's': 5}
+    # entity_lookup = {'f': 0, 't': 1, 'i': 2, 'h': 3, 'm': 4, 's': 5}
 
     structure_seqs = []
     sequences = []
-    dot2binary = {'(': 1, ')': 1, '.': 0}
     for i_s, row in enumerate(outputs):
 
         # If the structure is the sequence information:
@@ -43,7 +42,7 @@ def get_mea_structures(path_to_fasta, path_to_linearpartition):
 
         # If the structure is a dot-bracket structure:
         if (i_s-2)%4 == 0:
-            structure_seqs.append([dot2binary[c] for c in row])
+            structure_seqs.append(row)
                         
     return sequences, structure_seqs
 
