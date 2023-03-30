@@ -3,7 +3,6 @@ import numpy as np
 import subprocess
 import re
 import sys
-import lib_forgi
 import pandas as pd
 
 # Function from https://github.com/kkyamada/bert-rbp
@@ -54,7 +53,7 @@ if __name__ == '__main__':
     if len(sys.argv) >= 2:
         path_to_fasta = sys.argv[1]
     else:
-        path_to_fasta = os.path.join(dir_name, '..', 'dataset', 'sequences_half.fasta')
+        path_to_fasta = os.path.join(dir_name, '..', 'sequence_dataset', 'sequences_half.fasta')
 
     # Compile LinearPartition if it hasn't been compiled yet
     if not os.path.exists(os.path.join(dir_name, 'LinearPartition', 'bin')):

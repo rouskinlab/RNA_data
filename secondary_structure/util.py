@@ -35,7 +35,8 @@ struct2int = {
     'X': 0
 }
 
-dot2int = {'(': 2, ')': 2, '.': 1, 'X': 0}
+dot2int = {'.': 1, '(': 2, ')': 3, 'X': 0}
+int2dot = ['X', '.', '(', ')']
 
 def import_structure(path_to_structures=None, type = 'full', size=None, save=False, reload=True):
     """
