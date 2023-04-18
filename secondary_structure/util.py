@@ -38,13 +38,13 @@ struct2int = {
 dot2int = {'.': 1, '(': 2, ')': 3, 'X': 0}
 int2dot = ['X', '.', '(', ')']
 
-def import_structure(path_to_structures=None, type = 'full', size=None, save=False, reload=True):
+def import_structure(path_to_structures=None, data_type = 'full', size=None, save=False, reload=True):
     """
-    Import the secondary structure dataset and convert to one-hot encoding.
+    Import the secondary structure dataset and convert to integer encoding, with padding.
 
     Each row of the dataset contains a sequence and a structure.
-    The sequences contains A, U, C, G and Y, R, N bases.
-    The structures contains f, t, i, h, m, or s characters.
+    The sequences contains the nucleotides A, C, G, T, U, Y, R, K, W, S, M, B, D, H, V, N
+    The structures is a dot-bracket notation e.g. (((.)))
 
     :param path_to_structures: Path to the secondary structure dataset in json format
     :param size: The number of datapoints to import
@@ -52,21 +52,18 @@ def import_structure(path_to_structures=None, type = 'full', size=None, save=Fal
     :param reload: Whether to reload the dataset from the numpy array
     :param test: Whether to import the test dataset
 
-    :return: A tuple with the one-hot encoded sequences and structures in numpy arrays
+    :return: A tuple with the integer encoded sequences and structures in numpy arrays
     """
 
-    assert type in ['full', 'test', 'train', 'binary'], "Type must be 'full', 'test', 'binary', or 'train'"
+    assert data_type in ['full', 'test', 'train', 'binary'], "Type must be 'full', 'test', 'binary', or 'train'"
 
     # Paths to the dataset
     dirname = os.path.dirname(os.path.abspath(__file__))
-    save_path = [os.path.join(dirname, 'dataset', type, 'processed_sequences.npy'),
-                 os.path.join(dirname, 'dataset', type, 'processed_structures.npy')]
-
-    if not os.path.exists(os.path.join(dirname, 'dataset', type)):
-        os.makedirs(os.path.join(dirname, 'dataset', type))
+    save_path = [os.path.join(dirname, 'dataset', data_type, 'processed_sequences.npy'),
+                 os.path.join(dirname, 'dataset', data_type, 'processed_structures.npy')]
 
     if path_to_structures is None:
-        path_to_structures = os.path.join(dirname, 'dataset', type, 'secondary_structure.json')
+        path_to_structures = os.path.join(dirname, 'dataset', data_type, 'secondary_structure.json')
 
     # Import the dataset and check size
     df = pd.read_json(path_to_structures)
@@ -85,17 +82,17 @@ def import_structure(path_to_structures=None, type = 'full', size=None, save=Fal
 
             if len(sequences) < size or len(structures) < size:
                 print("Dataset too small, creating new one")
-                return import_structure(path_to_structures, type=type, size=size, save=save, reload=False)
+                return import_structure(path_to_structures, data_type=data_type, size=size, save=save, reload=False)
             else:
-                if save:
-                    np.save(save_path[0], sequences[:size])
-                    np.save(save_path[1], structures[:size])
-                
                 idx = np.random.choice(len(sequences), size=size, replace=False)
+                if save:
+                    np.save(save_path[0], sequences[idx])
+                    np.save(save_path[1], structures[idx])
+                
                 return sequences[idx], structures[idx]
         else:
             print("Dataset not found, creating new one")
-            return import_structure(path_to_structures, type=type, size=size, save=save, reload=False)
+            return import_structure(path_to_structures, data_type=data_type, size=size, save=save, reload=False)
         
 
     else:        
@@ -145,5 +142,5 @@ def import_structure(path_to_structures=None, type = 'full', size=None, save=Fal
 
 if __name__ == '__main__':
 
-    sequences, structures = import_structure(type='binary', save=True, reload=False)
+    sequences, structures = import_structure(data_type='binary', save=True, reload=False)
     print("Loaded full dataset with shape: \n", sequences.shape, "\n", structures.shape)

@@ -7,4 +7,5 @@ sequence_dataset/*
 __pycache__/
 .DS_Store
 
-DMS/dataset/dms_signals.json
+DMS/dataset/*
+DMS/fakeDMSdataset_generator/temp/*
