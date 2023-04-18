@@ -106,7 +106,10 @@ def import_DMS(path_to_dms, size=None, data_type='fake-data', save=False, reload
 
 if __name__ == '__main__':
 
-    sequences, dms_signals = import_DMS('/Users/alberic/Desktop/Pro/RouskinLab/projects/deep_learning/RNA_data/DMS/dataset/fake-data/dms_signal.json', 
-                    data_type='fake-data', size=100000, save=True, reload=False)
+    dir_name = os.path.dirname(os.path.abspath(__file__))
+    path_data = os.path.join(dir_name, 'dataset', 'fake-data', 'dms_signal.json')
+
+    sequences, dms_signals = import_DMS(path_data, 
+                    data_type='fake-data', save=True, reload=False)
     
     print("Loaded full dataset with shape: \n", sequences.shape, "\n", dms_signals.shape)
