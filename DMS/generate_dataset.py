@@ -81,6 +81,6 @@ if __name__ == '__main__':
     references, sequences, signals = get_dms_signals(path_data)
 
     df = pd.DataFrame({'sequence': sequences, 'dms_signal': signals}, index=references).T
-    df.to_json(os.path.join(path_data, '..', 'dms_signals.json'), indent=2)
+    df.to_json(os.path.join(path_data, '..', 'dms_signal.json'), indent=2)
 
 
