@@ -24,7 +24,7 @@ seq2int = {
         'X': 0
     }
 
-def import_DMS(path_to_dms, size=None, data_type='fake-data', save=False, reload=True):
+def import_DMS(path_to_dms=None, size=None, data_type='fake-data', save=False, reload=True):
 
     assert data_type in ['fake-data', 'sarah_supermodels'], "Type must be 'fake-data' or 'sarah-testset'"
 
@@ -111,7 +111,6 @@ if __name__ == '__main__':
     dir_name = os.path.dirname(os.path.abspath(__file__))
     path_data = os.path.join(dir_name, 'dataset', data_type, 'dms_signal.json')
 
-    sequences, dms_signals = import_DMS(path_data, 
-                    data_type=data_type, save=True, reload=False)
+    sequences, dms_signals = import_DMS(data_type=data_type, save=False, reload=True)
     
     print("Loaded full dataset with shape: \n", sequences.shape, "\n", dms_signals.shape)
