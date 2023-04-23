@@ -55,7 +55,7 @@ def import_structure(path_to_structures=None, data_type = 'full', size=None, sav
     :return: A tuple with the integer encoded sequences and structures in numpy arrays
     """
 
-    assert data_type in ['full', 'test', 'train', 'binary'], "Type must be 'full', 'test', 'binary', or 'train'"
+    assert data_type in ['full', 'test', 'train', 'binary', 'dot_bracket'], "Type must be 'full', 'test', 'binary', or 'train' or 'dot_bracket'"
 
     # Paths to the dataset
     dirname = os.path.dirname(os.path.abspath(__file__))
@@ -142,5 +142,5 @@ def import_structure(path_to_structures=None, data_type = 'full', size=None, sav
 
 if __name__ == '__main__':
 
-    sequences, structures = import_structure(data_type='binary', save=True, reload=False)
+    sequences, structures = import_structure(data_type='dot_bracket', save=True, reload=False)
     print("Loaded full dataset with shape: \n", sequences.shape, "\n", structures.shape)

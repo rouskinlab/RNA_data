@@ -3,7 +3,7 @@ import os
 
 # Read the fasta file
 dir_name = os.path.dirname(os.path.abspath(__file__))
-path_to_fasta = os.path.join(dir_name, 'sequences_half.fasta')
+path_to_fasta = os.path.join(dir_name, 'sequences_full.fasta')
 sequences = []
 names = []
 with open(path_to_fasta, 'r') as f:
@@ -25,15 +25,14 @@ idx = sorted(idx)
 sequences = np.array(sequences)[idx]
 names = np.array(names)[idx]
 
-print("Removing duplicate names")
-_, idx = np.unique(names, return_index=True)
-idx = sorted(idx)
+# print("Removing duplicate names")
+# _, idx = np.unique(names, return_index=True)
+# idx = sorted(idx)
 
-sequences = sequences[idx]
-names = names[idx]
+# sequences = sequences[idx]
+# names = names[idx]
 
-print('Number of sequences: {}'.format(len(sequences)))
-print('Number of unique sequences: {}'.format(len(np.unique(sequences))))
+print('Number of unique sequences: {}'.format(len(sequences)))
 
 print('Saving sequences')
 with open(path_to_fasta, 'w') as f:

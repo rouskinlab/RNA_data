@@ -14,23 +14,9 @@ def get_mea_structures(path_to_fasta, path_to_linearpartition):
     output = subprocess.run(command, shell=True, stdout=subprocess.PIPE, check=True)
     
     assert output.returncode == 0, 'ERROR: in execute_linearpartition_mea for {}'.format(path_to_fasta)
-
-    # Convert outputs of linearpartition to integer encoding
-    def make_node_set(numbers):
-        numbers = list(map(int, numbers))
-        ans = set()
-        while len(numbers) > 1:
-            a, b = numbers[:2]
-            numbers = numbers[2:]
-            for n in range(a - 1, b):
-                ans.add(n)  # should be range a,b+1 but the biologists are weired
-        return ans
     
     outputs = output.stdout.decode().strip().split('\n')
     
-    # f: 'dangling start', 't': 'dangling end', 'i': 'internal loop', 'h': 'hairpin loop', 'm': 'multi loop', 's': 'stem'
-    # entity_lookup = {'f': 0, 't': 1, 'i': 2, 'h': 3, 'm': 4, 's': 5}
-
     structure_seqs = []
     sequences = []
     for i_s, row in enumerate(outputs):
@@ -53,7 +39,7 @@ if __name__ == '__main__':
     if len(sys.argv) >= 2:
         path_to_fasta = sys.argv[1]
     else:
-        path_to_fasta = os.path.join(dir_name, '..', 'sequence_dataset', 'sequences_half.fasta')
+        path_to_fasta = os.path.join(dir_name, '..', 'sequence_dataset', 'sequences_full.fasta')
 
     # Compile LinearPartition if it hasn't been compiled yet
     if not os.path.exists(os.path.join(dir_name, 'LinearPartition', 'bin')):
@@ -67,7 +53,7 @@ if __name__ == '__main__':
     sequences, structures = get_mea_structures(path_to_fasta, path_to_linearpartition)
 
     # Save the dataframes as json
-    save_dir = os.path.join(dir_name, 'dataset', 'binary')
+    save_dir = os.path.join(dir_name, 'dataset', 'dot_bracket')
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     
