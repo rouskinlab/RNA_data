@@ -7,27 +7,6 @@ import pandas as pd
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
-seq2int = {
-        'A': 0,
-        'C': 1,
-        'G': 2,
-        'T': 3,
-        'U': 3,
-        'Y': 4,
-        'R': 5,
-        'K': 6,
-        'W': 7,
-        'S': 8,
-        'M': 9,
-        'B': 10,
-        'D': 11,
-        'H': 12,
-        'V': 13,
-        'N': 14,
-        'X': 15
-    }
-
-
 def get_dms_signals(path_data):
 
     data = []
