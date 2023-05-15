@@ -1,35 +1,50 @@
 import os
 import numpy as np
-import subprocess
-import re
 import sys
 import pandas as pd
+import json
+from tqdm import tqdm
 
-# Function from https://github.com/kkyamada/bert-rbp
-def get_mea_structures(path_to_fasta, path_to_linearpartition):
-    
-    command = 'cat {} | {} -M'.format(path_to_fasta, path_to_linearpartition)
-    
-    # could use capture_output=True to not print to stdout, but we will need to print progress bar another way
-    output = subprocess.run(command, shell=True, stdout=subprocess.PIPE, check=True)
-    
-    assert output.returncode == 0, 'ERROR: in execute_linearpartition_mea for {}'.format(path_to_fasta)
-    
-    outputs = output.stdout.decode().strip().split('\n')
-    
-    structure_seqs = []
-    sequences = []
-    for i_s, row in enumerate(outputs):
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'RNAstructure'))
+from src.util import fastaToDict
+from RNAstructure import predictFromSequence
 
-        # If the structure is the sequence information:
-        if i_s%4 == 0:
-            sequences.append(row)
 
-        # If the structure is a dot-bracket structure:
-        if (i_s-2)%4 == 0:
-            structure_seqs.append(row)
-                        
-    return sequences, structure_seqs
+def generate_pairing_matrix(path_to_fasta, path_to_RNAStructure=''):
+
+    # Read the fasta file and get the list of sequences
+    data = fastaToDict(path_to_fasta)
+    ref_todelete = []
+    for ref in tqdm(data.keys()):
+
+        # Check if the sequence contains only A, C, G, U/T, discard it from the dataset otherwise
+        bases = ['A','U','C','G','T','N','a','u','c','g','t','n']
+        if not all(c in bases for c in data[ref]['sequence']):
+            print(f'WARNING: sequence {ref} contains non-canonical bases, skipping it')
+            ref_todelete.append(ref)
+            continue
+
+        prediction = predictFromSequence(data[ref]['sequence'], predict_pairs=True, predict_structure=False, predict_pairing_probability=False, rnastructure_path=path_to_RNAStructure)
+
+        paired_bases = np.array(prediction['list_pairs'])-1
+        data[ref]['paired_bases'] = paired_bases.tolist()
+
+        # Check constraints -> !! Could be moved to dataset analysis !!
+        pairing_matrix = np.zeros((len(data[ref]['sequence']), len(data[ref]['sequence'])))
+        if len(paired_bases) > 0:
+            pairing_matrix[paired_bases[:,0], paired_bases[:,1]] = 1
+            pairing_matrix[paired_bases[:,1], paired_bases[:,0]] = 1
+
+        assert np.all(pairing_matrix == pairing_matrix.T), 'ERROR: pairing matrix is not symmetric'
+        assert ((np.sum(pairing_matrix, axis=1)==1) | (np.sum(pairing_matrix, axis=1)==0)).all(), 'ERROR: pairing matrix has more than one pairing per base'
+
+
+    # Delete sequences with non-canonical bases
+    for ref in ref_todelete:
+        del data[ref]
+        
+    return data
+
 
 if __name__ == '__main__':
 
@@ -39,23 +54,16 @@ if __name__ == '__main__':
     if len(sys.argv) >= 2:
         path_to_fasta = sys.argv[1]
     else:
-        path_to_fasta = os.path.join(dir_name, '..', 'sequence_dataset', 'sequences_full.fasta')
+        path_to_fasta = os.path.join(dir_name, '..', 'sequence_dataset', 'sequences_half.fasta')
 
-    # Compile LinearPartition if it hasn't been compiled yet
-    if not os.path.exists(os.path.join(dir_name, 'LinearPartition', 'bin')):
-        print('Compiling LinearPartition')
-        os.chdir(os.path.join(dir_name, 'LinearPartition'))
-        os.system('make')
-        os.chdir(dir_name)
-
-    # Get the secondary structure sequences
-    path_to_linearpartition = os.path.join(dir_name, 'LinearPartition', 'linearpartition')
-    sequences, structures = get_mea_structures(path_to_fasta, path_to_linearpartition)
+    # Get the secondary structure sequences as pairing matrix
+    data = generate_pairing_matrix(path_to_fasta, path_to_RNAStructure='/Users/alberic/RNAstructure/exe/')
 
     # Save the dataframes as json
-    save_dir = os.path.join(dir_name, 'dataset', 'dot_bracket')
+    save_dir = os.path.join(dir_name, 'dataset', 'pairing_matrix')
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     
-    df = pd.DataFrame({'sequence': sequences, 'structure': structures})
-    df.to_json(os.path.join(save_dir, 'secondary_structure.json'), indent=2)
+    # Write to json file
+    with open(os.path.join(save_dir, 'secondary_structure.json'), "w") as outfile:
+        json.dump(data, outfile, indent=2)

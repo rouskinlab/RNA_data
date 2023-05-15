@@ -4,3 +4,6 @@
 [submodule "RNA-FM"]
 	path = RNA-FM
 	url = https://github.com/ml4bio/RNA-FM.git
+[submodule "RNAstructure"]
+	path = RNAstructure
+	url = git@github.com:rouskinlab/RNAstructure.git
