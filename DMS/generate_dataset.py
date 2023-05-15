@@ -4,9 +4,6 @@ import dreem
 import numpy as np
 import pandas as pd
 
-from plotly.subplots import make_subplots
-import plotly.graph_objects as go
-
 def get_dms_signals(path_data):
 
     data = []
