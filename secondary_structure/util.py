@@ -3,6 +3,7 @@ import os
 import numpy as np
 
 import sys
+import torch
 
 # Define the one-hot encodings for the sequences and structures
 seq2int = {
@@ -55,18 +56,17 @@ def import_structure(path_to_structures=None, size=None, save=False, reload=True
         os.makedirs(save_path[1])
 
     if path_to_structures is None:
-        path_to_structures = os.path.join(dirname, 'dataset', 'pairing_matrix', 'secondary_structure_10k.json')
+        path_to_structures = os.path.join(dirname, 'dataset', 'pairing_matrix', 'secondary_structure.json')
 
-    # Import the dataset and check size
-    df = pd.read_json(path_to_structures).T
-    if size is None:
-        size = len(df)
-    elif size > len(df):
-        print("Requested size too large, using full dataset")
-        size = len(df)
 
     # Check if the dataset is already saved
     if reload:
+        
+        # Import the dataset and check size
+        if size is None:
+            df = pd.read_json(path_to_structures).T
+            size = len(df)
+
         if os.path.exists(save_path[0]) and os.path.exists(save_path[2]):
             print("Loading saved dataset")
             sequences = np.load(save_path[0])
@@ -87,7 +87,15 @@ def import_structure(path_to_structures=None, size=None, save=False, reload=True
             return import_structure(path_to_structures, size=size, save=save, reload=False)
         
 
-    else:        
+    else:  
+
+        # Import the dataset and check size
+        df = pd.read_json(path_to_structures).T
+        if size is None:
+            size = len(df)      
+        elif size > len(df):
+            print("Requested size too large, using full dataset")
+            size = len(df)
         
         # Get a random sample of the dataset
         idx = np.random.choice(len(df), size=size, replace=False)
@@ -117,14 +125,14 @@ def import_structure(path_to_structures=None, size=None, save=False, reload=True
 
             # Create pairing matrix from list of paired bases
             paired_bases = np.array(row['paired_bases'])
-            pairing_matrix = np.zeros((max_seq_len, max_seq_len)).astype(bool)
+            pairing_matrix = torch.zeros((max_seq_len, max_seq_len))
             if len(paired_bases) > 0:
-                pairing_matrix[paired_bases[:,0], paired_bases[:,1]] = 1
-                pairing_matrix[paired_bases[:,1], paired_bases[:,0]] = 1
+                pairing_matrix[paired_bases[:,0], paired_bases[:,1]] = 1.0
+                pairing_matrix[paired_bases[:,1], paired_bases[:,0]] = 1.0
 
+            references.append(reference)
             if save:
-                np.save(os.path.join(save_path[1], reference+'.npy'), pairing_matrix)
-                references.append(reference)
+                torch.save(pairing_matrix, os.path.join(save_path[1], reference+'.pt'))
 
         # Save sequences and structures as numpy arrays
         if save:
