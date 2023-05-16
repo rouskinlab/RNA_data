@@ -125,7 +125,7 @@ def import_structure(path_to_structures=None, size=None, save=False, reload=True
 
             # Create pairing matrix from list of paired bases
             paired_bases = np.array(row['paired_bases'])
-            pairing_matrix = torch.zeros((max_seq_len, max_seq_len))
+            pairing_matrix = torch.zeros((max_seq_len, max_seq_len)).bool()
             if len(paired_bases) > 0:
                 pairing_matrix[paired_bases[:,0], paired_bases[:,1]] = 1.0
                 pairing_matrix[paired_bases[:,1], paired_bases[:,0]] = 1.0
