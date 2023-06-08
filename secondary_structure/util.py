@@ -29,7 +29,7 @@ seq2int = {
 dot2int = {'.': 1, '(': 2, ')': 3, 'X': 0}
 int2dot = ['X', '.', '(', ')']
 
-def import_structure(path_to_structures=None, size=None, save=False, reload=True):
+def import_structure(path_to_structures=None, dataset='synthetic', size=None, save=False, reload=True):
     """
     Import the secondary structure dataset and convert to pairing matrix, with padding.
     Each pairing matrix is directly saved as a separate npy file.
@@ -46,13 +46,18 @@ def import_structure(path_to_structures=None, size=None, save=False, reload=True
     :return: The sequences as numpy array and the list of numpy file names of the pairing matrices
     """
 
+    assert dataset in ['synthetic', 'bpRNA', 'test_PDB', 'test_DMS']
+
     # Paths to the dataset
     dirname = os.path.dirname(os.path.abspath(__file__))
-    save_path = [os.path.join(dirname, 'dataset', 'pairing_matrix', 'processed_sequences.npy'),
-                 os.path.join(dirname, 'dataset', 'pairing_matrix', 'processed_structures.npy')]
+    save_path = [os.path.join(dirname, 'dataset', dataset, 'processed_sequences.npy'),
+                 os.path.join(dirname, 'dataset', dataset, 'processed_structures.npy')]
+    
+    if not os.path.exists(os.path.join(dirname, 'dataset', dataset)):
+        os.makedirs(os.path.join(dirname, 'dataset', dataset))
 
     if path_to_structures is None:
-        path_to_structures = os.path.join(dirname, 'dataset', 'pairing_matrix', 'secondary_structure.json')
+        path_to_structures = os.path.join(dirname, 'dataset', dataset, 'secondary_structure.json')
 
 
     # Check if the dataset is already saved
@@ -129,5 +134,5 @@ def import_structure(path_to_structures=None, size=None, save=False, reload=True
 
 if __name__ == '__main__':
 
-    sequences, structures = import_structure(save=True, reload=False)
+    sequences, structures = import_structure(save=True, reload=False, dataset='test_PDB')
     print("Loaded full dataset with shape: \n", sequences.shape, "\n", len(structures))
