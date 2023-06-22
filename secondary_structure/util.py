@@ -46,7 +46,7 @@ def import_structure(path_to_structures=None, dataset='synthetic', size=None, sa
     :return: The sequences as numpy array and the list of numpy file names of the pairing matrices
     """
 
-    assert dataset in ['synthetic', 'bpRNA', 'test_PDB', 'test_DMS']
+    # assert dataset in ['synthetic', 'bpRNA', 'test_PDB', 'test_Sarah']
 
     # Paths to the dataset
     dirname = os.path.dirname(os.path.abspath(__file__))
