@@ -6,5 +6,4 @@ __pycache__/
 #config.yaml
 temp
 data/datasets
-data/demo_datasets
 config.yaml
