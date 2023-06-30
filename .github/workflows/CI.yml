@@ -21,7 +21,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        export HUGGINGFACE_TOKEN = ${{ secrets.HUGGINGFACE_TOKEN }}
+        export HUGGINGFACE_TOKEN=${{ secrets.HUGGINGFACE_TOKEN }}
 
     - name: Run docstring tests
       run: |
@@ -39,7 +39,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        export HUGGINGFACE_TOKEN = ${{ secrets.HUGGINGFACE_TOKEN }}
+        export HUGGINGFACE_TOKEN=${{ secrets.HUGGINGFACE_TOKEN }}
 
     - name: Run tests from /tests
       run: |
