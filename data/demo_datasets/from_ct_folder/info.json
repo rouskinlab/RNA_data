@@ -1,0 +1,9 @@
+{
+    "name": "from_ct_folder",
+    "date": "2023-06-30 11:14:10",
+    "user": "ymdt",
+    "structure": "source",
+    "about structure": "Read from source.",
+    "DMS": "RNAstructure",
+    "about DMS": "Predicted using RNAstructure at 310K."
+}

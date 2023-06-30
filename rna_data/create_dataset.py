@@ -7,10 +7,13 @@ from .info_file import infoFileWriter
 from .write_npy import write_npy_from_json
 import os
 import numpy as np
+from huggingface_hub import HfApi
+from .config import HUGGINGFACE_TOKEN
 
 GENERATE_NPY = False
 PREDICT_STRUCTURE = False
 PREDICT_DMS = False
+ROUSKINLAB = 'rouskinlab/'
 
 class CreateDataset:
     """Create a dataset from a fasta file, a json file or a folder of ct files.
@@ -60,6 +63,7 @@ class CreateDatasetTemplate(PathDataset):
         self.path_in = path_in
         self.path_out = path_out
         self.datapoints = []
+        self.api = HfApi(token=HUGGINGFACE_TOKEN)
 
         # Set name
         if name is None:
@@ -77,8 +81,28 @@ class CreateDatasetTemplate(PathDataset):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__} @{self.get_main_folder()}"
 
-    def push_to_hub(self, overwrite=False):
-        pass
+    def create_repo(self, exist_ok=False, private=True):
+        self.api.create_repo(
+            repo_id=ROUSKINLAB+self.name,
+            token=HUGGINGFACE_TOKEN,
+            exist_ok=exist_ok,
+            private=private,
+        )
+
+    def upload_folder(self, commit_message=None, commit_description=None, multicommits=False, run_as_future=False, **kwargs):
+        future = self.api.upload_folder(
+            repo_id=ROUSKINLAB+self.name,
+            folder_path=self.get_main_folder(),
+            token=HUGGINGFACE_TOKEN,
+            commit_message=commit_message,
+            commit_description=commit_description,
+            multicommits=multicommits,
+            run_as_future=run_as_future,
+            **kwargs
+        )
+
+        if run_as_future:
+            return future
 
     def generate_npy(self):
         write_npy_from_json(
