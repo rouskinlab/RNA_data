@@ -1,0 +1,5 @@
+DATA_FOLDER: 'data/datafolders'  # you can change this to the path of your choice
+DATA_FOLDER_TESTING: 'data/input_files_for_testing'  # you can change this to the path of your choice
+RNASTRUCTURE_PATH: '/Users/ymdt/src/RNAstructure/exe'  # you must change this to the path of your RNAstructure executable
+RNASTRUCTURE_TEMP_FOLDER: 'temp' # you can change this to the path of your choice
+HUGGINGFACE_TOKEN: 'put your token here'  # you must change this to your HuggingFace token
