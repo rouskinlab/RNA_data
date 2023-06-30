@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
-from .config import RNASTRUCTURE_PATH, RNASTRUCTURE_TEMP_FOLDER
+from .env import RNASTRUCTURE_PATH, RNASTRUCTURE_TEMP_FOLDER
 
 def run_command(cmd):
     import subprocess

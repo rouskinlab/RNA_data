@@ -1,10 +1,10 @@
 
-from .config import DATA_FOLDER
+from .env import DATA_FOLDER
 import os
 from os.path import join
 
 class PathDatafolder:
-    """Path to files and folders of a datafolder of name `name`. The path to the data folder is `DATA_FOLDER`, which is defined in `config.py`.
+    """Path to files and folders of a datafolder of name `name`. The path to the data folder is `DATA_FOLDER`, which is defined in `env`.
 
     Parameters
     ----------

@@ -1,16 +1,14 @@
 
 from typing import Any
 
-from .config import DATA_FOLDER
 from .path_datafolder import PathDatafolder
-from .config import DATA_FOLDER
+from .env import DATA_FOLDER, HUGGINGFACE_TOKEN
 from .datapoints import ListofDatapoints, write_list_of_datapoints_to_json
 from .info_file import infoFileWriter
 from .write_npy import write_dms_npy_from_json, write_structure_npy_from_json
 import os
 import numpy as np
 from huggingface_hub import HfApi
-from .config import HUGGINGFACE_TOKEN
 from huggingface_hub import snapshot_download
 
 GENERATE_NPY = False

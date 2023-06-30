@@ -22,6 +22,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         export HUGGINGFACE_TOKEN=${{ secrets.HUGGINGFACE_TOKEN }}
+        export DATA_FOLDER=${{ secrets.DATA_FOLDER }}
+        export DATA_FOLDER_TESTING=${{ secrets.DATA_FOLDER_TESTING }}
+        export RNASTRUCTURE_PATH=${{ secrets.RNASTRUCTURE_PATH }}
+        export RNASTRUCTURE_TEMP_FOLDER=${{ secrets.RNASTRUCTURE_TEMP_FOLDER }}
 
     - name: Run docstring tests
       run: |
@@ -40,6 +44,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         export HUGGINGFACE_TOKEN=${{ secrets.HUGGINGFACE_TOKEN }}
+        export DATA_FOLDER=${{ secrets.DATA_FOLDER }}
+        export DATA_FOLDER_TESTING=${{ secrets.DATA_FOLDER_TESTING }}
+        export RNASTRUCTURE_PATH=${{ secrets.RNASTRUCTURE_PATH }}
+        export RNASTRUCTURE_TEMP_FOLDER=${{ secrets.RNASTRUCTURE_TEMP_FOLDER }}
 
     - name: Run tests from /tests
       run: |
