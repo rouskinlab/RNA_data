@@ -1,7 +1,7 @@
 
 from typing import Any
 
-from rna_data.config import DATA_FOLDER
+from .config import DATA_FOLDER
 from .path_datafolder import PathDatafolder
 from .config import DATA_FOLDER
 from .datapoints import ListofDatapoints, write_list_of_datapoints_to_json
