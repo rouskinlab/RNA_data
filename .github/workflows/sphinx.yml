@@ -36,7 +36,7 @@ jobs:
           export DATA_FOLDER_TESTING=${{ secrets.DATA_FOLDER_TESTING }}
           export RNASTRUCTURE_PATH=${{ secrets.RNASTRUCTURE_PATH }}
           export RNASTRUCTURE_TEMP_FOLDER=${{ secrets.RNASTRUCTURE_TEMP_FOLDER }}
-          pip install .
+
 
 
       - name: Sphinx build
