@@ -31,7 +31,9 @@ jobs:
       - name: Install requirements
         run: |
           pip install -r requirements.txt
+          export HUGGINGFACE_TOKEN = ${{ secrets.HUGGINGFACE_TOKEN }}
           pip install .
+
 
       - name: Sphinx build
         run: |

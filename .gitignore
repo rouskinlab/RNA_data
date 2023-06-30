@@ -5,6 +5,6 @@ __pycache__/
 my_config.yaml
 temp
 data/datafolders
-
+env
 
 docs/_*
