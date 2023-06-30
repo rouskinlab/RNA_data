@@ -1,0 +1,16 @@
+pytest
+pytest_cov
+black
+flake8
+flit
+pylint
+sphinx
+sphinx-rtd-theme
+flask
+matplotlib
+numpy
+pyarrow
+pandas
+huggingface
+huggingface_hub
+dataset
