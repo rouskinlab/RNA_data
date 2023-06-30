@@ -1,7 +1,7 @@
 name: Python CI
 on:
   push:
-    branches: [ main ]
+    branches: all
   pull_request:
     branches: [ main ]
   release:
@@ -42,11 +42,3 @@ jobs:
     - name: Run tests from /tests
       run: |
         pytest tests
-
-
-  publish:
-    if: github.event.inputs.version_changed == 'true' && github.event.inputs.version != 'false'
-    uses: microsoft/action-python/.github/workflows/publish.yml@0.6.4
-    secrets:
-      PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      TEST_PYPI_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD  }}
