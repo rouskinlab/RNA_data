@@ -1,7 +1,7 @@
 
 
-Welcome to InVu.health docs's documentation!
-=============================================
+Welcome to rna_data's documentation!
+====================================
 
 .. toctree::
    :maxdepth: 2

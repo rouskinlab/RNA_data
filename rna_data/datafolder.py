@@ -2,7 +2,7 @@
 from typing import Any
 
 from rna_data.config import DATA_FOLDER
-from .path_dataset import PathDataset
+from .path_datafolder import PathDatafolder
 from .config import DATA_FOLDER
 from .datapoints import ListofDatapoints, write_list_of_datapoints_to_json
 from .info_file import infoFileWriter
@@ -28,10 +28,10 @@ class DataFolder:
         path_in to the fasta file, the json file or the folder of ct files.
 
     path_out : str
-        path_out to the folder where the dataset is created.
+        path_out to the folder where the datafolder is created.
 
     name : str, optional
-        Name of the dataset. If None, the name is the name of the file or folder.
+        Name of the datafolder. If None, the name is the name of the file or folder.
 
     predict_structure : bool, optional
         If True, the structure is predicted. Default is True.
@@ -39,31 +39,38 @@ class DataFolder:
     predict_dms : bool, optional
         If True, the dms is predicted. Default is True.
 
-    Returns
+
+    Example
     -------
 
-    dataset : Dataset
-
+    >>> datafolder = DataFolder.from_fasta('data/input_files_for_testing/sequences.fasta')
+    >>> datafolder = DataFolder.from_dreem_output('data/input_files_for_testing/dreem_output.json')
+    >>> datafolder = DataFolder.from_ct_folder('data/input_files_for_testing/ct_files')
+    >>> datafolder = DataFolder.from_huggingface('for_testing')
     """
 
-    def from_fasta(path_in, path_out=DATA_FOLDER, name = None, predict_structure = PREDICT_STRUCTURE, predict_dms = PREDICT_DMS, generate_npy = GENERATE_NPY):
-        return CreateDatasetFromFasta(path_in, path_out, name, predict_structure, predict_dms, generate_npy)
+    @classmethod
+    def from_fasta(cls, path_in, path_out=DATA_FOLDER, name = None, predict_structure = PREDICT_STRUCTURE, predict_dms = PREDICT_DMS, generate_npy = GENERATE_NPY):
+        return CreateDatafolderFromFasta(path_in, path_out, name, predict_structure, predict_dms, generate_npy)
 
-    def from_dreem_output(path_in, path_out=DATA_FOLDER, name = None, predict_structure = PREDICT_STRUCTURE, generate_npy = GENERATE_NPY):
-        return CreateDatasetFromDreemOutput(path_in, path_out, name, predict_structure, generate_npy)
+    @classmethod
+    def from_dreem_output(cls, path_in, path_out=DATA_FOLDER, name = None, predict_structure = PREDICT_STRUCTURE, generate_npy = GENERATE_NPY):
+        return CreateDatafolderFromDreemOutput(path_in, path_out, name, predict_structure, generate_npy)
 
-    def from_json(path_in, path_out=DATA_FOLDER, name = None, generate_npy = GENERATE_NPY):
-        return CreateDatasetFromJSON(path_in, path_out, name, generate_npy)
+   # def from_json(path_in, path_out=DATA_FOLDER, name = None, generate_npy = GENERATE_NPY):
+   #     return CreateDatafolderFromJSON(path_in, path_out, name, generate_npy)
 
-    def from_ct_folder(path_in, path_out=DATA_FOLDER, name = None, predict_dms = PREDICT_DMS, generate_npy = GENERATE_NPY):
-        return CreateDatasetFromCTfolder(path_in, path_out, name, predict_dms, generate_npy)
+    @classmethod
+    def from_ct_folder(cls, path_in, path_out=DATA_FOLDER, name = None, predict_dms = PREDICT_DMS, generate_npy = GENERATE_NPY):
+        return CreateDatafolderFromCTfolder(path_in, path_out, name, predict_dms, generate_npy)
 
-    def from_huggingface(name, path_out=DATA_FOLDER):
-        return LoadDatasetFromHF(name, path_out)
+    @classmethod
+    def from_huggingface(cls, name, path_out=DATA_FOLDER):
+        return LoadDatafolderFromHF(name, path_out)
 
 
 
-class CreateDatasetTemplate(PathDataset):
+class CreateDatafolderTemplate(PathDatafolder):
 
     def __init__(self, path_in, path_out, name, source, predict_structure, predict_dms) -> None:
         super().__init__(name, path_out)
@@ -84,7 +91,7 @@ class CreateDatasetTemplate(PathDataset):
         os.system(f'cp -fr {path_in} {self.get_source_folder()}')
 
         # Write info file
-        infoFileWriter(source=source, dataset=self).write()
+        infoFileWriter(source=source, datafolder=self).write()
 
 
     def __repr__(self) -> str:
@@ -125,15 +132,15 @@ class CreateDatasetTemplate(PathDataset):
             write_dms_npy_from_json(self)
 
 
-class CreateDatasetFromJSON(CreateDatasetTemplate):
+class CreateDatafolderFromJSON(CreateDatafolderTemplate):
 
     def __init__(self, path_in, name, predict_structure, predict_dms, generate_npy) -> None:
         super().__init__(path_in, name)
 
 
-class CreateDatasetFromDreemOutput(CreateDatasetTemplate):
+class CreateDatafolderFromDreemOutput(CreateDatafolderTemplate):
 
-    """Create a dataset from a dreem output file.
+    """Create a datafolder from a dreem output file.
 
     Parameters
     ----------
@@ -142,7 +149,7 @@ class CreateDatasetFromDreemOutput(CreateDatasetTemplate):
         path_in to the dreem output file.
 
     name : str, optional
-        Name of the dataset. If None, the name is the name of the file or folder.
+        Name of the datafolder. If None, the name is the name of the file or folder.
 
     predict_structure : bool, optional
         If True, the structure of the RNA is predicted. Default is True.
@@ -150,12 +157,16 @@ class CreateDatasetFromDreemOutput(CreateDatasetTemplate):
     generate_npy : bool, optional
         If True, the npy files are generated. Default is True.
 
-    >>> dataset = DataFolder.from_dreem_output(path_in='data/input_files_for_testing/dreem_output.json', generate_npy=True)
-    >>> dataset.name
+
+    Examples
+    --------
+
+    >>> datafolder = DataFolder.from_dreem_output(path_in='data/input_files_for_testing/dreem_output.json', generate_npy=True)
+    >>> datafolder.name
     'dreem_output'
-    >>> print(dataset)
-    CreateDatasetFromDreemOutput @data/datasets/dreem_output
-    >>> os.path.isfile(dataset.get_json())
+    >>> print(datafolder)
+    CreateDatafolderFromDreemOutput @data/datafolders/dreem_output
+    >>> os.path.isfile(datafolder.get_json())
     True
     """
 
@@ -171,9 +182,9 @@ class CreateDatasetFromDreemOutput(CreateDatasetTemplate):
             self.generate_npy()
 
 
-class CreateDatasetFromFasta(CreateDatasetTemplate):
+class CreateDatafolderFromFasta(CreateDatafolderTemplate):
 
-    """ Create a dataset from a fasta file.
+    """ Create a datafolder from a fasta file.
 
     Parameters
     ----------
@@ -182,7 +193,7 @@ class CreateDatasetFromFasta(CreateDatasetTemplate):
         path_in to the dreem output file.
 
     name : str, optional
-        Name of the dataset. If None, the name is the name of the file or folder.
+        Name of the datafolder. If None, the name is the name of the file or folder.
 
     predict_structure : bool, optional
         If True, the structure of the RNA is predicted. Default is True.
@@ -193,12 +204,16 @@ class CreateDatasetFromFasta(CreateDatasetTemplate):
     generate_npy : bool, optional
         If True, the npy files are generated. Default is True.
 
-    >>> dataset = DataFolder.from_fasta(path_in='data/input_files_for_testing/sequences.fasta', generate_npy=True)
-    >>> dataset.name
+
+    Examples
+    --------
+
+    >>> datafolder = DataFolder.from_fasta(path_in='data/input_files_for_testing/sequences.fasta', generate_npy=True)
+    >>> datafolder.name
     'sequences'
-    >>> print(dataset)
-    CreateDatasetFromFasta @data/datasets/sequences
-    >>> os.path.isfile(dataset.get_json())
+    >>> print(datafolder)
+    CreateDatafolderFromFasta @data/datafolders/sequences
+    >>> os.path.isfile(datafolder.get_json())
     True
     """
 
@@ -214,9 +229,9 @@ class CreateDatasetFromFasta(CreateDatasetTemplate):
             self.generate_npy()
 
 
-class CreateDatasetFromCTfolder(CreateDatasetTemplate):
+class CreateDatafolderFromCTfolder(CreateDatafolderTemplate):
 
-    """ Create a dataset from a folder of ct files.
+    """ Create a datafolder from a folder of ct files.
 
     Parameters
     ----------
@@ -225,7 +240,7 @@ class CreateDatasetFromCTfolder(CreateDatasetTemplate):
         path_in to the dreem output file.
 
     name : str, optional
-        Name of the dataset. If None, the name is the name of the file or folder.
+        Name of the datafolder. If None, the name is the name of the file or folder.
 
     predict_dms : bool, optional
         If True, the dms of the RNA is predicted. Default is True.
@@ -233,12 +248,16 @@ class CreateDatasetFromCTfolder(CreateDatasetTemplate):
     generate_npy : bool, optional
         If True, the npy files are generated. Default is True.
 
-    >>> dataset = DataFolder.from_ct_folder(path_in='data/input_files_for_testing/ct_files', generate_npy=True)
-    >>> dataset.name
+
+    Examples
+    --------
+
+    >>> datafolder = DataFolder.from_ct_folder(path_in='data/input_files_for_testing/ct_files', generate_npy=True)
+    >>> datafolder.name
     'ct_files'
-    >>> print(dataset)
-    CreateDatasetFromCTfolder @data/datasets/ct_files
-    >>> os.path.isfile(dataset.get_json())
+    >>> print(datafolder)
+    CreateDatafolderFromCTfolder @data/datafolders/ct_files
+    >>> os.path.isfile(datafolder.get_json())
     True
     """
 
@@ -255,30 +274,34 @@ class CreateDatasetFromCTfolder(CreateDatasetTemplate):
             self.generate_npy()
 
 
-class LoadDatasetFromHF(PathDataset):
-    """Load a dataset from HuggingFace.
+class LoadDatafolderFromHF(PathDatafolder):
+    """Load a datafolder from HuggingFace.
 
     Parameters
     ----------
 
     name : str
-        Name of the dataset.
+        Name of the datafolder.
 
     path_out : str
-        Path to the folder where the dataset is saved.
+        Path to the folder where the datafolder is saved.
 
     revision : str, optional
-        Revision of the dataset. Default is 'main'.
+        Revision of the datafolder. Default is 'main'.
 
-    >>> dataset = LoadDatasetFromHF(name='for_testing', path_out='data/datasets')
-    >>> dataset.name
+
+    Examples
+    --------
+
+    >>> datafolder = LoadDatafolderFromHF(name='for_testing', path_out='data/datafolders')
+    >>> datafolder.name
     'for_testing'
     """
 
     def __init__(self, name, path_out, revision='main') -> None:
         super().__init__(name, path_out)
 
-        # Download the dataset #TODO : check if the dataset is already downloaded
+        # Download the datafolder #TODO : check if the datafolder is already downloaded
         snapshot_download(
             repo_id = ROUSKINLAB+self.name,
             repo_type='dataset',

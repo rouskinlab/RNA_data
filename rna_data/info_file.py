@@ -1,13 +1,13 @@
 import datetime, os, json
 from typing import Any
-from .path_dataset import PathDataset
+from .path_datafolder import PathDatafolder
 
 STRUCTURE_FROM_RNASTRUCTURE = 'RNAstructure'
 STRUCTURE_FROM_SOURCE = 'source'
 DMS_FROM_RNASTRUCTURE = 'RNAstructure'
 DMS_FROM_SOURCE = 'source'
 
-class InfoFileWriterTemplate(PathDataset):
+class InfoFileWriterTemplate(PathDatafolder):
 
     def __init__(self, name, root) -> None:
         super().__init__(name, root)
@@ -64,12 +64,12 @@ class InfoFileWriterFromFasta(InfoFileWriterTemplate):
         self.info['about DMS'] = 'Predicted using RNAstructure at 310K.'
 
 
-def infoFileWriter(source, dataset):
+def infoFileWriter(source, datafolder):
     if source == 'dreem_output':
-        return InfoFileWriterFromDREEMoutput(dataset.name, dataset.path_out, dataset.path_in)
+        return InfoFileWriterFromDREEMoutput(datafolder.name, datafolder.path_out, datafolder.path_in)
     if source == 'ct':
-        return InfoFileWriterFromCT(dataset.name, dataset.path_out)
+        return InfoFileWriterFromCT(datafolder.name, datafolder.path_out)
     if source == 'fasta':
-        return InfoFileWriterFromFasta(dataset.name, dataset.path_out)
+        return InfoFileWriterFromFasta(datafolder.name, datafolder.path_out)
     raise ValueError(f"Unknown source: {source}")
 

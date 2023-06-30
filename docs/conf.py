@@ -13,7 +13,7 @@
 import os
 import sys
 
-#sys.path.insert(0, os.path.abspath("../src/"))
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 
 # -- Project information -----------------------------------------------------
@@ -39,6 +39,8 @@ extensions = [
     "sphinx.ext.viewcode",  # Add links to highlighted source code
     "sphinx.ext.napoleon",  # to render Google format docstrings
     "sphinx.ext.githubpages",
+    "sphinx_rtd_theme",
+    "sphinx_rtd_size",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -65,3 +67,5 @@ html_static_path = [""]
 # Napoleon settings
 napoleon_include_init_with_doc = True
 napoleon_include_private_with_doc = True
+
+sphinx_rtd_size_width = "100%"

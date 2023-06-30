@@ -1,10 +1,10 @@
-# Ignore all files in datasets except sequences_half.txt
 
 __pycache__/
 .DS_Store
 
 my_config.yaml
 temp
-data/datasets
+data/datafolders
 
 
+docs/_*

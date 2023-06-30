@@ -13,4 +13,4 @@ pyarrow
 pandas
 huggingface
 huggingface_hub
-dataset
+sphinx_rtd_size

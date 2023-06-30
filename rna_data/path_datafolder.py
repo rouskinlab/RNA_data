@@ -3,8 +3,8 @@ from .config import DATA_FOLDER
 import os
 from os.path import join
 
-class PathDataset:
-    """Path to files and folders of a dataset of name `name`. The path to the data folder is `DATA_FOLDER`, which is defined in `config.py`.
+class PathDatafolder:
+    """Path to files and folders of a datafolder of name `name`. The path to the data folder is `DATA_FOLDER`, which is defined in `config.py`.
 
     Parameters
     ----------
@@ -14,18 +14,18 @@ class PathDataset:
     Returns
     -------
 
-    path_dataset : PathDataset
+    PathDatafolder
 
     Example
     -------
 
-    >>> path_dataset = PathDataset(name='my_test_dataset_pytest')
-    >>> path_dataset.name
-    'my_test_dataset_pytest'
-    >>> print(path_dataset)
-    PathDataset(name='my_test_dataset_pytest')
-    >>> path_dataset.get_structure_npy()
-    'data/datasets/my_test_dataset_pytest/structure.npy'
+    >>> path_datafolder = PathDatafolder(name='my_test_datafolder_pytest')
+    >>> path_datafolder.name
+    'my_test_datafolder_pytest'
+    >>> print(path_datafolder)
+    PathDatafolder(name='my_test_datafolder_pytest')
+    >>> path_datafolder.get_structure_npy()
+    'data/datafolders/my_test_datafolder_pytest/structure.npy'
     """
 
     def __init__(self, name, root = DATA_FOLDER) -> None:
