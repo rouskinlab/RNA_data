@@ -1,11 +1,9 @@
 # Ignore all files in datasets except sequences_half.txt
-secondary_structure/dataset/*
-sequence_dataset/*
-!sequence_dataset/sequences_half.fasta
-!sequence_dataset/remove_duplicate.py
 
 __pycache__/
 .DS_Store
 
-DMS/dataset/*
-DMS/fakeDMSdataset_generator/temp/*
+#config.yaml
+temp
+data/datasets
+data/demo_datasets
