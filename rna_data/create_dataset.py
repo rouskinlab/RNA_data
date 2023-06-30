@@ -96,12 +96,14 @@ class CreateDatasetTemplate(PathDataset):
             token=HUGGINGFACE_TOKEN,
             exist_ok=exist_ok,
             private=private,
+            repo_type="dataset",
         )
 
     def upload_folder(self, revision = 'main', commit_message=None, commit_description=None, multi_commits=False, run_as_future=False, **kwargs):
         future = self.api.upload_folder(
             repo_id=ROUSKINLAB+self.name,
             folder_path=self.get_main_folder(),
+            repo_type="dataset",
             token=HUGGINGFACE_TOKEN,
             revision=revision,
             commit_message=commit_message,
@@ -148,7 +150,7 @@ class CreateDatasetFromDreemOutput(CreateDatasetTemplate):
     generate_npy : bool, optional
         If True, the npy files are generated. Default is True.
 
-    >>> dataset = DataFolder.from_dreem_output(path_in='data/dreem_output.json', generate_npy=True)
+    >>> dataset = DataFolder.from_dreem_output(path_in='data/input_files_for_testing/dreem_output.json', generate_npy=True)
     >>> dataset.name
     'dreem_output'
     >>> print(dataset)
@@ -191,7 +193,7 @@ class CreateDatasetFromFasta(CreateDatasetTemplate):
     generate_npy : bool, optional
         If True, the npy files are generated. Default is True.
 
-    >>> dataset = DataFolder.from_fasta(path_in='data/sequences.fasta', generate_npy=True)
+    >>> dataset = DataFolder.from_fasta(path_in='data/input_files_for_testing/sequences.fasta', generate_npy=True)
     >>> dataset.name
     'sequences'
     >>> print(dataset)
@@ -231,7 +233,7 @@ class CreateDatasetFromCTfolder(CreateDatasetTemplate):
     generate_npy : bool, optional
         If True, the npy files are generated. Default is True.
 
-    >>> dataset = DataFolder.from_ct_folder(path_in='data/ct_files', generate_npy=True)
+    >>> dataset = DataFolder.from_ct_folder(path_in='data/input_files_for_testing/ct_files', generate_npy=True)
     >>> dataset.name
     'ct_files'
     >>> print(dataset)
@@ -268,9 +270,9 @@ class LoadDatasetFromHF(PathDataset):
     revision : str, optional
         Revision of the dataset. Default is 'main'.
 
-    >>> dataset = LoadDatasetFromHF(name='dreem_output', path_out='data/datasets')
+    >>> dataset = LoadDatasetFromHF(name='for_testing', path_out='data/datasets')
     >>> dataset.name
-    'dreem_output'
+    'for_testing'
     """
 
     def __init__(self, name, path_out, revision='main') -> None:
@@ -279,10 +281,11 @@ class LoadDatasetFromHF(PathDataset):
         # Download the dataset #TODO : check if the dataset is already downloaded
         snapshot_download(
             repo_id = ROUSKINLAB+self.name,
-         #   repo_type='space',
+            repo_type='dataset',
             local_dir=self.get_main_folder(),
             revision=revision,
-            token=HUGGINGFACE_TOKEN)
+            token=HUGGINGFACE_TOKEN,
+            )
 
         assert os.path.isdir(self.get_main_folder()), f'No folder found in {self.get_main_folder()}'
         assert os.path.isfile(self.get_json()), f'No json file found in {self.get_main_folder()}'
