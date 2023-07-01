@@ -31,16 +31,15 @@ jobs:
       - name: Install requirements
         run: |
           pip install -r requirements.txt
+
+      - name: Sphinx build
+        run: |
+          cd docs
           export HUGGINGFACE_TOKEN=${{ secrets.HUGGINGFACE_TOKEN }}
           export DATA_FOLDER=${{ secrets.DATA_FOLDER }}
           export DATA_FOLDER_TESTING=${{ secrets.DATA_FOLDER_TESTING }}
           export RNASTRUCTURE_PATH=${{ secrets.RNASTRUCTURE_PATH }}
           export RNASTRUCTURE_TEMP_FOLDER=${{ secrets.RNASTRUCTURE_TEMP_FOLDER }}
-
-
-      - name: Sphinx build
-        run: |
-          cd docs
           sphinx-build -b html -d _build/doctrees . _build/html -W
 
       - name: Deploy
