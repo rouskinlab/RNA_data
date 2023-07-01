@@ -2,7 +2,11 @@ import os
 from .util import source_env
 
 path_env = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'env')
-vars_env = source_env(path_env)
+
+try:
+    vars_env = source_env(path_env)
+except FileNotFoundError:
+    vars_env = {}
 
 HUGGINGFACE_TOKEN = os.environ.get('HUGGINGFACE_TOKEN')
 DATA_FOLDER = os.environ.get('DATA_FOLDER')
