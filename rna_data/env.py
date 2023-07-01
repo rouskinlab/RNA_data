@@ -6,6 +6,7 @@ path_env = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'env')
 try:
     vars_env = source_env(path_env)
 except FileNotFoundError:
+    print("No env file found. Using environment variables.")
     vars_env = {}
 
 HUGGINGFACE_TOKEN = os.environ.get('HUGGINGFACE_TOKEN')

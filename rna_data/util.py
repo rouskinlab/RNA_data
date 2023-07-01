@@ -76,7 +76,6 @@ def source_env(path):
         path (str): The path to the file to source.
     """
     out = {}
-    assert os.path.exists(path), f'The file {path} does not exist.'
     with open(path, 'r') as f:
         for line in f.readlines():
             line = line.split('#')[0].strip()
