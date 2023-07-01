@@ -62,3 +62,29 @@ def fastaToDict(fasta_file):
 
     return refSeq
 
+
+def add_braces_if_no_braces(s:str):
+    if not s[0] == '{' or not s[-1] == '}':
+        return '{' + s + '}'
+    return s
+
+
+def source_env(path):
+    """
+    Source the environment variables from the file at path.
+
+    Args:
+        path (str): The path to the file to source.
+    """
+    out = {}
+    assert os.path.exists(path), f'The file {path} does not exist.'
+    with open(path, 'r') as f:
+        for line in f.readlines():
+            line = line.split('#')[0].strip()
+            line = line.replace('export', '')
+            key, value = line.split('=')
+            key, value = key.replace(' ','').replace('"','').strip(), value.replace(' ','').replace('"','').strip()
+            os.environ[key] = value
+            out[key] = value
+
+    return out
