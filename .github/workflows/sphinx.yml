@@ -38,7 +38,6 @@ jobs:
           export RNASTRUCTURE_TEMP_FOLDER=${{ secrets.RNASTRUCTURE_TEMP_FOLDER }}
 
 
-
       - name: Sphinx build
         run: |
           cd docs
