@@ -10,23 +10,17 @@ Installation
     git clone https://github.com/rouskinlab/RNA_data
 
 
-2. Rename ``config_template.yaml`` to ``my_config.yaml`` and edit the file to your needs.
----------------------------------------------------------------------------------------------------------------------------
-
-You must change the following parameters:
-
-- ``DATA_FOLDER``, which is the default path for storing the datafolders.
-- ``RNASTRUCTURE_PATH``, you must change this to the path of your RNAstructure executable.
-- ``RNASTRUCTURE_TEMP_FOLDER``, you can change this to the path of your choice.
-
-3. Rename ``env_template`` to ``env`` and edit the token to your own huggingface token.
----------------------------------------------------------------------------------------------------------------------------
+2. Rename ``env_template`` to ``env`` and edit the token to your own huggingface token.
+---------------------------------------------------------------------------------------
 
 You can get a token at `huggingface.co/rouskinlab <https://huggingface.co/rouskinlab>`_.
 
 - ``export HUGGINGFACE_TOKEN="your token here"``
+- ``DATA_FOLDER``, which is the default path for storing the datafolders.
+- ``RNASTRUCTURE_PATH``, you must change this to the path of your RNAstructure executable.
+- ``RNASTRUCTURE_TEMP_FOLDER``, you can change this to the path of your choice.
 
-4. Create a conda environment with the required packages:
+3. Create a conda environment with the required packages:
 ----------------------------------------------------------------------------------
 
 .. code-block:: bash
@@ -36,21 +30,22 @@ You can get a token at `huggingface.co/rouskinlab <https://huggingface.co/rouski
     conda install -c bioconda rnastructure
     pip install -r requirements.txt
 
-5. Source the environment:
+
+4. Source the environment:
 -----------------------------------------
 
 .. code-block:: bash
 
     source env
 
-6. Test the installation:
+5. Test the installation:
 -----------------------------------------
 
 .. code-block:: bash
 
     python -m pytest
 
-7. Use the tutorial notebooks to get started.
+6. Use the tutorial notebooks to get started.
 ----------------------------------------------------------------------------------
 
 .. code-block:: bash

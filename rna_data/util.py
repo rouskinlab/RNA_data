@@ -1,6 +1,5 @@
 import os
 
-
 # Define the one-hot encodings for the sequences and structures
 seq2int = {
         'A': 1,

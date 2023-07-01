@@ -32,6 +32,7 @@ language:
 tags:
   - chemistry
   - biology
+author: Silvi Rouskin
 pretty_name: {self.name}
 ---
 
@@ -44,7 +45,12 @@ pretty_name: {self.name}
 
 structure: {self.info['structure']} ({self.info['about structure']})
 
-DMS: {self.info['DMS']} ({self.info['about DMS']})"""
+DMS: {self.info['DMS']} ({self.info['about DMS']})
+
+"""
+
+
+
 )
 
 

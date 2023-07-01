@@ -94,27 +94,6 @@ class DatapointFactory:
             structure=Fasta.predict_structure(sequence) if predict_structure else None,
             dms=mutation_rate)
 
-    def from_str(string):
-        """Create a datapoint from a string. The string should be a json string with the following format:
-        {"reference": "reference", "sequence": "sequence", "paired_bases": [[1, 2], [3,4]], "dms": [1.0, 2.0, 3.0]}
-
-        Though, the paired_bases and dms are optional. External braces are added if they are not present.
-
-        >>> DatapointFactory.from_str('"reference": "reference", "sequence": "sequence"')
-        Datapoint('reference', sequence='sequence', paired_bases=None, dms=None)
-        >>> DatapointFactory.from_str('{"reference": "reference", "sequence": "sequence"}')
-        Datapoint('reference', sequence='sequence', paired_bases=None, dms=None)
-        >>> DatapointFactory.from_str('{"reference": "reference", "sequence": "sequence", "paired_bases": [[1, 2], [3, 4]], "dms": [1.0, 2.0, 3.0]}')
-        Datapoint('reference', sequence='sequence', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0])
-        """
-        string = add_braces_if_no_braces(string)
-        d = json.loads(string)
-        return Datapoint(
-            reference=d['reference'],
-            sequence=d['sequence'],
-            paired_bases=d['paired_bases'] if 'paired_bases' in d else None,
-            dms=d['dms'] if 'dms' in d else None
-        )
 
     def from_json_line(string):
         """Create a datapoint from a json line. The json line should have the following format:

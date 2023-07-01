@@ -111,7 +111,6 @@ class CreateDatafolderTemplate(PathDatafolder):
 
         """
 
-
         future = self.api.upload_folder(
             repo_id=ROUSKINLAB+self.name,
             folder_path=self.get_main_folder(),
@@ -187,6 +186,7 @@ class CreateDatafolderFromDreemOutput(CreateDatafolderTemplate):
 
         self.datapoints = ListofDatapoints.from_dreem_output(path_in, predict_structure = predict_structure)
         self.dump_datapoints(generate_npy)
+
 
 class CreateDatafolderFromFasta(CreateDatafolderTemplate):
 
