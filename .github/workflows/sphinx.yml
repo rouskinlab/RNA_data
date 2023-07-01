@@ -40,6 +40,7 @@ jobs:
           export DATA_FOLDER_TESTING=${{ secrets.DATA_FOLDER_TESTING }}
           export RNASTRUCTURE_PATH=${{ secrets.RNASTRUCTURE_PATH }}
           export RNASTRUCTURE_TEMP_FOLDER=${{ secrets.RNASTRUCTURE_TEMP_FOLDER }}
+          echo $HUGGINGFACE_TOKEN
           sphinx-build -b html -d _build/doctrees . _build/html -W
 
       - name: Deploy
