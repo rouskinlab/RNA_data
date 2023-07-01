@@ -76,3 +76,7 @@ class PathDatafolder:
     def get_info_file(self):
         """Returns the path to the info file."""
         return join(self.get_main_folder(), "info.json")
+
+    def get_readme_file(self):
+        """Returns the path to the readme file."""
+        return join(self.get_main_folder(), "README.md")

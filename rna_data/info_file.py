@@ -14,14 +14,39 @@ class InfoFileWriterTemplate(PathDatafolder):
 
         self.info = {
             'name': self.name,
-            'date': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'upload_date': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             'user': os.environ['USER'],
         }
 
     def write(self):
-        """Write the info file."""
+        """Write the info file and the readme file."""
         with open(self.get_info_file(), 'w') as f:
             json.dump(self.info, f, indent=4)
+
+        with open(self.get_readme_file(), 'w') as f:
+            f.write(f"""
+---
+license: mit
+language:
+  - en
+tags:
+  - chemistry
+  - biology
+pretty_name: {self.name}
+---
+
+""")
+
+            for k, v in self.info.items():
+                if k not in ['structure', 'about structure', 'DMS', 'about DMS']:
+                    f.write(f"{k}: {v}\n\n")
+            f.write(f"""
+
+structure: {self.info['structure']} ({self.info['about structure']})
+
+DMS: {self.info['DMS']} ({self.info['about DMS']})"""
+)
+
 
 
 class InfoFileWriterFromDREEMoutput(InfoFileWriterTemplate):

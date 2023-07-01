@@ -1,5 +1,5 @@
 Usage
 =====
 
-See the `tutorial <https://github.com/rouskinlab/RNA_data/blob/OOP/tutorial.ipynb>`_
+See the `tutorial <https://github.com/rouskinlab/RNA_data/main/tutorial.ipynb>`_
 
