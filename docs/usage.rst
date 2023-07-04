@@ -41,14 +41,14 @@ Tutorials
 Log in to HuggingFace
 ~~~~~~~~~~~~~~~~~~~~~
 
-See the `tutorial <https://github.com/rouskinlab/RNA_data/main/tutorials/huggingface.ipynb>`_
+See the `tutorial <https://github.com/rouskinlab/RNA_data/blob/main/tutorials/huggingface.ipynb>`_.
 
 Create a datafolder, push and pull data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-See the `tutorial <https://github.com/rouskinlab/RNA_data/main/tutorials/create_push_pull.ipynb>`_
+See the `tutorial <https://github.com/rouskinlab/RNA_data/blob/main/tutorials/create_push_pull.ipynb>`_.
 
 Use the data for your models
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-See the `tutorial <https://github.com/rouskinlab/RNA_data/main/tutorials/use_for_models.ipynb>`_
+See the `tutorial <https://github.com/rouskinlab/RNA_data/blob/main/tutorials/use_for_models.ipynb>`_.
