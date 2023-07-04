@@ -33,14 +33,14 @@ jobs:
           pip install -r requirements.txt
 
       - name: Sphinx build
+        env:
+          HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
+          DATA_FOLDER: ${{ secrets.DATA_FOLDER }}
+          DATA_FOLDER_TESTING: ${{ secrets.DATA_FOLDER_TESTING }}
+          RNASTRUCTURE_PATH: ${{ secrets.RNASTRUCTURE_PATH }}
+          RNASTRUCTURE_TEMP_FOLDER: ${{ secrets.RNASTRUCTURE_TEMP_FOLDER }}
         run: |
           cd docs
-          export HUGGINGFACE_TOKEN=${{ secrets.HUGGINGFACE_TOKEN }}
-          export DATA_FOLDER=${{ secrets.DATA_FOLDER }}
-          export DATA_FOLDER_TESTING=${{ secrets.DATA_FOLDER_TESTING }}
-          export RNASTRUCTURE_PATH=${{ secrets.RNASTRUCTURE_PATH }}
-          export RNASTRUCTURE_TEMP_FOLDER=${{ secrets.RNASTRUCTURE_TEMP_FOLDER }}
-          echo $HUGGINGFACE_TOKEN
           sphinx-build -b html -d _build/doctrees . _build/html -W
 
       - name: Deploy
