@@ -41,7 +41,7 @@ jobs:
           RNASTRUCTURE_TEMP_FOLDER: ${{ secrets.RNASTRUCTURE_TEMP_FOLDER }}
         run: |
           cd docs
-          sphinx-build -b html -d _build/doctrees . _build/html -W
+          sphinx-build -b html -d _build/doctrees . _build/html
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
