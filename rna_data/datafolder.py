@@ -1,6 +1,8 @@
 
 from typing import Any
 
+from rna_data.env import DATA_FOLDER
+import json
 from .env import DATA_FOLDER
 
 from .path import PathDatafolder
@@ -17,11 +19,41 @@ PREDICT_STRUCTURE = False
 PREDICT_DMS = False
 ROUSKINLAB = 'rouskinlab/'
 
+class DataFolderTemplate(PathDatafolder):
 
-class CreateDatafolderTemplate(PathDatafolder):
+    def __init__(self, name, path_out) -> None:
+        super().__init__(name, path_out)
+        self.name = name
+        self.datapoints = ListofDatapoints([])
+
+    def generate_npy(self):
+        """Generate the npy files:
+            - reference.npy
+            - sequence.npy
+            - base_pairs.npy
+            - dms.npy
+
+        Each file corresponds to a key in the datapoints dictionary contained in the json file.
+        For example, if the 1st line of the json file is:
+        {"RF02271.fa.csv_1":{"sequence": "AAACCCCAGUAGGGGUUU", "paired_bases": [[6, 11], [5, 12], [4, 13], [3, 14], [2, 15], [1, 16], [0, 17]], "dms": [0.3317625732102161, 0.8619477949493498, 0.9849505502538177, 0.9997828311396947, 0.9999562120800795, 0.9999454042235505, 0.9970246205212348, 3.298876877182004e-10, 1.0113344525791075e-08, 9.30187856307975e-09, 2.1481183689942838e-10, 0.996953491189411, 0.9999737756512344, 0.9999846271614127, 0.9997971647502685, 0.9848757245213886, 0.8618760196213241, 0.3319091664146036]}}
+        then the 1st line of the reference.npy file will be:
+        AAACCCCAGUAGGGGUUU
+        """
+
+        self.datapoints.to_reference_npy(self.get_references_npy())
+        self.datapoints.to_sequence_npy(self.get_sequences_npy())
+
+        d1 = self.datapoints.datapoints[0]
+
+        if hasattr(d1, 'paired_bases'):
+            self.datapoints.to_base_pairs_npy(self.get_base_pairs_npy())
+
+        if hasattr(d1, 'dms'):
+            self.datapoints.to_dms_npy(self.get_dms_npy())
+
+class CreateDatafolderTemplate(DataFolderTemplate):
 
     def __init__(self, path_in, path_out, name, source, predict_structure, predict_dms) -> None:
-        name = self._set_name(name, path_in)
         super().__init__(name, path_out)
         self.name = name
         self.path_in = path_in
@@ -29,7 +61,6 @@ class CreateDatafolderTemplate(PathDatafolder):
         self.api = HfApi(token=HUGGINGFACE_TOKEN)
         self.predict_structure = predict_structure
         self.predict_dms = predict_dms
-        self.datapoints = ListofDatapoints([])
 
         # move path_in to source folder
         os.makedirs(self.get_source_folder(), exist_ok=True)
@@ -78,7 +109,7 @@ class CreateDatafolderTemplate(PathDatafolder):
 
     def upload_folder(self, revision = 'main', commit_message=None, commit_description=None, multi_commits=False, run_as_future=False, **kwargs):
 
-        """Upload the datafolder to huggingface.co.
+        """Upload the datafolder to huggingface.co. Only the json file, the README.md and the source files are uploaded.
 
         Parameters
         ----------
@@ -121,31 +152,25 @@ class CreateDatafolderTemplate(PathDatafolder):
             commit_description=commit_description,
             multi_commits=multi_commits,
             run_as_future=run_as_future,
+            allow_patterns=["source/*", "info.json", "data.json", "README.md"],
             **kwargs
         )
 
         if run_as_future:
             return future
 
-    def dump_datapoints(self, generate_npy,  overwrite=False):
+
+
+
+
+    def dump_datapoints(self, generate_npy):
         """Dump the datapoints to a json file."""
 
-        if not os.path.exists(self.get_json()) or overwrite:
+        if not os.path.exists(self.get_json()):
             self.datapoints.to_json(self.get_json())
 
-        if not generate_npy: return
-
-        if not os.path.exists(self.get_references_npy()) or overwrite:
-            self.datapoints.to_reference_npy(self.get_references_npy())
-
-        if  self.predict_structure and (not os.path.exists(self.get_base_pairs_npy()) or overwrite):
-            self.datapoints.to_base_pairs_npy(self.get_base_pairs_npy())
-
-        if not os.path.exists(self.get_sequences_npy()) or overwrite:
-            self.datapoints.to_sequence_npy(self.get_sequences_npy())
-
-        if self.predict_dms and (not os.path.exists(self.get_dms_npy()) or overwrite):
-            self.datapoints.to_dms_npy(self.get_dms_npy())
+        if generate_npy:
+            self.generate_npy()
 
 
 
@@ -271,7 +296,13 @@ class CreateDatafolderFromCTfolder(CreateDatafolderTemplate):
         self.dump_datapoints(generate_npy)
 
 
-class LoadDatafolderFromHF(PathDatafolder):
+class LoadDatafolder(DataFolderTemplate):
+
+    def __init__(self, name, root) -> None:
+        super().__init__(name, root)
+
+
+class LoadDatafolderFromHF(LoadDatafolder):
     """Load a datafolder from HuggingFace.
 
     Parameters
@@ -305,6 +336,7 @@ class LoadDatafolderFromHF(PathDatafolder):
             local_dir=self.get_main_folder(),
             revision=revision,
             token=HUGGINGFACE_TOKEN,
+            allow_patterns=['info.json', 'data.json']
             )
 
         assert os.path.isdir(self.get_main_folder()), f'No folder found in {self.get_main_folder()}'
@@ -313,7 +345,7 @@ class LoadDatafolderFromHF(PathDatafolder):
         self.datapoints = ListofDatapoints.from_json(self.get_json())
 
 
-class LoadDatafolderFromLocal(PathDatafolder):
+class LoadDatafolderFromLocal(LoadDatafolder):
     """Load a datafolder from local.
 
     Parameters
@@ -381,9 +413,9 @@ class DataFolder:
         """Create a datafolder from a dreem output file. See CreateDatafolderFromDreemOutput for more details."""
         return CreateDatafolderFromDreemOutput(path_in, path_out, name, predict_structure, generate_npy)
 
-    def from_local(name, path_out=DATA_FOLDER)->LoadDatafolderFromLocal:
+    def from_local(name, path=DATA_FOLDER)->LoadDatafolderFromLocal:
         """Load a datafolder from local. See LoadDatafolderFromLocal for more details."""
-        return LoadDatafolderFromLocal(name, path_out)
+        return LoadDatafolderFromLocal(name, path)
 
     def from_ct_folder(path_in, path_out=DATA_FOLDER, name = None, predict_dms = PREDICT_DMS, generate_npy = GENERATE_NPY)->CreateDatafolderFromCTfolder:
         """Create a datafolder from a folder of ct files. See CreateDatafolderFromCTfolder for more details."""
