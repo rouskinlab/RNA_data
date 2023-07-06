@@ -73,7 +73,7 @@ class ListofDatapoints:
         Examples:
             >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0])])
             >>> datapoints.to_dms_npy('temp/dms.npy')
-            array([[1., 2., 3.]], dtype=object)
+            array([[1.0, 2.0, 3.0]], dtype=object)
         """
 
         arr = np.array([datapoint.dms for datapoint in self.datapoints], dtype=object)
@@ -143,14 +143,15 @@ def base_pairs_into_matrix(base_pairs):
         matrix (np.array): matrix of 1s and 0s.
 
     Example:
+        >>> from numpy import array, int64
         >>> base_pairs = [(0, 1), (2, 3), (4, 5)]
-        >>> base_pairs_into_matrix(base_pairs)
-        array([[0, 1, 0, 0, 0, 0],
-               [1, 0, 0, 0, 0, 0],
-               [0, 0, 0, 1, 0, 0],
-               [0, 0, 1, 0, 0, 0],
-               [0, 0, 0, 0, 0, 1],
-               [0, 0, 0, 0, 1, 0]], dtype=int64)
+        >>> assert (base_pairs_into_matrix(base_pairs) ==  array([[0., 1., 0., 0., 0., 0.], \
+                                                                [1., 0., 0., 0., 0., 0.], \
+                                                                [0., 0., 0., 1., 0., 0.], \
+                                                                [0., 0., 1., 0., 0., 0.], \
+                                                                [0., 0., 0., 0., 0., 1.], \
+                                                                [0., 0., 0., 0., 1., 0.]], dtype=int64)).all()
+
     """
     max_index = max([max(base_pair) for base_pair in base_pairs])
     arr = np.zeros((max_index + 1, max_index + 1))

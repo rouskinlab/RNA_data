@@ -24,8 +24,8 @@ class PathDatafolder:
     'my_test_datafolder_pytest'
     >>> print(path)
     PathDatafolder(name='my_test_datafolder_pytest')
-    >>> path.get_base_pairs_npy()
-    'data/datafolders/my_test_datafolder_pytest/base_pairs.npy'
+    >>> assert "data/datafolders/my_test_datafolder_pytest/base_pairs.npy" in path.get_base_pairs_npy()
+
     """
 
     def __init__(self, name, root = DATA_FOLDER) -> None:

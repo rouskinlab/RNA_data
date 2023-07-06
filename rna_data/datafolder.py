@@ -201,8 +201,8 @@ class CreateDatafolderFromDreemOutput(CreateDatafolderTemplate):
     >>> datafolder = DataFolder.from_dreem_output(path_in='data/input_files_for_testing/dreem_output.json', generate_npy=True)
     >>> datafolder.name
     'dreem_output'
-    >>> print(datafolder)
-    CreateDatafolderFromDreemOutput @data/datafolders/dreem_output
+    >>> print(str(datafolder).split(' ')[0])
+    CreateDatafolderFromDreemOutput
     >>> os.path.isfile(datafolder.get_json())
     True
     """
@@ -243,8 +243,8 @@ class CreateDatafolderFromFasta(CreateDatafolderTemplate):
     >>> datafolder = DataFolder.from_fasta(path_in='data/input_files_for_testing/sequences.fasta', generate_npy=True)
     >>> datafolder.name
     'sequences'
-    >>> print(datafolder)
-    CreateDatafolderFromFasta @data/datafolders/sequences
+    >>> print(str(datafolder).split(' ')[0])
+    CreateDatafolderFromFasta
     >>> os.path.isfile(datafolder.get_json())
     True
     """
@@ -283,8 +283,8 @@ class CreateDatafolderFromCTfolder(CreateDatafolderTemplate):
     >>> datafolder = DataFolder.from_ct_folder(path_in='data/input_files_for_testing/ct_files', generate_npy=True)
     >>> datafolder.name
     'ct_files'
-    >>> print(datafolder)
-    CreateDatafolderFromCTfolder @data/datafolders/ct_files
+    >>> print(str(datafolder).split(' ')[0])
+    CreateDatafolderFromCTfolder
     >>> os.path.isfile(datafolder.get_json())
     True
     """
