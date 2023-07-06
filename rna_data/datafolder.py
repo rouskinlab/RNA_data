@@ -54,6 +54,7 @@ class DataFolderTemplate(PathDatafolder):
 class CreateDatafolderTemplate(DataFolderTemplate):
 
     def __init__(self, path_in, path_out, name, source, predict_structure, predict_dms) -> None:
+        name = self._set_name(name, path_in)
         super().__init__(name, path_out)
         self.name = name
         self.path_in = path_in

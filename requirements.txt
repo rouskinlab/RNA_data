@@ -14,3 +14,6 @@ pandas
 huggingface
 huggingface_hub
 sphinx_rtd_size
+jupyter
+ipykernel
+ipython

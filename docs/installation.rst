@@ -9,26 +9,34 @@ Installation
 
     git clone https://github.com/rouskinlab/RNA_data
 
+2. Create a conda environment with the required packages:
+----------------------------------------------------------------------------------
 
-2. Rename ``env_template`` to ``env`` and edit the token to your own huggingface token.
----------------------------------------------------------------------------------------
+.. code-block:: bash
 
-You can get a token at `huggingface.co/rouskinlab <https://huggingface.co/rouskinlab>`_.
+    conda create -n rna_data python=3.10
+    conda activate rna_data
+    conda install -c bioconda rnastructure # you can also install this manually
+    pip install -r requirements.txt
+
+
+3. Create a ``env`` file
+-------------------------
+
+Rename ``env_template`` to ``env`` and edit the token to your own huggingface token.
+
+.. code-block:: bash
+
+    mv env_template env
+
+You can get a token at `huggingface.co/settings/tokens <https://huggingface.co/settings/tokens>`_.
+Check out the `HuggingFace tutorial <https://github.com/rouskinlab/RNA_data/blob/main/tutorials/huggingface.ipynb>`_.
+
 
 - ``export HUGGINGFACE_TOKEN="your token here"``
 - ``DATA_FOLDER``, which is the default path for storing the datafolders.
 - ``RNASTRUCTURE_PATH``, you must change this to the path of your RNAstructure executable.
 - ``RNASTRUCTURE_TEMP_FOLDER``, you can change this to the path of your choice.
-
-3. Create a conda environment with the required packages:
-----------------------------------------------------------------------------------
-
-.. code-block:: bash
-
-    conda env create -n rna_data python=3.8
-    conda activate rna_data
-    conda install -c bioconda rnastructure
-    pip install -r requirements.txt
 
 
 4. Source the environment:

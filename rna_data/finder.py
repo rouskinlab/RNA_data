@@ -15,9 +15,9 @@ class Finder:
         api = HfApi()
 
 
-        raise NotImplementedError
+        #raise NotImplementedError
 
-    def filter_by(where='all', structure=None, dms=None, root=DATA_FOLDER)->Dict[list]:
+    def filter_by(where='all', structure=None, dms=None, root=DATA_FOLDER)->Dict[str, list]:
         """Returns a new Finder object with datapoints filtered by the given parameters.
 
         Args:
@@ -51,4 +51,5 @@ class Finder:
         assert structure in ['source', 'RNAstructure', 'all', None], "structure must be either 'source', 'RNAstructure', 'all', or None."
         assert dms in ['source', 'RNAstructure', 'all', None], "dms must be either 'source', 'RNAstructure', 'all', or None."
 
-        raise NotImplementedError
+        #raise NotImplementedError
+        return {'local': [], 'huggingface': []}
