@@ -6,6 +6,7 @@ import re
 from .datapoint import Datapoint, DatapointFactory
 from typing import List, Tuple, Union, Optional
 from .parsers import Fasta, DreemOutput
+import pandas as pd
 
 class ListofDatapoints:
 
@@ -131,6 +132,18 @@ class ListofDatapoints:
             for idx, datapoint in enumerate(self.datapoints): # write the datapoints one by one to avoid memory issues
                 f.write(str(datapoint)+ ',\n' if idx != len(self.datapoints)-1 else str(datapoint)+'\n')
             f.write('}\n')
+
+    def to_pandas(self) -> pd.DataFrame:
+        """Converts the list of datapoints into a pandas dataframe.
+
+        Example:
+            >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0])])
+            >>> datapoints.to_pandas()
+               reference sequence      paired_bases              dms
+            0  reference   AACCGG  [[1, 2], [3, 4]]  [1.0, 2.0, 3.0]
+        """
+        return pd.DataFrame([datapoint.to_flat_dict() for datapoint in self.datapoints])
+
 
 
 def base_pairs_into_matrix(base_pairs):
