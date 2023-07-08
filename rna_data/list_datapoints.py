@@ -144,6 +144,52 @@ class ListofDatapoints:
         """
         return pd.DataFrame([datapoint.to_flat_dict() for datapoint in self.datapoints])
 
+    def filter_duplicates(self):
+        """Filters out duplicate sequences.
+        Only keep the first occurence of a sequence if all the other structures are the same.
+
+        Examples:
+            >>> datapoints = ListofDatapoints([ Datapoint(reference='ref1', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[0,0,0,0,0,0]),\
+                                Datapoint(reference='ref2', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[0,0,0,0,0,0]),\
+                                Datapoint(reference='ref3', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[0,0,0,0,0,0]),\
+                                Datapoint(reference='ref4', sequence='AUGGC', paired_bases=[[1, 2]], dms=[0,0,0,0,0]),\
+                                Datapoint(reference='ref5', sequence='GCCUA', paired_bases=[[0, 4], [2, 3]], dms=[0,0,0,0,0]),\
+                                Datapoint(reference='ref6', sequence='GCCUA', paired_bases=[[0, 4]], dms=[0,0,0,0,0]) ])
+            >>> datapoints.filter_duplicates()
+            >>> datapoints.datapoints
+            [Datapoint('ref1', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[0, 0, 0, 0, 0, 0]), Datapoint('ref4', sequence='AUGGC', paired_bases=[[1, 2]], dms=[0, 0, 0, 0, 0])]
+        """
+
+        # Group datapoints by sequence
+        unique_seqs = {}
+        for i, datapoint in enumerate(self.datapoints):
+
+            struct = np.array(datapoint.paired_bases)
+
+            if datapoint.sequence not in unique_seqs.keys():
+                unique_seqs[datapoint.sequence] = ([struct], [i])
+            else:
+                unique_seqs[datapoint.sequence][0].append(struct)
+                unique_seqs[datapoint.sequence][1].append(i)
+
+        # Only keep sequence duplicate that have the same pairing matrix
+        idxs_to_remove = []
+        for seq in unique_seqs.keys():
+            if len(unique_seqs[seq]) > 1:
+                matches = []
+                for i in range(len(unique_seqs[seq][0])):
+                    for j in range(i+1, len(unique_seqs[seq][0])):
+                        matches.append(np.array_equal(unique_seqs[seq][0][i], unique_seqs[seq][0][j]))
+
+                # Remove sequences from dataframe if f1 score is not 1.0, keep only one of the structures otherwise
+                if not np.array(matches).all():
+                    idxs_to_remove += unique_seqs[seq][1]
+                else:
+                    idxs_to_remove += unique_seqs[seq][1][1:]
+
+        idxs_to_keep = list( set(range(len(self.datapoints)))-set(idxs_to_remove) )
+        self.datapoints = [self.datapoints[i] for i in idxs_to_keep]
+
 
 
 def base_pairs_into_matrix(base_pairs):

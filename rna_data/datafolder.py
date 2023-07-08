@@ -294,6 +294,7 @@ class CreateDatafolderFromCTfolder(CreateDatafolderTemplate):
 
         ct_files = [os.path.join(path_in, f) for f in os.listdir(path_in) if f.endswith('.ct') or f.endswith('.txt')]
         self.datapoints = ListofDatapoints.from_ct(ct_files, predict_dms = predict_dms)
+        self.datapoints.filter_duplicates()
         self.dump_datapoints(generate_npy)
 
 
