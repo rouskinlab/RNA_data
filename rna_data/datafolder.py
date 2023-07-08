@@ -292,7 +292,7 @@ class CreateDatafolderFromCTfolder(CreateDatafolderTemplate):
     def __init__(self, path_in, path_out, name, predict_dms, generate_npy) -> None:
         super().__init__(path_in, path_out, name, source = 'ct', predict_structure = False, predict_dms = predict_dms)
 
-        ct_files = [os.path.join(path_in, f) for f in os.listdir(path_in) if f.endswith('.ct')]
+        ct_files = [os.path.join(path_in, f) for f in os.listdir(path_in) if f.endswith('.ct') or f.endswith('.txt')]
         self.datapoints = ListofDatapoints.from_ct(ct_files, predict_dms = predict_dms)
         self.dump_datapoints(generate_npy)
 

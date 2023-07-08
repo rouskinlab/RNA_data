@@ -16,17 +16,16 @@ class Ct:
         with open(ct_file, 'r') as f:
             lines = f.readlines()
 
-        sequence = lines[0].split()[4]
         paired_bases, sequence = [], ''
         for line in lines[1:]:
             if line.strip() == '':
                 break
             utr5, base, _, _, utr3, _ = line.split()
             sequence += base
-            if int(utr3) < int(utr5) and int(utr3) != 0:
-                paired_bases.append([int(utr5), int(utr3)])
+            if int(utr3) > int(utr5) and int(utr3) != 0:
+                paired_bases.append([int(utr5)-1, int(utr3)-1])
 
-        return Ct.get_reference_from_title(ct_file), sequence, paired_bases
+        return Ct.get_reference_from_title(ct_file), sequence.upper().replace('T', 'U'), paired_bases
 
     def parse_list(ct_files):
         """Parse a list of ct files and return the sequences and structures"""
