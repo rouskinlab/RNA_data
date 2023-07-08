@@ -1,4 +1,6 @@
 import os, json
+import dreem
+import numpy as np
 from .rnastructure import RNAstructure
 
 class Ct:
@@ -68,11 +70,41 @@ class Fasta:
 
 
 class DreemOutput:
-    def parse(dreem_output_file):
-        """Parse a dreem output file and return the references and sequences"""
-        data = json.load(open(dreem_output_file, 'r'))
-        for ref, v in data.items():
-            if type(v) != dict:
-                continue
-            yield ref, v['full']['sequence'], v['full']['pop_avg']['sub_rate']
+    def parse(dreem_output_file, drop_duplicates=True, max_mut=0.5):
+        """Parse a dreem output file and return the references and sequences.
+
+        Args:
+            dreem_output_file (str): path to dreem output file
+            drop_duplicates (bool): drop duplicate sequences
+            max_mut (float): drop sequences with at least one mutation > max_mut
+
+        Returns:
+            (str,str,str): (reference, sequence, sub_rate)
+        """
+
+        df = dreem.draw.Study(data=json.load(open(dreem_output_file, 'r')), min_cov=1000).df[['reference', 'sequence', 'sub_rate']]
+
+        df['max_mut'] = df.sub_rate.apply(lambda x: max(x))
+        len_before = len(df)
+        df = df[df.max_mut < max_mut].reset_index(drop=True)
+        print("Dropped {}\tsequences with max_mut > {}".format(len_before - len(df), max_mut))
+
+        len_before = len(df)
+        if drop_duplicates:
+            df.drop_duplicates(subset='sequence', inplace=True)
+
+        print("Dropped {}\tduplicates".format(len_before - len(df)))
+
+        values = np.concatenate(df.sub_rate.values)
+        percentile90 = np.percentile(values, 90)
+        print("90th percentile of sub_rate: {}".format(percentile90))
+
+        def normalize(sub_rate):
+            sub_rate = np.array(sub_rate)
+            sub_rate = sub_rate / percentile90
+            sub_rate[sub_rate > 1] = 1
+            return sub_rate.tolist()
+
+        for _, row in df.iterrows():
+            yield row['reference'], row['sequence'], normalize(row['sub_rate'])
 
