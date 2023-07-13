@@ -2,54 +2,65 @@ from .env import DATA_FOLDER
 import pandas as pd
 from typing import Dict
 import os
+from os.path import exists
 from huggingface_hub import HfApi
+from numpy import ndarray
+import numpy as np
+from .datafolder import DataFolder
 
+def find_dataset(name:str, data:str, force_download:bool=False)->ndarray:
 
-class Finder:
-    """This class is used to find the datafolders locally and on Hugging Face."""
+    """Finds the dataset with the given name for the given type of data.
 
-    def to_pandas(root=DATA_FOLDER)->pd.DataFrame:
-        """Returns the list of datafolders."""
-        local_datafolders = [d for d in os.listdir(root) if os.path.isdir(os.path.join(root, d))]
+    Parameters
+    ----------
 
-        api = HfApi()
+    name : str
+        Name of the dataset to find.
+    data : str
+        Name of the type of data to find the dataset for (structure or DMS).
+    force_download : bool
+        Whether to force download the dataset from HuggingFace Hub. Defaults to False.
 
+    Returns
+    -------
 
-        #raise NotImplementedError
+    ndarray
+        The dataset with the given name for the given type of data.
 
-    def filter_by(where='all', structure=None, dms=None, root=DATA_FOLDER)->Dict[str, list]:
-        """Returns a new Finder object with datapoints filtered by the given parameters.
+    Example
+    -------
 
-        Args:
-            where (str): where the datafolder is stored. Can be 'local', 'huggingface', or 'all'. Defaults to 'all'.
+    >>> find_dataset(name='for_testing', data='structure').shape
+    (2,)
+    >>> find_dataset(name='for_testing', data='DMS').shape
+    (2,)
+    >>> find_dataset(name='for_testing', data='structure', force_download=True).shape
+    (2,)
+    >>> find_dataset(name='for_testing', data='DMS', force_download=True).shape
+    (2,)
 
-            structure (str): where the RNA structures come from. Can be either 'source', 'RNAstructure', 'all', or 'None'.
-                "source" means that the RNA structures come from the source data.
-                "RNAstructure" means that the RNA structures come from RNAstructure. If the DMS is 'source', RNAstructure used the DMS signal for the prediction.
-                "all" means that the RNA structures come from both the source data and RNAstructure.
-                None means that we don't filter by structure source. This is the default.
+    """
 
-            dms (str): where the DMS signal comes from. Can be either 'source', 'RNAstructure', 'all', or 'None'.
-                "source" means that the DMS signal comes from the source data.
-                "RNAstructure" means that the DMS signal comes from RNAstructure.
-                "all" means that the DMS signal comes from both the source data and RNAstructure.
-                None means that we don't filter by DMS source. This is the default.
+    assert data in ['structure', 'DMS'], "data must be either 'structure' or 'DMS'"
 
-            root (str): the root directory to search for datafolders. Defaults to the DATA_FOLDER environment variable.
+    # Get the data folder
+    try:
+        assert not force_download, "Force download from HuggingFace Hub"
+        datafolder = DataFolder.from_local(name=name)
+    except:
+        try:
+            datafolder = DataFolder.from_huggingface(name=name)
+        except:
+            raise ValueError("Dataset not found on HuggingFace Hub")
 
-        Returns:
-            A dictionary of datafolders names:
-                {
-                    'local': ['datafolder1', 'datafolder2', ...],
-                    'huggingface': ['datafolder1', 'datafolder2', ...]
-                }
-        """
+    # Get the dataset
+    if data == 'structure':
+        if not exists(datafolder.get_base_pairs_npy()) or force_download:
+            datafolder.generate_npy()
+        return np.load(datafolder.get_base_pairs_npy(), allow_pickle=True)
 
-        df = Finder.to_pandas(root=root)
-
-        assert where in ['local', 'huggingface', 'all'], "where must be either 'local', 'huggingface', or 'all'."
-        assert structure in ['source', 'RNAstructure', 'all', None], "structure must be either 'source', 'RNAstructure', 'all', or None."
-        assert dms in ['source', 'RNAstructure', 'all', None], "dms must be either 'source', 'RNAstructure', 'all', or None."
-
-        #raise NotImplementedError
-        return {'local': [], 'huggingface': []}
+    elif data == 'DMS':
+        if not exists(datafolder.get_dms_npy()) or force_download:
+            datafolder.generate_npy()
+        return np.load(datafolder.get_dms_npy(), allow_pickle=True)
