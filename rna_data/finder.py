@@ -8,7 +8,7 @@ from numpy import ndarray
 import numpy as np
 from .datafolder import DataFolder
 
-def find_dataset(name:str, data:str, force_download:bool=False)->ndarray:
+def import_dataset(name:str, data:str, force_download:bool=False)->ndarray:
 
     """Finds the dataset with the given name for the given type of data.
 
@@ -31,13 +31,13 @@ def find_dataset(name:str, data:str, force_download:bool=False)->ndarray:
     Example
     -------
 
-    >>> find_dataset(name='for_testing', data='structure').shape
+    >>> import_dataset(name='for_testing', data='structure').shape
     (2,)
-    >>> find_dataset(name='for_testing', data='DMS').shape
+    >>> import_dataset(name='for_testing', data='DMS').shape
     (2,)
-    >>> find_dataset(name='for_testing', data='structure', force_download=True).shape
+    >>> import_dataset(name='for_testing', data='structure', force_download=True).shape
     (2,)
-    >>> find_dataset(name='for_testing', data='DMS', force_download=True).shape
+    >>> import_dataset(name='for_testing', data='DMS', force_download=True).shape
     (2,)
 
     """

@@ -1,2 +1,2 @@
 from .datafolder import DataFolder
-from .finder import find_dataset
+from .finder import import_dataset
