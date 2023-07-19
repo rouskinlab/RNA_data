@@ -8,3 +8,5 @@ data/datafolders
 env
 
 docs/_*
+
+pypi_pass.txt

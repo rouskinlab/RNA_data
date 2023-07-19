@@ -16,5 +16,6 @@ huggingface_hub
 sphinx_rtd_size
 jupyter
 ipykernel
-dreem
 ipython
+scipy
+pydantic

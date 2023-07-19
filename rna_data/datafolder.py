@@ -1,7 +1,6 @@
 
 from typing import Any
 
-from rna_data.env import DATA_FOLDER
 import json
 from .env import DATA_FOLDER
 
