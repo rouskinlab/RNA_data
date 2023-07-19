@@ -2,25 +2,25 @@
 Modules
 =======
 
-.. autoclass:: rna_data.DataFolder
+.. autoclass:: rouskinhf.DataFolder
     :members:
 
 
-.. autoclass:: rna_data.datafolder.CreateDatafolderFromFasta
+.. autoclass:: rouskinhf.datafolder.CreateDatafolderFromFasta
     :show-inheritance:
     :inherited-members:
 
 
-.. autoclass:: rna_data.datafolder.CreateDatafolderFromCTfolder
+.. autoclass:: rouskinhf.datafolder.CreateDatafolderFromCTfolder
     :show-inheritance:
     :inherited-members:
 
 
-.. autoclass:: rna_data.datafolder.CreateDatafolderFromDreemOutput
+.. autoclass:: rouskinhf.datafolder.CreateDatafolderFromDreemOutput
     :show-inheritance:
     :inherited-members:
 
 
-.. autoclass:: rna_data.datafolder.LoadDatafolderFromHF
+.. autoclass:: rouskinhf.datafolder.LoadDatafolderFromHF
     :show-inheritance:
     :inherited-members:

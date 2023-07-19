@@ -14,8 +14,8 @@ Installation
 
 .. code-block:: bash
 
-    conda create -n rna_data python=3.10
-    conda activate rna_data
+    conda create -n rouskinhf python=3.10
+    conda activate rouskinhf
     conda install -c bioconda rnastructure # you can also install this manually
     pip install -r requirements.txt
 

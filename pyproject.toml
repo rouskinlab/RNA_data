@@ -3,10 +3,10 @@ requires = ["setuptools", "setuptools-git-versioning"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-py-modules = ['rna_data']
+py-modules = ['rouskinhf']
 
 [project]
-name =  "rna_data"
+name =  "rouskinhf"
 version = "0.0.1"
 authors = [
     {name = "Yves Martin", email = "yves@martin.yt"},

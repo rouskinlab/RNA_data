@@ -18,7 +18,7 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 # -- Project information -----------------------------------------------------
 
-project = "rna_data"
+project = "rouskinhf"
 copyright = "2023, Yves Martin & Alberic de Lajarte"
 author = "Yves Martin & Alberic de Lajarte"
 
