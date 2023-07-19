@@ -10,3 +10,4 @@ env
 docs/_*
 
 pypi_pass.txt
+rna_data.egg*

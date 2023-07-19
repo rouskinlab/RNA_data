@@ -19,3 +19,6 @@ ipykernel
 ipython
 scipy
 pydantic
+build
+setuptools-git-versioning
+twine
