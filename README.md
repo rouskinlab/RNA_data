@@ -1,8 +1,126 @@
-[![Docs](https://github.com/rouskinlab/rouskinhf/actions/workflows/sphinx.yml/badge.svg)](https://github.com/rouskinlab/rouskinhf/actions/workflows/sphinx.yml)
 
 
 # Download your RNA data from huggingface with rouskinhf!
 
 A repo to manipulate the data for our RNA structure prediction model. The data is stored on HuggingFace and pulled locally for training models.
 
-See [the docs](https://rouskinlab.github.io/RNA_data/) for more information.
+## Installation
+
+### Install with pip
+
+```bash
+pip install rouskinhf
+```
+
+### Get a HuggingFace token
+
+Go to [HuggingFace](https://huggingface.co/) and create an account. Then go to your profile and copy your token ([huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)).
+
+### Create an environment file
+
+Open a terminal and type:
+
+```bash
+nano env
+```
+
+Copy paste the following content, and change the values to your own:
+
+```bash
+HUGGINGFACE_TOKEN="your token here"  # you must change this to your HuggingFace token
+DATA_FOLDER="data/datafolders" # where the datafolder are stored by default, change it if you want to store it somewhere else
+DATA_FOLDER_TESTING="data/input_files_for_testing" # Don't touch this
+RNASTRUCTURE_PATH="/Users/ymdt/src/RNAstructure/exe" # Change this to the path of your RNAstructure executable
+RNASTRUCTURE_TEMP_FOLDER="temp" # You can change this to the path of your RNAstructure temp folder
+```
+
+Then save the file and exit nano.
+
+## Usage
+
+### BEFORE ANY USAGE, source the environment
+
+```bash
+source env
+```
+
+### Authentify your machine to HuggingFace
+
+See the [tutorial](https://github.com/rouskinlab/rouskinhf/blob/main/tutorials/huggingface.ipynb).
+
+### Download a datafolder from HuggingFace
+
+See the [tutorial](https://github.com/rouskinlab/rouskinhf/blob/main/tutorials/use_for_models.ipynb).
+
+### Create a datafolder from local files and push it to HuggingFace
+
+See the [tutorial](https://github.com/rouskinlab/rouskinhf/blob/main/tutorials/create_push_pull.ipynb).
+
+## About
+
+### Import data with ``import_dataset``
+
+This repo provides a function ``import_dataset``, which allows your to pull a dataset from HuggingFace and store it locally. If the data is already stored locally, it will be loaded from the local folder. The type of data available is the DMS signal and the structure, under the shape of paired bases tuples. The function has the following signature:
+
+```python
+def import_dataset(name:str, data:str, force_download:bool=False)->np.ndarray:
+
+    """Finds the dataset with the given name for the given type of data.
+
+    Parameters
+    ----------
+
+    name : str
+        Name of the dataset to find.
+    data : str
+        Name of the type of data to find the dataset for (structure or DMS).
+    force_download : bool
+        Whether to force download the dataset from HuggingFace Hub. Defaults to False.
+
+    Returns
+    -------
+
+    ndarray
+        The dataset with the given name for the given type of data.
+
+    Example
+    -------
+
+    >>> import_dataset(name='for_testing', data='structure', hf_token=os.environ['os.environ['HUGGINGFACE_TOKEN'],']).shape
+    (2,)
+    >>> import_dataset(name='for_testing', data='DMS', hf_token=os.environ['os.environ['HUGGINGFACE_TOKEN'],']).shape
+    (2,)
+    >>> import_dataset(name='for_testing', data='structure', hf_token=os.environ['os.environ['HUGGINGFACE_TOKEN'],'], force_download=True).shape
+    (2,)
+    >>> import_dataset(name='for_testing', data='DMS', hf_token=os.environ['os.environ['HUGGINGFACE_TOKEN'],'], force_download=True).shape
+    (2,)
+```
+
+### FYI, the datafolder object
+
+The datafolder object is a wrapper around your local folder and HuggingFace API, to keep a consistent datastructure across your datasets. It contains multiple methods to create datasets from various input formats, store the data and metadata in a systematic way, and push / pull from HuggingFace.
+
+On HuggingFace, the datafolder stores the data under the following structure:
+
+```bash
+HUGGINGFACE DATAFOLDER
+- [datafolder name]
+    - source
+        - whichever file(s) you used to create the dataset (fasta, set of CTs, etc.).
+    - data.json # the data under a human readable format.
+    - info.json # the metadata of the dataset. This file indicates how we got the DMS signal and the structures (directly from the source or from a prediction).
+    - README.md # the metadata of the dataset in a human readable format.
+```
+
+Locally, we have the same structure with the addition of .npy files which contain the data in a machine readable format. Each .npy file contains a numpy array of the data, and the name of the file is the name of the corresponding key in the data.json file. The source file won’t be downloaded by default. Hence, the local structure is:
+
+```bash
+LOCAL DATAFOLDER
+- [datafolder name]
+    ...
+    - README.md # the metadata of the dataset in a human readable format
+    - references.npy
+    - sequences.npy
+    - base_pairs.npy
+    - dms.npy
+```
