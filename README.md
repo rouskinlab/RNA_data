@@ -6,12 +6,6 @@ A repo to manipulate the data for our RNA structure prediction model. The data i
 
 ## Installation
 
-### Install with pip
-
-```bash
-pip install rouskinhf
-```
-
 ### Get a HuggingFace token
 
 Go to [HuggingFace](https://huggingface.co/) and create an account. Then go to your profile and copy your token ([huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)).
@@ -36,13 +30,20 @@ RNASTRUCTURE_TEMP_FOLDER="temp" # You can change this to the path of your RNAstr
 
 Then save the file and exit nano.
 
-## Usage
-
-### BEFORE ANY USAGE, source the environment
+### BEFORE installing with pip, source the environment
 
 ```bash
 source env
 ```
+
+### EVENTUALLY, install with pip
+
+```bash
+pip install rouskinhf
+```
+
+
+## Tutorials
 
 ### Authentify your machine to HuggingFace
 

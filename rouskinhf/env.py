@@ -1,8 +1,6 @@
 import os
 from .util import source_env
 
-path_env = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'env')
-
 HUGGINGFACE_TOKEN = os.environ['HUGGINGFACE_TOKEN']
 DATA_FOLDER = os.environ['DATA_FOLDER']
 DATA_FOLDER_TESTING = os.environ['DATA_FOLDER_TESTING']
