@@ -65,6 +65,16 @@ See the [tutorial](https://github.com/rouskinlab/rouskinhf/blob/main/tutorials/c
 
 ## About
 
+### Sourcing the environment and keeping your environment variable secret
+
+The variables defined in the `env` file are required by `rouskinhf`. Make sure to run:
+
+```bash
+source env
+``` 
+
+before you use `rouskinhf`. The point of using environment variables is to ensure the privacy of your huggingface token. Make sure to add your `env` file to your `.gitignore`.
+
 ### Import data with ``import_dataset``
 
 This repo provides a function ``import_dataset``, which allows your to pull a dataset from HuggingFace and store it locally. If the data is already stored locally, it will be loaded from the local folder. The type of data available is the DMS signal and the structure, under the shape of paired bases tuples. The function has the following signature:
