@@ -87,14 +87,14 @@ def import_dataset(name:str, data:str, force_download:bool=False)->np.ndarray:
     Example
     -------
 
-    >>> import_dataset(name='for_testing', data='structure', hf_token=os.environ['os.environ['HUGGINGFACE_TOKEN'],']).shape
-    (2,)
-    >>> import_dataset(name='for_testing', data='DMS', hf_token=os.environ['os.environ['HUGGINGFACE_TOKEN'],']).shape
-    (2,)
-    >>> import_dataset(name='for_testing', data='structure', hf_token=os.environ['os.environ['HUGGINGFACE_TOKEN'],'], force_download=True).shape
-    (2,)
-    >>> import_dataset(name='for_testing', data='DMS', hf_token=os.environ['os.environ['HUGGINGFACE_TOKEN'],'], force_download=True).shape
-    (2,)
+    >>> import_dataset(name='for_testing', data='structure').keys()
+    dict_keys(['references', 'sequences', 'structure'])
+    >>> import_dataset(name='for_testing', data='DMS').keys()
+    dict_keys(['references', 'sequences', 'DMS'])
+    >>> import_dataset(name='for_testing', data='structure', force_download=True).keys()
+    dict_keys(['references', 'sequences', 'structure'])
+    >>> import_dataset(name='for_testing', data='DMS', force_download=True).keys()
+    dict_keys(['references', 'sequences', 'DMS'])
 ```
 
 ### FYI, the datafolder object
