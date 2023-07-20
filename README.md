@@ -67,12 +67,19 @@ See the [tutorial](https://github.com/rouskinlab/rouskinhf/blob/main/tutorials/c
 
 ### Sourcing the environment and keeping your environment variable secret
 
-The variables defined in the `env` file are required by `rouskinhf`. Make that before you use `rouskinhf`, you run:
+The variables defined in the `env` file are required by `rouskinhf`. Make that before you use `rouskinhf`, you run in a terminal:
 
 ```bash
 source env
 ``` 
+ or, in a Jupyter notebook:
 
+```python
+!pip install python-dotenv
+%load_ext dotenv
+%dotenv env
+```
+ 
  The point of using environment variables is to ensure the privacy of your huggingface token. Make sure to add your `env` file to your `.gitignore`.
 
 ### Import data with ``import_dataset``
