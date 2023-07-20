@@ -30,13 +30,13 @@ RNASTRUCTURE_TEMP_FOLDER="temp" # You can change this to the path of your RNAstr
 
 Then save the file and exit nano.
 
-### BEFORE installing with pip, source the environment
+### Source the environment
 
 ```bash
 source env
 ```
 
-### EVENTUALLY, install with pip
+### Install the package with pip
 
 ```bash
 pip install rouskinhf
