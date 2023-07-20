@@ -5,10 +5,10 @@
 A repo to manipulate the data for our RNA structure prediction model. This repo allows you to:
 - pull datasets from the Rouskinlab's HuggingFace
 - create datasets from local files and push them to HuggingFace, from the formats:
-    - .fasta
-    - .ct
-    - .json (DREEM output format)
-    - .json (Rouskinlab's huggingface format)
+    - `.fasta`
+    - `.ct`
+    - `.json` (DREEM output format)
+    - `.json` (Rouskinlab's huggingface format)
 
 ## Installation
 
