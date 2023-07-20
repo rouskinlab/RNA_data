@@ -1,8 +1,14 @@
 
 
-# Download your RNA data from huggingface with rouskinhf!
+# Download your RNA data from HuggingFace with rouskinhf!
 
-A repo to manipulate the data for our RNA structure prediction model. The data is stored on HuggingFace and pulled locally for training models.
+A repo to manipulate the data for our RNA structure prediction model. This repo allows you to:
+- pull datasets from the Rouskinlab's HuggingFace
+- create datasets from local files and push them to hugging face, with the format:
+    - .fasta
+    - .ct
+    - .json (DREEM output format)
+    - .json (Rouskinlab's huggingface format)
 
 ## Installation
 
