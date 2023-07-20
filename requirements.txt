@@ -22,3 +22,4 @@ pydantic
 build
 setuptools-git-versioning
 twine
+pytest-dotenv
