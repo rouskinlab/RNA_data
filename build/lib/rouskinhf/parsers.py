@@ -1,5 +1,4 @@
 import os, json
-import dreem
 import numpy as np
 from .rnastructure import RNAstructure
 from .util import DreemUtils

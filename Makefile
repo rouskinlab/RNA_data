@@ -7,7 +7,6 @@ default:
 
 push_to_pypi:
 	rm -fr dist
-	pip install .
 	python3 -m build
-	twine upload -r pypi dist/* --user yvesmartindestaillades --password $(PYPI_PASSWORD)
+	twine upload -r pypi dist/* --user yvesmartindestaillades --password $(PYPI_PASSWORD) --skip-existing
 	rm -fr dist

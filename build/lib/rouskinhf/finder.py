@@ -31,13 +31,13 @@ def import_dataset(name:str, data:str, force_download:bool=False)->ndarray:
     Example
     -------
 
-    >>> import_dataset(name='for_testing', data='structure').shape
+    >>> import_dataset(name='for_testing', data='structure', hf_token=os.environ['HUGGINGFACE_TOKEN']).shape
     (2,)
-    >>> import_dataset(name='for_testing', data='DMS').shape
+    >>> import_dataset(name='for_testing', data='DMS', hf_token=os.environ['HUGGINGFACE_TOKEN']).shape
     (2,)
-    >>> import_dataset(name='for_testing', data='structure', force_download=True).shape
+    >>> import_dataset(name='for_testing', data='structure', hf_token=os.environ['HUGGINGFACE_TOKEN'], force_download=True).shape
     (2,)
-    >>> import_dataset(name='for_testing', data='DMS', force_download=True).shape
+    >>> import_dataset(name='for_testing', data='DMS', hf_token=os.environ['HUGGINGFACE_TOKEN'], force_download=True).shape
     (2,)
 
     """
