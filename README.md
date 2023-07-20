@@ -67,13 +67,13 @@ See the [tutorial](https://github.com/rouskinlab/rouskinhf/blob/main/tutorials/c
 
 ### Sourcing the environment and keeping your environment variable secret
 
-The variables defined in the `env` file are required by `rouskinhf`. Make sure to run:
+The variables defined in the `env` file are required by `rouskinhf`. Make that before you use `rouskinhf`, you run:
 
 ```bash
 source env
 ``` 
 
-before you use `rouskinhf`. The point of using environment variables is to ensure the privacy of your huggingface token. Make sure to add your `env` file to your `.gitignore`.
+ The point of using environment variables is to ensure the privacy of your huggingface token. Make sure to add your `env` file to your `.gitignore`.
 
 ### Import data with ``import_dataset``
 
