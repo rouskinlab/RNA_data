@@ -19,5 +19,5 @@ setup(
         'pydantic',
         'pytest-dotenv',
         'python-dotenv'
-        ]
+        ],
 )
