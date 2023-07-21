@@ -7,6 +7,7 @@ from .datapoint import Datapoint, DatapointFactory
 from typing import List, Tuple, Union, Optional
 from .parsers import Fasta, DreemOutput
 import pandas as pd
+from tqdm import tqdm as tqdm_parser
 
 class ListofDatapoints:
 
@@ -17,27 +18,39 @@ class ListofDatapoints:
         return self.datapoints
 
     @classmethod
-    def from_fasta(cls, fasta_file, predict_structure, predict_dms):
+    def from_fasta(cls, fasta_file, predict_structure, predict_dms, tqdm=True):
         """Create a list of datapoint from a fasta file. The structure and dms will be predicted if predict_structure and predict_dms are True."""
         sequences, references = Fasta.parse(fasta_file)
+        if tqdm:
+            return cls([DatapointFactory.from_fasta(sequence, reference, predict_structure, predict_dms)
+                    for sequence, reference in tqdm_parser(zip(sequences, references), total=len(sequences), desc='Parsing fasta file')])
         return cls([DatapointFactory.from_fasta(sequence, reference, predict_structure, predict_dms)
                     for sequence, reference in zip(sequences, references)])
 
     @classmethod
-    def from_ct(cls, ct_files, predict_dms):
+    def from_ct(cls, ct_files, predict_dms, tqdm=True):
         """Create a list of datapoint from a ct file. The dms will be predicted if predict_dms is True."""
+        if tqdm:
+            return cls([DatapointFactory.from_ct(ct_file, predict_dms) for ct_file in tqdm_parser(ct_files, total=len(ct_files), desc='Parsing ct files')])
         return cls([DatapointFactory.from_ct(ct_file, predict_dms) for ct_file in ct_files])
 
     @classmethod
-    def from_dreem_output(cls, dreem_output_file, predict_structure):
+    def from_dreem_output(cls, dreem_output_file, predict_structure, tqdm):
         """Create a list of datapoint from a dreem output file. The structure and dms will be predicted if predict_structure and predict_dms are True."""
+        print('Parsing dreem output file')
+        if tqdm:
+            n_lines = len(list(DreemOutput.parse(dreem_output_file)))
+            return cls([DatapointFactory.from_dreem_output(reference, sequence, mutation_rate, predict_structure)
+            for reference, sequence, mutation_rate in tqdm_parser(DreemOutput.parse(dreem_output_file), total=n_lines, desc='Parsing dreem output file')])
         return cls([DatapointFactory.from_dreem_output(reference, sequence, mutation_rate, predict_structure)
             for reference, sequence, mutation_rate in DreemOutput.parse(dreem_output_file)])
 
     @classmethod
-    def from_json(cls, json_file):
+    def from_json(cls, json_file, tqdm=True):
         """Create a list of datapoint from a json file."""
         with open(json_file) as f:
+            if tqdm:
+                return cls([DatapointFactory.from_json_line(line) for line in tqdm_parser(f, total=sum(1 for line in open(json_file) if line.strip() not in ['{', '}']), desc='Parsing json file') if line.strip() not in ['{', '}']])
             return cls([DatapointFactory.from_json_line(line) for line in f if line.strip() not in ['{', '}']])
 
 
