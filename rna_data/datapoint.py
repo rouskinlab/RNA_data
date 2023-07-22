@@ -94,7 +94,7 @@ class DatapointFactory:
         return Datapoint(
             sequence=sequence,
             reference=reference,
-            structure=Fasta.predict_structure(sequence) if predict_structure else None,
+            structure=Fasta.predict_structure(sequence, mutation_rate=mutation_rate) if predict_structure else None,
             dms=mutation_rate)
 
 

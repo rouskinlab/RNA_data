@@ -58,10 +58,10 @@ class Fasta:
     def get_name(fasta_file):
         return os.path.basename(fasta_file).split('.')[0]
 
-    def predict_structure(sequence):
+    def predict_structure(sequence, mutation_rate=None):
         """Predict the structure of a sequence using RNAstructure"""
         rna = RNAstructure()
-        return rna.predictStructure(sequence)
+        return rna.predictStructure(sequence, dms=mutation_rate)
 
     def predict_dms(sequence):
         """Predict the dms of a sequence using RNAstructure"""
@@ -96,7 +96,7 @@ class DreemOutput:
         print("Dropped {}\tduplicates".format(len_before - len(df)))
 
         values = np.concatenate(df.sub_rate.values)
-        percentile90 = np.percentile(values, 90)
+        percentile90 = np.percentile(values, 97.5)
         print("90th percentile of sub_rate: {}".format(percentile90))
 
         def normalize(sub_rate):
