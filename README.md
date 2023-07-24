@@ -12,7 +12,7 @@ A repo to manipulate the data for our RNA structure prediction model. This repo 
 
 ## Important notes
 
-- Sequences with bases different than `A`, `C`, `G`, `U`, `a`, `c`, `g`, `t`, `u` are not supported. The data will be filtered out.
+- Sequences with bases different than `A`, `C`, `G`, `T`, `U`, `N`, `a`, `c`, `g`, `t`, `u`, `n` are not supported. The data will be filtered out.
 
 ## Installation
 
