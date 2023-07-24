@@ -22,7 +22,7 @@ jobs:
       - name: Get RNAstructure source code
         run: |
           git clone https://github.com/rouskinlab/RNAstructure
-          mv RNAstructureSource.zip . && rm -rf RNAstructure
+          mv RNAstructure/RNAstructureSource.zip . && rm -rf RNAstructure
           unzip RNAstructureSource.zip 
           
       - name: Install additional system dependencies for RNAstructure
