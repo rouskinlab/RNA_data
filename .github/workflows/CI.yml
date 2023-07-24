@@ -19,6 +19,12 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y libzbar-dev unzip curl
 
+      - name: Get RNAstructure source code
+        run: |
+          git clone https://github.com/rouskinlab/RNAstructure
+          mv RNAstructureSource.zip . && rm -rf RNAstructure
+          unzip RNAstructureSource.zip 
+          
       - name: Install additional system dependencies for RNAstructure
         run: |
           sudo apt-get update && sudo apt-get install -y \
@@ -36,35 +42,25 @@ jobs:
             gnuplot \
             ca-certificates \
             gawk
-
-      - name: Install libsimde-dev
-        run: sudo apt-get install -y libsimde-dev
-
-      - name: Clone RNAstructure
-        run: |
-          git clone https://github.com/rouskinlab/RNAstructure
-
-      - name: Unzip RNAstructure
-        working-directory: RNAstructure
-        run: unzip RNAstructureSource.zip 
+          sudo apt-get install -y libsimde-dev
 
       - name: Build RNAstructure
-        working-directory: ./RNAstructure/RNAstructure
+        working-directory: ./RNAstructure
         run: make all
 
       - name: Set environment variables for RNAstructure
         run: |
-          echo "export DATAPATH=\"/RNAstructure/RNAstructure/data_tables/\"" >> $GITHUB_ENV
-          echo "export PATH=\"$PATH:/RNAstructure/RNAstructure/exe/\"" >> $GITHUB_ENV
-          echo "export RNASTRUCTURE_PATH=\"/RNAstructure/RNAstructure/exe/\"" >> $GITHUB_ENV
+          echo "export DATAPATH=\"/RNAstructure/data_tables/\"" >> $GITHUB_ENV
+          echo "export PATH=\"$PATH:/RNAstructure/exe/\"" >> $GITHUB_ENV
+          echo "export RNASTRUCTURE_PATH=\"/RNAstructure/exe/\"" >> $GITHUB_ENV
 
       - name: Run tests
         env:
           HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
           DATA_FOLDER: ${{ secrets.DATA_FOLDER }}
           DATA_FOLDER_TESTING: ${{ secrets.DATA_FOLDER_TESTING }}
-          RNASTRUCTURE_PATH: "/RNAstructure/RNAstructure/exe/"
-          RNASTRUCTURE_TEMP_FOLDER: "/RNAstructure/RNAstructure/exe/temp"
+          RNASTRUCTURE_PATH: "/RNAstructure/exe/"
+          RNASTRUCTURE_TEMP_FOLDER: "/RNAstructure/exe/temp"
         run: |
           python -m pip install --upgrade pip
           pip install .

@@ -14,6 +14,9 @@ A repo to manipulate the data for our RNA structure prediction model. This repo 
 
 - Sequences with bases different than `A`, `C`, `G`, `T`, `U`, `N`, `a`, `c`, `g`, `t`, `u`, `n` are not supported. The data will be filtered out.
 
+## Dependencies
+- [RNAstructure](https://rna.urmc.rochester.edu/RNAstructure.html) (also available on [Rouskinlab GitHub](https://github.com/rouskinlab/RNAstructure)). 
+
 ## Installation
 
 ### Get a HuggingFace token
