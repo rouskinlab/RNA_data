@@ -46,7 +46,7 @@ jobs:
 
       - name: Unzip RNAstructure
         run: |
-          RUN cd RNAstructure && \
+          cd RNAstructure && \
           unzip RNAstructureSource.zip 
 
       - name: Build RNAstructure
