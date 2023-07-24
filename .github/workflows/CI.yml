@@ -1,4 +1,4 @@
-name: Python CI
+name: Tests
 on:
   [push, pull_request]
 
@@ -45,9 +45,8 @@ jobs:
           git clone https://github.com/rouskinlab/RNAstructure
 
       - name: Unzip RNAstructure
-        run: |
-          cd RNAstructure && \
-          unzip RNAstructureSource.zip 
+        working-directory: RNAstructure
+        run: unzip RNAstructureSource.zip 
 
       - name: Build RNAstructure
         working-directory: ./RNAstructure/RNAstructure
@@ -59,7 +58,7 @@ jobs:
           echo "export PATH=\"$PATH:/RNAstructure/RNAstructure/exe/\"" >> $GITHUB_ENV
           echo "export RNASTRUCTURE_PATH=\"/RNAstructure/RNAstructure/exe/\"" >> $GITHUB_ENV
 
-      - name: Install dependencies
+      - name: Run tests
         env:
           HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
           DATA_FOLDER: ${{ secrets.DATA_FOLDER }}
