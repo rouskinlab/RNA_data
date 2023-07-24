@@ -55,8 +55,8 @@ jobs:
       - name: Run tests
         env:
           HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
-          DATA_FOLDER: ${{ secrets.DATA_FOLDER }}
-          DATA_FOLDER_TESTING: ${{ secrets.DATA_FOLDER_TESTING }}
+          DATA_FOLDER: "/home/runner/work/rouskinhf/rouskinhf/data"
+          DATA_FOLDER_TESTING: "/home/runner/work/rouskinhf/rouskinhf/data/input_files_for_testing"
           RNASTRUCTURE_PATH: "/home/runner/work/rouskinhf/rouskinhf/RNAstructure/exe"
           RNASTRUCTURE_TEMP_FOLDER: "temp"
           DATAPATH: "/home/runner/work/rouskinhf/rouskinhf/RNAstructure/data_tables"
