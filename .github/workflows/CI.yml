@@ -27,7 +27,5 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install .
-
-    - name: Run docstring tests
-      run: |
-        python -m pytest -v --doctest-modules -HU
+        python -m pytest -v --doctest-modules
+        
