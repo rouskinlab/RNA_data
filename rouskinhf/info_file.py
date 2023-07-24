@@ -67,6 +67,7 @@ class InfoFileWriterFromDREEMoutput(InfoFileWriterTemplate):
             if type(v) != dict:
                 self.info[k] = v
 
+        self.info['source'] = "DREEM output"
         self.info['structure'] = STRUCTURE_FROM_RNASTRUCTURE
         self.info['about structure'] = 'Predicted using RNAstructure and the DMS reactivity data.'
         self.info['DMS'] = DMS_FROM_SOURCE
@@ -78,6 +79,7 @@ class InfoFileWriterFromCT(InfoFileWriterTemplate):
     def __init__(self, name, root) -> None:
         super().__init__(name, root)
 
+        self.info['source'] = "CT file"
         self.info['structure'] = STRUCTURE_FROM_SOURCE
         self.info['about structure'] = 'Read from source.'
         self.info['DMS'] = DMS_FROM_RNASTRUCTURE
@@ -89,6 +91,7 @@ class InfoFileWriterFromFasta(InfoFileWriterTemplate):
     def __init__(self, name, root) -> None:
         super().__init__(name, root)
 
+        self.info['source'] = "fasta file"
         self.info['structure'] = STRUCTURE_FROM_RNASTRUCTURE
         self.info['about structure'] = 'Predicted using RNAstructure at 310K.'
         self.info['DMS'] = DMS_FROM_RNASTRUCTURE
