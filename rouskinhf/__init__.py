@@ -34,12 +34,16 @@ def import_dataset(name:str, data:str, force_download:bool=False)->ndarray:
     -------
 
     >>> import_dataset(name='for_testing', data='structure').keys()
+    Loaded 2 valid datapoints, filtered out 0 invalid datapoints.
     dict_keys(['references', 'sequences', 'structure'])
     >>> import_dataset(name='for_testing', data='DMS').keys()
+    Loaded 2 valid datapoints, filtered out 0 invalid datapoints.
     dict_keys(['references', 'sequences', 'DMS'])
     >>> import_dataset(name='for_testing', data='structure', force_download=True).keys()
+    Loaded 2 valid datapoints, filtered out 0 invalid datapoints.
     dict_keys(['references', 'sequences', 'structure'])
     >>> import_dataset(name='for_testing', data='DMS', force_download=True).keys()
+    Loaded 2 valid datapoints, filtered out 0 invalid datapoints.
     dict_keys(['references', 'sequences', 'DMS'])
 
     """

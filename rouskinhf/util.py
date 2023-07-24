@@ -121,3 +121,14 @@ class DreemUtils:
                 continue
             mut_profiles[k] = DreemUtils.sort_dict(v)
         return mut_profiles
+
+
+def standardize_sequence(sequence):
+    sequence = sequence.upper()
+    sequence = sequence.replace('T', 'U')
+    # trim the sequence
+    sequence = sequence.replace(' ', '').replace('\n', '').replace('\t', '')
+    return sequence
+
+def sequence_has_regular_characters(sequence):
+    return not (set(sequence) - set('ACGUN'))

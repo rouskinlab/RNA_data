@@ -4,6 +4,7 @@ from .rnastructure import RNAstructure
 from .util import DreemUtils
 import pandas as pd
 
+
 class Ct:
     def parse(ct_file):
         """Parse a ct file and return the sequence and structure
@@ -28,7 +29,8 @@ class Ct:
             if int(utr3) > int(utr5) and int(utr3) != 0:
                 paired_bases.append([int(utr5)-1, int(utr3)-1])
 
-        return Ct.get_reference_from_title(ct_file), sequence.upper().replace('T', 'U'), paired_bases
+        return Ct.get_reference_from_title(ct_file), sequence, paired_bases
+
 
     def parse_list(ct_files):
         """Parse a list of ct files and return the sequences and structures"""

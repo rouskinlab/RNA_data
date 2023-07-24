@@ -18,6 +18,8 @@ setup(
         'scipy',
         'pydantic',
         'pytest-dotenv',
-        'python-dotenv'
+        'python-dotenv',
+        'tqdm',
+        'pytest-env'
         ],
 )

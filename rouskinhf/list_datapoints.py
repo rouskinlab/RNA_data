@@ -11,8 +11,10 @@ from tqdm import tqdm as tqdm_parser
 
 class ListofDatapoints:
 
-    def __init__(self, datapoints):
-        self.datapoints = datapoints
+    def __init__(self, datapoints, verbose=True):
+        self.datapoints = list(filter(lambda x: x is not None, datapoints))
+        if verbose:
+            print(f"Loaded {len(self.datapoints)} valid datapoints, filtered out {len(datapoints)-len(self.datapoints)} invalid datapoints.")
 
     def __call__(self) -> List[Datapoint]:
         return self.datapoints
@@ -21,37 +23,26 @@ class ListofDatapoints:
     def from_fasta(cls, fasta_file, predict_structure, predict_dms, tqdm=True):
         """Create a list of datapoint from a fasta file. The structure and dms will be predicted if predict_structure and predict_dms are True."""
         sequences, references = Fasta.parse(fasta_file)
-        if tqdm:
-            return cls([DatapointFactory.from_fasta(sequence, reference, predict_structure, predict_dms)
-                    for sequence, reference in tqdm_parser(zip(sequences, references), total=len(sequences), desc='Parsing fasta file')])
         return cls([DatapointFactory.from_fasta(sequence, reference, predict_structure, predict_dms)
-                    for sequence, reference in zip(sequences, references)])
+                    for sequence, reference in tqdm_parser(zip(sequences, references), total=len(sequences), desc='Parsing fasta file', disable=not tqdm)])
 
     @classmethod
     def from_ct(cls, ct_files, predict_dms, tqdm=True):
         """Create a list of datapoint from a ct file. The dms will be predicted if predict_dms is True."""
-        if tqdm:
-            return cls([DatapointFactory.from_ct(ct_file, predict_dms) for ct_file in tqdm_parser(ct_files, total=len(ct_files), desc='Parsing ct files')])
-        return cls([DatapointFactory.from_ct(ct_file, predict_dms) for ct_file in ct_files])
+        return cls([DatapointFactory.from_ct(ct_file, predict_dms) for ct_file in tqdm_parser(ct_files, total=len(ct_files), desc='Parsing ct files', disable=not tqdm)])
 
     @classmethod
     def from_dreem_output(cls, dreem_output_file, predict_structure, tqdm):
         """Create a list of datapoint from a dreem output file. The structure and dms will be predicted if predict_structure and predict_dms are True."""
-        print('Parsing dreem output file')
-        if tqdm:
-            n_lines = len(list(DreemOutput.parse(dreem_output_file)))
-            return cls([DatapointFactory.from_dreem_output(reference, sequence, mutation_rate, predict_structure)
-            for reference, sequence, mutation_rate in tqdm_parser(DreemOutput.parse(dreem_output_file), total=n_lines, desc='Parsing dreem output file')])
+        n_lines = len(list(DreemOutput.parse(dreem_output_file)))
         return cls([DatapointFactory.from_dreem_output(reference, sequence, mutation_rate, predict_structure)
-            for reference, sequence, mutation_rate in DreemOutput.parse(dreem_output_file)])
+            for reference, sequence, mutation_rate in tqdm_parser(DreemOutput.parse(dreem_output_file), total=n_lines, desc='Parsing dreem output file', disable=not tqdm)])
 
     @classmethod
     def from_json(cls, json_file, tqdm=True):
         """Create a list of datapoint from a json file."""
         with open(json_file) as f:
-            if tqdm:
-                return cls([DatapointFactory.from_json_line(line) for line in tqdm_parser(f, total=sum(1 for line in open(json_file) if line.strip() not in ['{', '}']), desc='Parsing json file') if line.strip() not in ['{', '}']])
-            return cls([DatapointFactory.from_json_line(line) for line in f if line.strip() not in ['{', '}']])
+            return cls([DatapointFactory.from_json_line(line) for line in tqdm_parser(f, total=sum(1 for line in open(json_file) if line.strip() not in ['{', '}']), desc='Parsing json file', disable= not tqdm) if line.strip() not in ['{', '}']])
 
 
     def to_base_pairs_npy(self, path):
@@ -65,6 +56,7 @@ class ListofDatapoints:
 
         Examples:
             >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0])])
+            Loaded 1 valid datapoints, filtered out 0 invalid datapoints.
             >>> datapoints.to_base_pairs_npy('temp/base_pairs.npy')
             array([[[1, 2],
                     [3, 4]]], dtype=object)
@@ -86,6 +78,7 @@ class ListofDatapoints:
 
         Examples:
             >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0])])
+            Loaded 1 valid datapoints, filtered out 0 invalid datapoints.
             >>> datapoints.to_dms_npy('temp/dms.npy')
             array([[1.0, 2.0, 3.0]], dtype=object)
         """
@@ -107,6 +100,7 @@ class ListofDatapoints:
         Examples:
             >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0]),\
                                                Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0])])
+            Loaded 2 valid datapoints, filtered out 0 invalid datapoints.
             >>> datapoints.to_sequence_npy('temp/sequence.npy')
             array([[1, 1, 2, 2, 3, 3],
                    [1, 1, 2, 2, 3, 3]], dtype=object)
@@ -128,6 +122,7 @@ class ListofDatapoints:
 
         Examples:
             >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0])])
+            Loaded 1 valid datapoints, filtered out 0 invalid datapoints.
             >>> datapoints.to_reference_npy('temp/reference.npy')
             array(['reference'], dtype='<U9')
         """
@@ -151,6 +146,7 @@ class ListofDatapoints:
 
         Example:
             >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0])])
+            Loaded 1 valid datapoints, filtered out 0 invalid datapoints.
             >>> datapoints.to_pandas()
                reference sequence      paired_bases              dms
             0  reference   AACCGG  [[1, 2], [3, 4]]  [1.0, 2.0, 3.0]
@@ -167,10 +163,11 @@ class ListofDatapoints:
                                 Datapoint(reference='ref3', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[0,0,0,0,0,0]),\
                                 Datapoint(reference='ref4', sequence='AUGGC', paired_bases=[[1, 2]], dms=[0,0,0,0,0]),\
                                 Datapoint(reference='ref5', sequence='GCCUA', paired_bases=[[0, 4], [2, 3]], dms=[0,0,0,0,0]),\
-                                Datapoint(reference='ref6', sequence='GCCUA', paired_bases=[[0, 4]], dms=[0,0,0,0,0]) ])
+                                Datapoint(reference='ref6', sequence='not a regular sequence', paired_bases=[[0, 4]], dms=[0,0,0,0,0]) ])
+            Loaded 5 valid datapoints, filtered out 1 invalid datapoints.
             >>> datapoints.filter_duplicates()
             >>> datapoints.datapoints
-            [Datapoint('ref1', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[0, 0, 0, 0, 0, 0]), Datapoint('ref4', sequence='AUGGC', paired_bases=[[1, 2]], dms=[0, 0, 0, 0, 0])]
+            [Datapoint('ref1', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[0, 0, 0, 0, 0, 0]), Datapoint('ref4', sequence='AUGGC', paired_bases=[[1, 2]], dms=[0, 0, 0, 0, 0]), Datapoint('ref5', sequence='GCCUA', paired_bases=[[0, 4], [2, 3]], dms=[0, 0, 0, 0, 0])]
         """
 
         # Group datapoints by sequence

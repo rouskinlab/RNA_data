@@ -10,6 +10,10 @@ A repo to manipulate the data for our RNA structure prediction model. This repo 
     - `.json` (DREEM output format)
     - `.json` (Rouskinlab's huggingface format)
 
+## Important notes
+
+- Sequences with bases different than `A`, `C`, `G`, `U`, `a`, `c`, `g`, `t`, `u` are not supported. The data will be filtered out.
+
 ## Installation
 
 ### Get a HuggingFace token
@@ -71,7 +75,7 @@ The variables defined in the `env` file are required by `rouskinhf`. Make that b
 
 ```bash
 source env
-``` 
+```
  or, in a Jupyter notebook:
 
 ```python
@@ -79,7 +83,7 @@ source env
 %load_ext dotenv
 %dotenv env
 ```
- 
+
  The point of using environment variables is to ensure the privacy of your huggingface token. Make sure to add your `env` file to your `.gitignore`, so your HuggingFace token doesn't get pushed to any public repository.
 
 ### Import data with ``import_dataset``
