@@ -4,8 +4,6 @@ on:
     branches: all
   pull_request:
     branches: [ main ]
-  release:
-    types: [created]
 
 jobs:
   docstring-tests:
@@ -26,4 +24,4 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install .
-        python -m pytest -v --doctest-modules 
+        python -m pytest -v --doctest-modules -HUGGINGFACE_TOKEN
