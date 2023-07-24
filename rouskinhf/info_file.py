@@ -67,7 +67,7 @@ class InfoFileWriterFromDREEMoutput(InfoFileWriterTemplate):
             if type(v) != dict:
                 self.info[k] = v
 
-        self.info['source'] = "DREEM output"
+        self.info['source'] = "`{}` (DREEM output format)".format(os.path.basename(path_in))
         self.info['structure'] = STRUCTURE_FROM_RNASTRUCTURE
         self.info['about structure'] = 'Predicted using RNAstructure and the DMS reactivity data.'
         self.info['DMS'] = DMS_FROM_SOURCE
@@ -76,10 +76,10 @@ class InfoFileWriterFromDREEMoutput(InfoFileWriterTemplate):
 
 class InfoFileWriterFromCT(InfoFileWriterTemplate):
 
-    def __init__(self, name, root) -> None:
+    def __init__(self, name, root, path_in) -> None:
         super().__init__(name, root)
 
-        self.info['source'] = "CT file"
+        self.info['source'] = "`{}` (CT files format)".format(os.path.basename(path_in))
         self.info['structure'] = STRUCTURE_FROM_SOURCE
         self.info['about structure'] = 'Read from source.'
         self.info['DMS'] = DMS_FROM_RNASTRUCTURE
@@ -88,10 +88,10 @@ class InfoFileWriterFromCT(InfoFileWriterTemplate):
 
 class InfoFileWriterFromFasta(InfoFileWriterTemplate):
 
-    def __init__(self, name, root) -> None:
+    def __init__(self, name, root, path_in) -> None:
         super().__init__(name, root)
 
-        self.info['source'] = "fasta file"
+        self.info['source'] = "`{}` (fasta file format)".format(os.path.basename(path_in))
         self.info['structure'] = STRUCTURE_FROM_RNASTRUCTURE
         self.info['about structure'] = 'Predicted using RNAstructure at 310K.'
         self.info['DMS'] = DMS_FROM_RNASTRUCTURE
@@ -102,8 +102,8 @@ def infoFileWriter(source, datafolder):
     if source == 'dreem_output':
         return InfoFileWriterFromDREEMoutput(datafolder.name, datafolder.path_out, datafolder.path_in)
     if source == 'ct':
-        return InfoFileWriterFromCT(datafolder.name, datafolder.path_out)
+        return InfoFileWriterFromCT(datafolder.name, datafolder.path_out, datafolder.path_in)
     if source == 'fasta':
-        return InfoFileWriterFromFasta(datafolder.name, datafolder.path_out)
+        return InfoFileWriterFromFasta(datafolder.name, datafolder.path_out, datafolder.path_in)
     raise ValueError(f"Unknown source: {source}")
 
