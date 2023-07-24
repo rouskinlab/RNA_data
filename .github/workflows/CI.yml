@@ -21,7 +21,7 @@ jobs:
 
       - name: Get RNAstructure source code
         run: |
-          git clone https://github.com/rouskinlab/RNAstructure
+          git clone https://github.com/rouskinlab/RNAstructure/tree/v0.1.0
           mv RNAstructure/RNAstructureSource.zip . && rm -rf RNAstructure
           unzip RNAstructureSource.zip 
           
@@ -47,6 +47,10 @@ jobs:
       - name: Build RNAstructure
         working-directory: ./RNAstructure
         run: make all
+      
+      - name: Remove parts of RNAstructure we don't need
+        working-directory: ./RNAstructure
+        run: rm -fr python_interface && rm -fr CycleFold
 
       - name: Set environment variables for RNAstructure
         run: |
