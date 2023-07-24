@@ -1,4 +1,4 @@
-
+[![Python CI](https://github.com/rouskinlab/rouskinhf/actions/workflows/CI.yml/badge.svg)](https://github.com/rouskinlab/rouskinhf/actions/workflows/CI.yml)
 
 # Download your RNA data from HuggingFace with rouskinhf!
 
