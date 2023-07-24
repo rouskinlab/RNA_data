@@ -19,6 +19,7 @@ jobs:
     - name: Install dependencies
       env:
         HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
+        HUGGINGFACE_TOKEN_WRONG: ${{ secrets.HUGGINGFACE_TOKEN_NOISEAEVSBRFS }}
         DATA_FOLDER: ${{ secrets.DATA_FOLDER }}
         DATA_FOLDER_TESTING: ${{ secrets.DATA_FOLDER_TESTING }}
         RNASTRUCTURE_PATH: ${{ secrets.RNASTRUCTURE_PATH }}
@@ -29,4 +30,4 @@ jobs:
 
     - name: Run docstring tests
       run: |
-        python -m pytest
+        python -m pytest -v --doctest-modules -HU
