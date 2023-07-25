@@ -97,11 +97,11 @@ class DreemOutput:
 
 
         values = np.concatenate(df.sub_rate.values)
-        percentile90 = np.percentile(values, 90)
+        percentile975 = np.percentile(values, 97.5)
 
         def normalize(sub_rate):
             sub_rate = np.array(sub_rate)
-            sub_rate = sub_rate / percentile90
+            sub_rate = sub_rate / percentile975
             sub_rate[sub_rate > 1] = 1
             return sub_rate.tolist()
 

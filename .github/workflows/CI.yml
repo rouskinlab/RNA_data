@@ -1,6 +1,6 @@
 name: Tests
 on:
-  [push, pull_request]
+  [push, pull_request, release]
 
 jobs:
   build_and_test:
@@ -65,3 +65,4 @@ jobs:
           pip install .
           mkdir temp
           python -m pytest rouskinhf -v --doctest-modules
+

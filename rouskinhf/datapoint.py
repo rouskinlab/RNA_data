@@ -23,6 +23,8 @@ class Datapoint:
     >>> print(datapoint)
     None
     >>> datapoint = Datapoint(reference='reference', sequence='NNNNNNN', structure='((..))')
+    >>> print(datapoint)
+    None
     """
 
     def __new__(cls, *args, **kwargs):
@@ -139,7 +141,7 @@ class DatapointFactory:
             return Datapoint(
                 sequence=sequence,
                 reference=reference,
-                structure=Fasta.predict_structure(sequence) if predict_structure else None,
+                structure=RNAstructure_singleton.predictStructure(sequence, dms=mutation_rate) if predict_structure else None,
                 dms=mutation_rate)
         print('DatapointFactory.from_dreem_output: sequence is not valid "{}"'.format(set(sequence) - set('ACGTUacgtu')))
 

@@ -9,8 +9,10 @@ DMS_FROM_SOURCE = 'source'
 
 class InfoFileWriterTemplate(PathDatafolder):
 
-    def __init__(self, name, root) -> None:
+    def __init__(self, name, root, has_dms, has_structure) -> None:
         super().__init__(name, root)
+        self.has_dms = has_dms
+        self.has_structure = has_structure
 
         self.info = {
             'name': self.name,
@@ -31,34 +33,28 @@ language:
   - en
 tags:
   - chemistry
-  - biology
+  - biology`
 author: Silvi Rouskin
 pretty_name: {self.name}
 ---
 
 """)
-
+            f.write(f"# {self.name}\n")
             for k, v in self.info.items():
-                if k not in ['structure', 'about structure', 'DMS', 'about DMS']:
-                    f.write(f"{k}: {v}\n\n")
-            f.write(f"""
-
-structure: {self.info['structure']} ({self.info['about structure']})
-
-DMS: {self.info['DMS']} ({self.info['about DMS']})
-
-"""
-
-
-
-)
+                if k not in ['structure', 'about structure', 'DMS', 'about DMS','name']:
+                    f.write(f"\t{k}: {v}\n")
+            f.write(f"\tData types:")
+            if self.has_structure:
+                f.write(f"\n\t- structure ({self.info['about structure']})")
+            if self.has_dms:
+                f.write(f"\n\t- DMS ({self.info['about DMS']})")
 
 
 
 class InfoFileWriterFromDREEMoutput(InfoFileWriterTemplate):
 
     def __init__(self, name, root, path_in, predict_dms, predict_structure) -> None:
-        super().__init__(name, root)
+        super().__init__(name, root, has_dms=True, has_structure=predict_structure)
 
         file = json.load(open(path_in, 'r'))
         if 'user' in file:
@@ -77,7 +73,7 @@ class InfoFileWriterFromDREEMoutput(InfoFileWriterTemplate):
 class InfoFileWriterFromCT(InfoFileWriterTemplate):
 
     def __init__(self, name, root, path_in, predict_dms, predict_structure) -> None:
-        super().__init__(name, root)
+        super().__init__(name, root, has_dms=predict_dms, has_structure=True)
 
         self.info['source'] = "`{}` (CT files format)".format(os.path.basename(path_in))
         self.info['structure'] = STRUCTURE_FROM_SOURCE
@@ -89,7 +85,7 @@ class InfoFileWriterFromCT(InfoFileWriterTemplate):
 class InfoFileWriterFromFasta(InfoFileWriterTemplate):
 
     def __init__(self, name, root, path_in, predict_dms, predict_structure) -> None:
-        super().__init__(name, root)
+        super().__init__(name, root, has_dms=predict_dms, has_structure=predict_structure)
 
         self.info['source'] = "`{}` (fasta file format)".format(os.path.basename(path_in))
         self.info['structure'] = STRUCTURE_FROM_RNASTRUCTURE
