@@ -23,6 +23,8 @@ class Datapoint:
     >>> print(datapoint)
     None
     >>> datapoint = Datapoint(reference='reference', sequence='NNNNNNN', structure='((..))')
+    >>> print(datapoint)
+    None
     """
 
     def __new__(cls, *args, **kwargs):

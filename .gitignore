@@ -12,6 +12,8 @@ docs/_*
 pypi_pass.txt
 rouskinhf.egg*
 build
-.ipynb
-.ptest_cache
+.ipynb*
+.pytest_cache
 .vscode
+*.tar.gz
+*.whl
