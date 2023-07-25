@@ -133,3 +133,5 @@ class RNAstructure(object):
         run_command(cmd)
         with open(self.dot_file, 'r') as f:
             return f.readlines()[2].strip()
+
+RNAstructure_singleton = RNAstructure()

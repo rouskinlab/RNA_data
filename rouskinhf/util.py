@@ -2,23 +2,10 @@ import os
 
 # Define the one-hot encodings for the sequences and structures
 seq2int = {
-        'A': 1,
-        'C': 2,
-        'G': 3,
-        'T': 4,
-        'U': 4,
-        'N': 5,
-        'Y': 6,
-        'R': 7,
-        'K': 8,
-        'W': 9,
-        'S': 10,
-        'M': 11,
-        'B': 12,
-        'D': 13,
-        'H': 14,
-        'V': 15,
-        'X': 0
+        'A': 0,
+        'C': 1,
+        'G': 2,
+        'U': 3,
     }
 
 dot2int = {'.': 1, '(': 2, ')': 3, 'X': 0}
@@ -131,4 +118,4 @@ def standardize_sequence(sequence):
     return sequence
 
 def sequence_has_regular_characters(sequence):
-    return not (set(sequence) - set('ACGUN'))
+    return not (set(sequence) - set('ACGU'))

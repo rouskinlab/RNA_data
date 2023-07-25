@@ -57,7 +57,7 @@ DMS: {self.info['DMS']} ({self.info['about DMS']})
 
 class InfoFileWriterFromDREEMoutput(InfoFileWriterTemplate):
 
-    def __init__(self, name, root, path_in) -> None:
+    def __init__(self, name, root, path_in, predict_dms, predict_structure) -> None:
         super().__init__(name, root)
 
         file = json.load(open(path_in, 'r'))
@@ -76,7 +76,7 @@ class InfoFileWriterFromDREEMoutput(InfoFileWriterTemplate):
 
 class InfoFileWriterFromCT(InfoFileWriterTemplate):
 
-    def __init__(self, name, root, path_in) -> None:
+    def __init__(self, name, root, path_in, predict_dms, predict_structure) -> None:
         super().__init__(name, root)
 
         self.info['source'] = "`{}` (CT files format)".format(os.path.basename(path_in))
@@ -88,7 +88,7 @@ class InfoFileWriterFromCT(InfoFileWriterTemplate):
 
 class InfoFileWriterFromFasta(InfoFileWriterTemplate):
 
-    def __init__(self, name, root, path_in) -> None:
+    def __init__(self, name, root, path_in, predict_dms, predict_structure) -> None:
         super().__init__(name, root)
 
         self.info['source'] = "`{}` (fasta file format)".format(os.path.basename(path_in))
@@ -98,12 +98,13 @@ class InfoFileWriterFromFasta(InfoFileWriterTemplate):
         self.info['about DMS'] = 'Predicted using RNAstructure at 310K.'
 
 
-def infoFileWriter(source, datafolder):
+def infoFileWriter(source, datafolder, predict_dms, predict_structure):
+
     if source == 'dreem_output':
-        return InfoFileWriterFromDREEMoutput(datafolder.name, datafolder.path_out, datafolder.path_in)
+        return InfoFileWriterFromDREEMoutput(datafolder.name, datafolder.path_out, datafolder.path_in, predict_dms=predict_dms, predict_structure=predict_structure)
     if source == 'ct':
-        return InfoFileWriterFromCT(datafolder.name, datafolder.path_out, datafolder.path_in)
+        return InfoFileWriterFromCT(datafolder.name, datafolder.path_out, datafolder.path_in, predict_dms=predict_dms, predict_structure=predict_structure)
     if source == 'fasta':
-        return InfoFileWriterFromFasta(datafolder.name, datafolder.path_out, datafolder.path_in)
+        return InfoFileWriterFromFasta(datafolder.name, datafolder.path_out, datafolder.path_in, predict_dms=predict_dms, predict_structure=predict_structure)
     raise ValueError(f"Unknown source: {source}")
 
