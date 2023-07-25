@@ -21,7 +21,7 @@ A repo to manipulate the data for our RNA structure prediction model. This repo 
 
 ## Push a new release to Pypi
 
-1. Edit version to `vx.y.z` in `pyproject.toml`. Then run in a terminal `git add . && git commit -m 'vx.y.z'`.
+1. Edit version to `vx.y.z` in `pyproject.toml`. Then run in a terminal `git add . && git commit -m 'vx.y.z' && git push`.
 2. Create and push a git tag `vx.y.z` by running in a terminal `git tag 'vx.y.z' && git push --tag`.
 3. Create a release for the tag `vx.y.z` on Github Release.
 4. Make sure that the Github Action `Publish distributions 📦 to PyPI` passed on Github Actions.
