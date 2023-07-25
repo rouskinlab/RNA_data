@@ -3,6 +3,11 @@ name: Publish To PyPI on Release
 on:
   release:
     types: [created]
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
 
 jobs:
   pypi-publish:

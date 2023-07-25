@@ -1,6 +1,6 @@
 name: Tests
 on:
-  [push, pull_request]
+  [push, pull_request, release]
 
 jobs:
   build_and_test:
@@ -65,3 +65,9 @@ jobs:
           pip install .
           mkdir temp
           python -m pytest rouskinhf -v --doctest-modules
+  
+  push_to_pypi:
+    # Only push to PyPI when a new release is created and build_and_test passed
+    if: github.event_name == 'release' && github.event.action == 'published'
+    runs-on: ubuntu-latest
+    
