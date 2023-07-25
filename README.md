@@ -13,10 +13,16 @@ A repo to manipulate the data for our RNA structure prediction model. This repo 
 ## Important notes
 
 - Sequences with bases different than `A`, `C`, `G`, `T`, `U`, `N`, `a`, `c`, `g`, `t`, `u`, `n` are not supported. The data will be filtered out.
-- Creating a new release will push the package to Pypi automatically.
 
 ## Dependencies
 - [RNAstructure](https://rna.urmc.rochester.edu/RNAstructure.html) (also available on [Rouskinlab GitHub](https://github.com/rouskinlab/RNAstructure)).
+
+## Push a new release to Pypi
+
+1. Edit version to `vx.y.z` in `pyproject.toml`.
+2. Create and push a git tag `vx.y.z` such as `git tag 'vx.y.z' && git push --tag`.
+3. Create a release for the tag `vx.y.z` on Github Release.
+4. Make sure that the Github Action `Publish distributions 📦 to PyPI` passed on Github Actions.
 
 ## Installation
 
