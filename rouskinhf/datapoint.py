@@ -3,6 +3,7 @@ from typing import Any, List
 from .parsers import *
 from .util import add_braces_if_no_braces, dot2int, int2dot, seq2int, standardize_sequence, sequence_has_regular_characters
 import numpy as np
+from .rnastructure import RNAstructure_singleton
 
 class Datapoint:
 
@@ -21,16 +22,18 @@ class Datapoint:
     >>> datapoint = Datapoint(reference='reference', sequence='not a valid sequence', structure='((..))')
     >>> print(datapoint)
     None
+    >>> datapoint = Datapoint(reference='reference', sequence='NNNNNNN', structure='((..))')
     """
 
     def __new__(cls, *args, **kwargs):
         # Check if the conditions are met before creating the object
         sequence = kwargs.get('sequence', args[0] if len(args) > 0 else None)
-        if sequence is None:
-            raise ValueError("Object creation aborted: sequence is None.")
+        reference = kwargs.get('reference', args[1] if len(args) > 1 else None)
+        if sequence is None or reference is None:
+            return None
         sequence = standardize_sequence(sequence)
 
-        if not sequence_has_regular_characters(sequence):
+        if not sequence_has_regular_characters(sequence) or len(sequence) == 0 or len(reference) == 0:
             return None
 
         # If conditions are met, create and return the new instance
@@ -84,16 +87,16 @@ class Datapoint:
 
         >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
         >>> datapoint.embed_sequence()
-        array([1, 1, 2, 2, 3, 3])
+        array([0, 0, 1, 1, 2, 2])
         """
         return np.array([seq2int[base] for base in self.sequence])
 
     def embed_structure(self):
         """Returns a list of integers corresponding to the structure.
 
+        >>> from numpy import array
         >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
-        >>> datapoint.embed_structure()
-        array([2, 2, 1, 1, 3, 3])
+        >>> assert not (datapoint.embed_structure() - array([2, 2, 1, 1, 3, 3])).any(), 'The sequence is not embedded correctly.'
         """
         return np.array([dot2int[base] for base in self.structure])
 
@@ -108,15 +111,6 @@ class DatapointFactory:
     - dms is a list of floats corresponding to the reactivity of each base in the sequence
 
     """
-
-    def __call__(sequence, reference, structure=None, dms=None, predict_structure=False, predict_dms=False):
-        sequence = standardize_sequence(sequence)
-
-        if sequence_has_regular_characters(sequence):
-            if structure is None and predict_structure:
-                structure = Fasta.predict_structure(sequence)
-            return Datapoint(sequence, reference, structure, dms)
-
     def from_ct(ct_file, predict_dms):
         """Create a datapoint from a ct file. If predict_dms is True, the dms will be predicted using RNAstructure"""
         reference, sequence, paired_bases = Ct.parse(ct_file)

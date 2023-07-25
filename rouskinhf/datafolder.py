@@ -13,6 +13,7 @@ import numpy as np
 from huggingface_hub import HfApi
 from huggingface_hub import snapshot_download
 
+
 GENERATE_NPY = False
 PREDICT_STRUCTURE = False
 PREDICT_DMS = False
@@ -70,7 +71,7 @@ class CreateDatafolderTemplate(DataFolderTemplate):
         os.system(f'cp -fr {path_in} {self.get_source_folder()}')
 
         # Write info file
-        infoFileWriter(source=source, datafolder=self).write()
+        infoFileWriter(source=source, datafolder=self, predict_dms=predict_dms, predict_structure=predict_dms).write()
 
 
     def __repr__(self) -> str:
@@ -175,9 +176,6 @@ class CreateDatafolderTemplate(DataFolderTemplate):
             return future
 
 
-
-
-
     def dump_datapoints(self, generate_npy):
         """Dump the datapoints to a json file."""
 
@@ -228,6 +226,7 @@ class CreateDatafolderFromDreemOutput(CreateDatafolderTemplate):
         super().__init__(path_in, path_out, name, source = 'dreem_output', predict_structure = predict_structure, predict_dms = False)
 
         self.datapoints = ListofDatapoints.from_dreem_output(path_in, predict_structure = predict_structure, tqdm=tqdm)
+        self.datapoints.filter_duplicates()
         self.dump_datapoints(generate_npy)
 
 
@@ -271,6 +270,7 @@ class CreateDatafolderFromFasta(CreateDatafolderTemplate):
         super().__init__(path_in, path_out, name, source = 'fasta', predict_structure = predict_structure, predict_dms = predict_dms)
 
         self.datapoints = ListofDatapoints.from_fasta(path_in, predict_structure = predict_structure, predict_dms = predict_dms, tqdm=tqdm)
+        self.datapoints.filter_duplicates()
         self.dump_datapoints(generate_npy)
 
 
