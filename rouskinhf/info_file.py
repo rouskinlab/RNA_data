@@ -41,14 +41,15 @@ pretty_name: {self.name}
 """)
             f.write(f"# {self.name}\n")
             for k, v in self.info.items():
-                if k not in ['structure', 'about structure', 'DMS', 'about DMS','name']:
+                if k not in ['structure', 'about structure', 'DMS', 'about DMS','name', 'filtering_report']:
                     f.write(f"\t{k}: {v}\n")
-            f.write(f"\tData types:")
+            f.write(f"\n\tData types:")
             if self.has_structure:
                 f.write(f"\n\t- structure ({self.info['about structure']})")
             if self.has_dms:
                 f.write(f"\n\t- DMS ({self.info['about DMS']})")
-
+            if 'filtering_report' in self.info:
+                f.write(f"\n\n\tFiltering report: \n\t{self.info['filtering_report']}")
         return self
     
     def add_filtering_report(self, filtering_report):
