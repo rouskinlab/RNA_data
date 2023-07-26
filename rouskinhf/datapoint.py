@@ -22,6 +22,10 @@ class Datapoint:
     None
     >>> print(Datapoint(reference='reference', sequence='NNNNNNN', structure='((..))'))
     None
+    >>> print(Datapoint(reference='reference', sequence='AACCGG', paired_bases=[(0, 5), (1, 4)]))
+    "reference":{"sequence": "AACCGG", "paired_bases": [[0, 5], [1, 4]]}
+    >>> print(Datapoint(reference='reference', sequence='AACCGG', paired_bases=[(1, 5), (1, 4)]))
+    None
     """
 
     def __new__(cls, *args, **kwargs):
@@ -34,6 +38,10 @@ class Datapoint:
 
         if not sequence_has_regular_characters(sequence) or len(sequence) == 0 or len(reference) == 0:
             return None
+        
+        if 'paired_bases' in kwargs:
+            if not cls._assert_paired_bases(None, kwargs['paired_bases'], sequence):
+                return None
 
         # If conditions are met, create and return the new instance
         instance = super().__new__(cls)
@@ -54,7 +62,6 @@ class Datapoint:
         self.sequence = sequence
         self.structure = structure
         self.paired_bases = self._format_paired_bases(paired_bases) if paired_bases is not None else self._format_paired_bases(self.structure_to_paired_bases(structure)) if structure is not None else None
-        assert self._assert_paired_bases(self.paired_bases, self.sequence), f"Paired bases {self.paired_bases} are not valid for sequence {self.sequence}."
         self.dms = self._format_dms(dms) if dms is not None else None
         self.opt_dict = {'paired_bases': self.paired_bases, 'dms': self.dms}
 
