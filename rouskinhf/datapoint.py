@@ -16,14 +16,11 @@ class Datapoint:
 
 
     Example:
-    >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
-    >>> print(datapoint)
-    "reference":{"sequence": "AACCGG", "paired_bases": [[1, 4], [0, 5]], "dms": [1.0, 2.0, 3.0]}
-    >>> datapoint = Datapoint(reference='reference', sequence='not a valid sequence', structure='((..))')
-    >>> print(datapoint)
+    >>> print(Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0]))
+    "reference":{"sequence": "AACCGG", "paired_bases": [[0, 5], [1, 4]], "dms": [1.0, 2.0, 3.0]}
+    >>> print(Datapoint(reference='reference', sequence='not a valid sequence', structure='((..))'))
     None
-    >>> datapoint = Datapoint(reference='reference', sequence='NNNNNNN', structure='((..))')
-    >>> print(datapoint)
+    >>> print(Datapoint(reference='reference', sequence='NNNNNNN', structure='((..))'))
     None
     """
 
@@ -53,19 +50,60 @@ class Datapoint:
         if not sequence_has_regular_characters(sequence):
             raise Exception(f"Sequence {sequence} contains characters other than ACGTUacgtu.")
 
-
         self.reference = reference
         self.sequence = sequence
         self.structure = structure
-        self.paired_bases = paired_bases if paired_bases is not None else self.structure_to_paired_bases(structure) if structure is not None else None
-        self.dms = dms
+        self.paired_bases = self._format_paired_bases(paired_bases) if paired_bases is not None else self._format_paired_bases(self.structure_to_paired_bases(structure)) if structure is not None else None
+        assert self._assert_paired_bases(self.paired_bases, self.sequence), f"Paired bases {self.paired_bases} are not valid for sequence {self.sequence}."
+        self.dms = self._format_dms(dms) if dms is not None else None
         self.opt_dict = {'paired_bases': self.paired_bases, 'dms': self.dms}
+
+    def _format_paired_bases(self, paired_bases):
+        """Returns a set of tuples.
+        >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
+        >>> datapoint._format_paired_bases([[1, 4], [0, 5]])
+        ((0, 5), (1, 4))
+        """
+        return tuple(sorted([tuple(sorted(pair)) for pair in paired_bases])) if paired_bases is not None else None
+    
+    def _assert_paired_bases(self, paired_bases, sequence):
+        """Ensures that the base pairs are 0=<bp<len(sequence) and that that there's maximum one pair per base. 
+        >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
+        >>> datapoint._assert_paired_bases([(0, 5), (1, 4)], 'AACCGG')
+        True
+        >>> datapoint._assert_paired_bases([(0, 5), (1, 4), (1, 2)], 'AACCGG')
+        False
+        >>> datapoint._assert_paired_bases([(0, 5), (4, 1), (1, 2)], 'AACCGG')
+        False
+        >>> datapoint._assert_paired_bases([(0, 8), (3, 4), (1, 2)], 'AACCGG')
+        False
+        >>> datapoint._assert_paired_bases(None, 'AACCGG')
+        True
+        """
+        if paired_bases is not None:
+            return all([0 <= pair[0] < len(sequence) and 0 <= pair[1] < len(sequence) and pair[0] != pair[1] for pair in paired_bases]) \
+                and len(set([pair[0] for pair in paired_bases] + [pair[1] for pair in paired_bases])) == len(paired_bases) * 2
+        else:
+            return True
+
+    def _format_dms(self, dms):
+        """returns a tuple
+        >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
+        >>> datapoint._format_dms([1.0, 2.0, 3.0])
+        (1.0, 2.0, 3.0)
+        """
+        return tuple(dms) if dms is not None else None
+        
 
     def to_dict(self):
         return self.reference, {'sequence': self.sequence, **{k:v for k,v in self.opt_dict.items() if v is not None}}
 
     def to_flat_dict(self):
         return {'reference': self.reference, 'sequence': self.sequence, **{k:v for k,v in self.opt_dict.items() if v is not None}}
+
+    @classmethod
+    def from_flat_dict(cls, d):
+        return cls(sequence=d['sequence'], reference=d['reference'], **{k:v for k,v in d.items() if k not in ['sequence', 'reference']})
 
     def __str__(self):
         return '"'+self.reference+'"' + ':' + str({"sequence": self.sequence, **{k:v for k,v in self.opt_dict.items() if v is not None}}).replace("'",'"').replace('(','[').replace(')',']').replace('None','null')
@@ -75,13 +113,13 @@ class Datapoint:
 
     def structure_to_paired_bases(self, structure):
         """Returns a list of tuples (i,j) where i and j are paired bases."""
-        paired_bases = []
+        paired_bases = set()
         stack = []
         for i, char in enumerate(structure):
             if char == '(':
                 stack.append(i)
             elif char == ')':
-                paired_bases.append((stack.pop(), i))
+                paired_bases.add((stack.pop(), i))
         return paired_bases
 
     def embed_sequence(self):
@@ -143,7 +181,6 @@ class DatapointFactory:
                 reference=reference,
                 structure=RNAstructure_singleton.predictStructure(sequence, dms=mutation_rate) if predict_structure else None,
                 dms=mutation_rate)
-        print('DatapointFactory.from_dreem_output: sequence is not valid "{}"'.format(set(sequence) - set('ACGTUacgtu')))
 
 
     def from_json_line(string):
@@ -154,7 +191,7 @@ class DatapointFactory:
         >>> DatapointFactory.from_json_line('"reference": {"sequence": "ACAAGU"}')
         Datapoint('reference', sequence='ACAAGU', paired_bases=None, dms=None)
         >>> DatapointFactory.from_json_line('"reference": {"sequence": "ACAAGU", "paired_bases": [[1, 2], [3, 4]], "dms": [1.0, 2.0, 3.0]}')
-        Datapoint('reference', sequence='ACAAGU', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0])
+        Datapoint('reference', sequence='ACAAGU', paired_bases=((1, 2), (3, 4)), dms=(1.0, 2.0, 3.0))
         >>> DatapointFactory.from_json_line('"reference": {"sequence": "something else than ACGTUacgtu", "paired_bases": [[1, 2], [3, 4]], "dms": [1.0, 2.0, 3.0]}')
         """
 

@@ -20,27 +20,22 @@ def import_dataset(name:str, data:str, force_download:bool=False)->ndarray:
     Returns
     -------
 
-    ndarray
-        The dataset with the given name for the given type of data.
+    dict: {str: ndarray}
+        Dictionary with the following keys: 'references', 'sequences', and 'structure' or 'DMS' depending on the data type.
 
     Example
     -------
 
-    >>> import_dataset(name='for_testing', data='structure').keys()
-    Loaded 2 valid datapoints, filtered out 0 invalid datapoints.
-    dict_keys(['references', 'sequences', 'structure'])
-    >>> import_dataset(name='for_testing', data='DMS').keys()
-    Loaded 2 valid datapoints, filtered out 0 invalid datapoints.
-    dict_keys(['references', 'sequences', 'DMS'])
     >>> import_dataset(name='for_testing', data='structure', force_download=True).keys()
-    Loaded 2 valid datapoints, filtered out 0 invalid datapoints.
+    Over a total of 2 datapoints, there are:
+        - 2 valid datapoints
+        - 0 invalid datapoints (ex: sequence with non-regular characters)
+        - 0 datapoints with the same reference
+        - 0 duplicate sequences with the same structure / dms
+        - 0 duplicate sequences with different structure / dms
     dict_keys(['references', 'sequences', 'structure'])
-    >>> import_dataset(name='for_testing', data='DMS', force_download=True).keys()
-    Loaded 2 valid datapoints, filtered out 0 invalid datapoints.
-    dict_keys(['references', 'sequences', 'DMS'])
-
     """
-
+    if data == 'dms': data = 'DMS'
     assert data in ['structure', 'DMS'], "data must be either 'structure' or 'DMS'"
 
     # Get the data folder

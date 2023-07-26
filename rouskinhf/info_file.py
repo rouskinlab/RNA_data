@@ -49,6 +49,11 @@ pretty_name: {self.name}
             if self.has_dms:
                 f.write(f"\n\t- DMS ({self.info['about DMS']})")
 
+        return self
+    
+    def add_filtering_report(self, filtering_report):
+        self.info['filtering_report'] = filtering_report
+        return self
 
 
 class InfoFileWriterFromDREEMoutput(InfoFileWriterTemplate):
@@ -64,8 +69,9 @@ class InfoFileWriterFromDREEMoutput(InfoFileWriterTemplate):
                 self.info[k] = v
 
         self.info['source'] = "`{}` (DREEM output format)".format(os.path.basename(path_in))
-        self.info['structure'] = STRUCTURE_FROM_RNASTRUCTURE
-        self.info['about structure'] = 'Predicted using RNAstructure and the DMS reactivity data.'
+        if predict_structure:
+            self.info['structure'] = STRUCTURE_FROM_RNASTRUCTURE
+            self.info['about structure'] = 'Predicted using RNAstructure and the DMS reactivity data.'
         self.info['DMS'] = DMS_FROM_SOURCE
         self.info['about DMS'] = 'Measured experimentally using the attached experimental conditions.'
 
@@ -78,8 +84,9 @@ class InfoFileWriterFromCT(InfoFileWriterTemplate):
         self.info['source'] = "`{}` (CT files format)".format(os.path.basename(path_in))
         self.info['structure'] = STRUCTURE_FROM_SOURCE
         self.info['about structure'] = 'Read from source.'
-        self.info['DMS'] = DMS_FROM_RNASTRUCTURE
-        self.info['about DMS'] = 'Predicted using RNAstructure at 310K.'
+        if predict_dms:
+            self.info['DMS'] = DMS_FROM_RNASTRUCTURE
+            self.info['about DMS'] = 'Predicted using RNAstructure at 310K.'
 
 
 class InfoFileWriterFromFasta(InfoFileWriterTemplate):
@@ -88,10 +95,12 @@ class InfoFileWriterFromFasta(InfoFileWriterTemplate):
         super().__init__(name, root, has_dms=predict_dms, has_structure=predict_structure)
 
         self.info['source'] = "`{}` (fasta file format)".format(os.path.basename(path_in))
-        self.info['structure'] = STRUCTURE_FROM_RNASTRUCTURE
-        self.info['about structure'] = 'Predicted using RNAstructure at 310K.'
-        self.info['DMS'] = DMS_FROM_RNASTRUCTURE
-        self.info['about DMS'] = 'Predicted using RNAstructure at 310K.'
+        if predict_structure:
+            self.info['structure'] = STRUCTURE_FROM_RNASTRUCTURE
+            self.info['about structure'] = 'Predicted using RNAstructure at 310K.'
+        if predict_dms:
+            self.info['DMS'] = DMS_FROM_RNASTRUCTURE
+            self.info['about DMS'] = 'Predicted using RNAstructure at 310K.'
 
 
 def infoFileWriter(source, datafolder, predict_dms, predict_structure):

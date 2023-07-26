@@ -43,11 +43,11 @@ nano env
 Copy paste the following content, and change the values to your own:
 
 ```bash
-HUGGINGFACE_TOKEN="your token here"  # you must change this to your HuggingFace token
-DATA_FOLDER="data/datafolders" # where the datafolder are stored by default, change it if you want to store it somewhere else
-DATA_FOLDER_TESTING="data/input_files_for_testing" # Don't touch this
-RNASTRUCTURE_PATH="/Users/ymdt/src/RNAstructure/exe" # Change this to the path of your RNAstructure executable
-RNASTRUCTURE_TEMP_FOLDER="temp" # You can change this to the path of your RNAstructure temp folder
+export HUGGINGFACE_TOKEN="your token here"  # you must change this to your HuggingFace token
+export DATA_FOLDER="data/datafolders" # where the datafolder are stored by default, change it if you want to store it somewhere else
+export DATA_FOLDER_TESTING="data/input_files_for_testing" # Don't touch this
+export RNASTRUCTURE_PATH="/Users/ymdt/src/RNAstructure/exe" # Change this to the path of your RNAstructure executable
+export RNASTRUCTURE_TEMP_FOLDER="temp" # You can change this to the path of your RNAstructure temp folder
 ```
 
 Then save the file and exit nano.

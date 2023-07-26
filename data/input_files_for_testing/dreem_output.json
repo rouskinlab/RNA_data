@@ -5267,7 +5267,7 @@
       "deltaG": -33.7,
       "section_end": 170,
       "section_start": 1,
-      "sequence": "TTAAACCGGCCAACATACCGCATATGAGGATCACCCATATGCTCAGATATTCGAAAGAATATCTTCCACAGTCGAAAGACTGTGTCTCTCTCTTCCTTTTTCTCTTCCTCTTTCTCTTTCTCTTTCTCTTCTCTTCTCTACTCTTAGACGTCGCTACTCGTTCCTTTCGA",
+      "sequence": "TTAAACCGGCCAACATACCGCATATGAGGATCNCCCATATGCTCAGATATTCGAAAGAATATCTTCCACAGTCGAAAGACTGTGTCTCTCTCTTCCTTTTTCTCTTCCTCTTTCTCTTTCTCTTTCTCTTCTCTTCTCTACTCTTAGACGTCGCTACTCGTTCCTTTCGA",
       "structure": "......((((.........(((((((.((....)))))))))..((((((((....))))))))..(((((((....)))))))....................................................((((....)))).)))).................",
       "pop_avg": {
         "min_cov": 5391,
