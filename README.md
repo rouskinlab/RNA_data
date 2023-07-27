@@ -1,6 +1,7 @@
 [![Python CI](https://github.com/rouskinlab/rouskinhf/actions/workflows/CI.yml/badge.svg)](https://github.com/rouskinlab/rouskinhf/actions/workflows/CI.yml)
 [![Publish distributions 📦 to PyPI](https://github.com/rouskinlab/rouskinhf/actions/workflows/release.yml/badge.svg)](https://github.com/rouskinlab/rouskinhf/actions/workflows/release.yml)
 ![PyPI](https://img.shields.io/pypi/v/rouskinhf)
+![GitHub tag (with filter)](https://img.shields.io/github/v/tag/rouskinlab/rouskinhf)
 
 # Download your RNA data from HuggingFace with rouskinhf!
 
