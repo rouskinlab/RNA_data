@@ -27,6 +27,7 @@ def import_dataset(name:str, data:str, force_download:bool=False, force_generate
     -------
 
     >>> import_dataset(name='for_testing', data='structure', force_download=True).keys()
+    Force download from HuggingFace Hub
     Over a total of 2 datapoints, there are:
         - 2 valid datapoints
         - 0 invalid datapoints (ex: sequence with non-regular characters)

@@ -134,7 +134,7 @@ class Datapoint:
 
         >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
         >>> datapoint.embed_sequence()
-        array([0, 0, 1, 1, 2, 2])
+        array([1, 1, 2, 2, 3, 3])
         """
         return np.array([seq2int[base] for base in self.sequence])
 

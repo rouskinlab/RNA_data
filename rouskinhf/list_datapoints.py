@@ -97,7 +97,7 @@ class ListofDatapoints:
             >>> from numpy import array
             >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0]),\
                                                Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0])], verbose=False)
-            >>> assert not (datapoints.to_sequence_npy('temp/sequence.npy') - array([[0, 0, 1 ,1, 2, 2],[0, 0, 1, 1, 2 ,2]], dtype=object)).any(), "The sequence matrix is not correct."
+            >>> assert not (datapoints.to_sequence_npy('temp/sequence.npy') - array([[1, 1, 2, 2, 3, 3],[1, 1, 2, 2, 3, 3]], dtype=object)).any(), "The sequence matrix is not correct."
         """
 
         arr = np.array([datapoint.embed_sequence() for datapoint in self.datapoints], dtype=object)
