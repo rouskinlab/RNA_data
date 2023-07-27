@@ -3,7 +3,7 @@ from numpy import ndarray
 import numpy as np
 from .datafolder import DataFolder
 
-def import_dataset(name:str, data:str, force_download:bool=False)->ndarray:
+def import_dataset(name:str, data:str, force_download:bool=False, force_generate_npy=False)->ndarray:
 
     """Finds the dataset with the given name for the given type of data.
 
@@ -42,13 +42,16 @@ def import_dataset(name:str, data:str, force_download:bool=False)->ndarray:
     try:
         assert not force_download, "Force download from HuggingFace Hub"
         datafolder = DataFolder.from_local(name=name)
+        source = 'local'
     except:
         try:
             datafolder = DataFolder.from_huggingface(name=name)
+            source = 'huggingface'
         except:
             raise ValueError("Dataset not found on HuggingFace Hub")
 
-    datafolder.generate_npy()
+    if not exists(datafolder.get_references_npy()) or not exists(datafolder.get_sequences_npy()) or source == 'huggingface' or force_generate_npy:
+        datafolder.generate_npy()
 
     out = {
         'references': np.load(datafolder.get_references_npy(), allow_pickle=True),
