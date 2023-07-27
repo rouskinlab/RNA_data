@@ -61,9 +61,11 @@ class Datapoint:
         self.reference = reference
         self.sequence = sequence
         self.structure = structure
-        self.paired_bases = self._format_paired_bases(paired_bases) if paired_bases is not None else self._format_paired_bases(self.structure_to_paired_bases(structure)) if structure is not None else None
-        self.dms = self._format_dms(dms) if dms is not None else None
-        self.opt_dict = {'paired_bases': self.paired_bases, 'dms': self.dms}
+        if paired_bases is not None or structure is not None:
+            self.paired_bases = self._format_paired_bases(paired_bases) if paired_bases is not None else self._format_paired_bases(self.structure_to_paired_bases(structure))
+        if dms is not None:
+            self.dms = self._format_dms(dms) 
+        self.opt_dict = {attr: eval(f'self.{attr}') for attr in ['paired_bases', 'dms'] if hasattr(self, attr)}
 
     def _format_paired_bases(self, paired_bases):
         """Returns a set of tuples.
@@ -116,7 +118,12 @@ class Datapoint:
         return '"'+self.reference+'"' + ':' + str({"sequence": self.sequence, **{k:v for k,v in self.opt_dict.items() if v is not None}}).replace("'",'"').replace('(','[').replace(')',']').replace('None','null')
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}('{self.reference}', sequence='{self.sequence}', paired_bases={self.paired_bases}, dms={self.dms})"
+        out = f"{self.__class__.__name__}('{self.reference}', sequence='{self.sequence}'"
+        if hasattr(self, 'paired_bases'):
+            out += f", paired_bases={self.paired_bases}"
+        if hasattr(self, 'dms'):
+            out += f", dms={self.dms}"
+        return out + ')'
 
     def structure_to_paired_bases(self, structure):
         """Returns a list of tuples (i,j) where i and j are paired bases."""
@@ -196,7 +203,7 @@ class DatapointFactory:
 
         Example:
         >>> DatapointFactory.from_json_line('"reference": {"sequence": "ACAAGU"}')
-        Datapoint('reference', sequence='ACAAGU', paired_bases=None, dms=None)
+        Datapoint('reference', sequence='ACAAGU')
         >>> DatapointFactory.from_json_line('"reference": {"sequence": "ACAAGU", "paired_bases": [[1, 2], [3, 4]], "dms": [1.0, 2.0, 3.0]}')
         Datapoint('reference', sequence='ACAAGU', paired_bases=((1, 2), (3, 4)), dms=(1.0, 2.0, 3.0))
         >>> DatapointFactory.from_json_line('"reference": {"sequence": "something else than ACGTUacgtu", "paired_bases": [[1, 2], [3, 4]], "dms": [1.0, 2.0, 3.0]}')
