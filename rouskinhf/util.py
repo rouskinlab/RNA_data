@@ -2,10 +2,11 @@ import os
 
 # Define the one-hot encodings for the sequences and structures
 seq2int = {
-        'A': 0,
-        'C': 1,
-        'G': 2,
-        'U': 3,
+        'X': 0,
+        'A': 1,
+        'C': 2,
+        'G': 3,
+        'U': 4,
     }
 
 dot2int = {'.': 1, '(': 2, ')': 3, 'X': 0}

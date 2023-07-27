@@ -33,6 +33,7 @@ def import_dataset(name:str, data:str, force_download:bool=False, force_generate
         - 0 datapoints with the same reference
         - 0 duplicate sequences with the same structure / dms
         - 0 duplicate sequences with different structure / dms
+    Using data from HuggingFace Hub
     dict_keys(['references', 'sequences', 'structure'])
     """
     if data == 'dms': data = 'DMS'
@@ -41,12 +42,15 @@ def import_dataset(name:str, data:str, force_download:bool=False, force_generate
     # Get the data folder
     try:
         assert not force_download, "Force download from HuggingFace Hub"
-        datafolder = DataFolder.from_local(name=name)
+        datafolder = DataFolder.from_local(name=name, generate_npy=force_generate_npy)
         source = 'local'
-    except:
+        print("Using local data")
+    except AssertionError as e:
         try:
+            print(e)
             datafolder = DataFolder.from_huggingface(name=name)
             source = 'huggingface'
+            print("Using data from HuggingFace Hub")
         except:
             raise ValueError("Dataset not found on HuggingFace Hub")
 

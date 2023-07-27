@@ -389,7 +389,7 @@ class LoadDatafolderFromLocal(LoadDatafolder):
     Examples
     --------
 
-    >>> datafolder = LoadDatafolderFromLocal(name='for_testing', path='data/datafolders')
+    >>> datafolder = LoadDatafolderFromLocal(name='for_testing', path='data/datafolders', generate_npy=True)
     Over a total of 2 datapoints, there are:
         - 2 valid datapoints
         - 0 invalid datapoints (ex: sequence with non-regular characters)
@@ -400,13 +400,15 @@ class LoadDatafolderFromLocal(LoadDatafolder):
     'for_testing'
     """
 
-    def __init__(self, name, path, tqdm=True, verbose=True) -> None:
+    def __init__(self, name, path, generate_npy, tqdm=True, verbose=True) -> None:
         super().__init__(name, path)
 
         assert os.path.isdir(self.get_main_folder()), f'No folder found in {self.get_main_folder()}'
         assert os.path.isfile(self.get_json()), f'No json file found in {self.get_main_folder()}'
 
-        self.datapoints = ListofDatapoints.from_json(self.get_json(), tqdm=tqdm, verbose=verbose)
+        if generate_npy:
+            self.datapoints = ListofDatapoints.from_json(self.get_json(), tqdm=tqdm, verbose=verbose)
+            self.generate_npy()
 
 class DataFolder:
     """Create a datafolder from a fasta file, a json file or a folder of ct files.
@@ -445,9 +447,9 @@ class DataFolder:
         """Create a datafolder from a dreem output file. See CreateDatafolderFromDreemOutput for more details."""
         return CreateDatafolderFromDreemOutput(path_in, path_out, name, predict_structure, generate_npy, tqdm=tqdm, verbose= verbose)
 
-    def from_local(name, path=DATA_FOLDER, tqdm=True, verbose=True)->LoadDatafolderFromLocal:
+    def from_local(name, path=DATA_FOLDER, tqdm=True, verbose=True, generate_npy=False)->LoadDatafolderFromLocal:
         """Load a datafolder from local. See LoadDatafolderFromLocal for more details."""
-        return LoadDatafolderFromLocal(name, path, tqdm=tqdm, verbose=verbose)
+        return LoadDatafolderFromLocal(name, path, tqdm=tqdm, verbose=verbose, generate_npy=generate_npy)
 
     def from_ct_folder(path_in, path_out=DATA_FOLDER, name = None, predict_dms = PREDICT_DMS, generate_npy = GENERATE_NPY, tqdm=True, verbose=True)->CreateDatafolderFromCTfolder:
         """Create a datafolder from a folder of ct files. See CreateDatafolderFromCTfolder for more details."""
