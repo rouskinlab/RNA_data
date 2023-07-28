@@ -101,7 +101,9 @@ class Datapoint:
         >>> datapoint._format_dms([1.0, 2.0, 3.0])
         (1.0, 2.0, 3.0)
         """
-        return tuple(dms) if dms is not None else None
+        if type(dms) == np.ndarray:
+            dms = dms.tolist()
+        return tuple(dms) 
         
 
     def to_dict(self):

@@ -9,8 +9,10 @@ seq2int = {
         'U': 4,
     }
 
+int2seq = {v: k for k, v in seq2int.items()}
+
 dot2int = {'.': 1, '(': 2, ')': 3, 'X': 0}
-int2dot = ['X', '.', '(', ')']
+int2dot = {v: k for k, v in dot2int.items()}
 
 
 def fastaToDict(fasta_file):

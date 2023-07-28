@@ -14,7 +14,7 @@ from huggingface_hub import HfApi
 from huggingface_hub import snapshot_download
 
 
-GENERATE_NPY = False
+GENERATE_NPY = True
 PREDICT_STRUCTURE = False
 PREDICT_DMS = False
 ROUSKINLAB = 'rouskinlab/'

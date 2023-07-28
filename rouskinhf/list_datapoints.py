@@ -78,9 +78,9 @@ class ListofDatapoints:
             >>> datapoints.to_dms_npy('temp/dms.npy')
             array([[1.0, 2.0, 3.0]], dtype=object)
         """
-
-        arr = np.array([datapoint.dms for datapoint in self.datapoints], dtype=object)
-        np.save(path, arr)
+        
+        arr = np.array([np.array(datapoint.dms, dtype=np.float32) for datapoint in self.datapoints], dtype=object)
+        np.save(path, arr, allow_pickle=True)
         return arr
 
 
