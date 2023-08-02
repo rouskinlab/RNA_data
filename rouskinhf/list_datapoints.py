@@ -1,10 +1,8 @@
 
 import os
 import numpy as np
-import json
-import re
 from .datapoint import Datapoint, DatapointFactory
-from typing import List, Tuple, Union, Optional
+from typing import List
 from .parsers import Fasta, DreemOutput
 import pandas as pd
 from tqdm import tqdm as tqdm_parser

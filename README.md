@@ -97,6 +97,17 @@ source env
 %dotenv env
 ```
 
+or, in a python script or Jupyter notebook:
+
+```python
+from rouskinhf import setup_env
+setup_env(
+    HUGGINGFACE_TOKEN="your token here",
+    DATA_FOLDER="data/datafolders",
+    ...
+)
+```
+
  The point of using environment variables is to ensure the privacy of your huggingface token. Make sure to add your `env` file to your `.gitignore`, so your HuggingFace token doesn't get pushed to any public repository.
 
 ### Import data with ``import_dataset``

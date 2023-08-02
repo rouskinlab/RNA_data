@@ -1,15 +1,8 @@
-
-from typing import Any
-
-import json
-from .env import DATA_FOLDER
-
 from .path import PathDatafolder
-from .env import DATA_FOLDER, HUGGINGFACE_TOKEN
+from .env import env
 from .list_datapoints import ListofDatapoints
 from .info_file import infoFileWriter
 import os
-import numpy as np
 from huggingface_hub import HfApi
 from huggingface_hub import snapshot_download
 
@@ -62,7 +55,7 @@ class CreateDatafolderTemplate(DataFolderTemplate):
         self.name = name
         self.path_in = path_in
         self.path_out = path_out
-        self.api = HfApi(token=HUGGINGFACE_TOKEN)
+        self.api = HfApi(token=env.HUGGINGFACE_TOKEN)
         self.predict_structure = predict_structure
         self.predict_dms = predict_dms
 
@@ -104,7 +97,7 @@ class CreateDatafolderTemplate(DataFolderTemplate):
 
         self.api.create_repo(
             repo_id=ROUSKINLAB+self.name,
-            token=HUGGINGFACE_TOKEN,
+            token=env.HUGGINGFACE_TOKEN,
             exist_ok=exist_ok,
             private=private,
             repo_type="dataset",
@@ -149,7 +142,7 @@ class CreateDatafolderTemplate(DataFolderTemplate):
             repo_id=ROUSKINLAB+self.name,
             folder_path=self.get_main_folder(),
             repo_type="dataset",
-            token=HUGGINGFACE_TOKEN,
+            token=env.HUGGINGFACE_TOKEN,
             revision=revision,
             commit_message=commit_message,
             commit_description=commit_description,
@@ -364,7 +357,7 @@ class LoadDatafolderFromHF(LoadDatafolder):
             repo_type='dataset',
             local_dir=self.get_main_folder(),
             revision=revision,
-            token=HUGGINGFACE_TOKEN,
+            token=env.HUGGINGFACE_TOKEN,
             allow_patterns=['info.json', 'data.json']
             )
 
@@ -439,22 +432,22 @@ class DataFolder:
 
     """
 
-    def from_fasta(path_in, path_out=DATA_FOLDER, name = None, predict_structure = PREDICT_STRUCTURE, predict_dms = PREDICT_DMS, generate_npy = GENERATE_NPY, tqdm=True, verbose=True)->CreateDatafolderFromFasta:
+    def from_fasta(path_in, path_out=env.DATA_FOLDER, name = None, predict_structure = PREDICT_STRUCTURE, predict_dms = PREDICT_DMS, generate_npy = GENERATE_NPY, tqdm=True, verbose=True)->CreateDatafolderFromFasta:
         """Create a datafolder from a fasta file. See CreateDatafolderFromFasta for more details."""
         return CreateDatafolderFromFasta(path_in, path_out, name, predict_structure, predict_dms, generate_npy, tqdm=tqdm, verbose=verbose)
 
-    def from_dreem_output(path_in, path_out=DATA_FOLDER, name = None, predict_structure = PREDICT_STRUCTURE, generate_npy = GENERATE_NPY, tqdm=True, verbose=True)->CreateDatafolderFromDreemOutput:
+    def from_dreem_output(path_in, path_out=env.DATA_FOLDER, name = None, predict_structure = PREDICT_STRUCTURE, generate_npy = GENERATE_NPY, tqdm=True, verbose=True)->CreateDatafolderFromDreemOutput:
         """Create a datafolder from a dreem output file. See CreateDatafolderFromDreemOutput for more details."""
         return CreateDatafolderFromDreemOutput(path_in, path_out, name, predict_structure, generate_npy, tqdm=tqdm, verbose= verbose)
 
-    def from_local(name, path=DATA_FOLDER, tqdm=True, verbose=True, generate_npy=False)->LoadDatafolderFromLocal:
+    def from_local(name, path=env.DATA_FOLDER, tqdm=True, verbose=True, generate_npy=False)->LoadDatafolderFromLocal:
         """Load a datafolder from local. See LoadDatafolderFromLocal for more details."""
         return LoadDatafolderFromLocal(name, path, tqdm=tqdm, verbose=verbose, generate_npy=generate_npy)
 
-    def from_ct_folder(path_in, path_out=DATA_FOLDER, name = None, predict_dms = PREDICT_DMS, generate_npy = GENERATE_NPY, tqdm=True, verbose=True)->CreateDatafolderFromCTfolder:
+    def from_ct_folder(path_in, path_out=env.DATA_FOLDER, name = None, predict_dms = PREDICT_DMS, generate_npy = GENERATE_NPY, tqdm=True, verbose=True)->CreateDatafolderFromCTfolder:
         """Create a datafolder from a folder of ct files. See CreateDatafolderFromCTfolder for more details."""
         return CreateDatafolderFromCTfolder(path_in, path_out, name, predict_dms, generate_npy, tqdm=tqdm, verbose= verbose)
 
-    def from_huggingface(name, path_out=DATA_FOLDER, tqdm=True, verbose=True)->LoadDatafolderFromHF:
+    def from_huggingface(name, path_out=env.DATA_FOLDER, tqdm=True, verbose=True)->LoadDatafolderFromHF:
         """Load a datafolder from HuggingFace. See LoadDatafolderFromHF for more details."""
         return LoadDatafolderFromHF(name, path_out, tqdm=tqdm, verbose=verbose)

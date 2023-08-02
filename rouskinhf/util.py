@@ -58,24 +58,6 @@ def add_braces_if_no_braces(s:str):
     return s
 
 
-def source_env(path):
-    """
-    Source the environment variables from the file at path.
-
-    Args:
-        path (str): The path to the file to source.
-    """
-    out = {}
-    with open(path, 'r') as f:
-        for line in f.readlines():
-            line = line.split('#')[0].strip()
-            line = line.replace('export', '')
-            key, value = line.split('=')
-            key, value = key.replace(' ','').replace('"','').strip(), value.replace(' ','').replace('"','').strip()
-            os.environ[key] = value
-            out[key] = value
-
-    return out
 
 
 class DreemUtils:

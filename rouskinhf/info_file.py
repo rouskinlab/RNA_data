@@ -1,5 +1,4 @@
 import datetime, os, json
-from typing import Any
 from .path import PathDatafolder
 
 STRUCTURE_FROM_RNASTRUCTURE = 'RNAstructure'
