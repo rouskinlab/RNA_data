@@ -1,0 +1,10 @@
+{
+    "name": "test_dreem_output",
+    "upload_date": "2023-08-22 13:35:04",
+    "user": "ymdt",
+    "sample": "15_S15_L001",
+    "source": "`test_dreem_output.json` (DREEM output format)",
+    "DMS": "source",
+    "about DMS": "Measured experimentally using the attached experimental conditions.",
+    "filtering_report": "Over a total of 13 datapoints, there are:\n    - 12 valid datapoints\n    - 1 invalid datapoints (ex: sequence with non-regular characters)\n    - 0 datapoints with the same reference\n    - 0 duplicate sequences with the same structure / dms\n    - 0 duplicate sequences with different structure / dms"
+}

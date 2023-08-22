@@ -23,10 +23,10 @@ def _source_env(path):
 class Environment:
     
     def __init__(self, **kwargs):
-        self.HUGGINGFACE_TOKEN = kwargs.get('HUGGINGFACE_TOKEN', os.environ.get('HUGGINGFACE_TOKEN', '')) 
+        self.HUGGINGFACE_TOKEN = kwargs.get('HUGGINGFACE_TOKEN', os.environ.get('HUGGINGFACE_TOKEN', None)) 
         self.DATA_FOLDER = kwargs.get('DATA_FOLDER', os.environ.get('DATA_FOLDER', 'data/input_files'))
         self.DATA_FOLDER_TESTING = kwargs.get('DATA_FOLDER_TESTING', os.environ.get('DATA_FOLDER_TESTING', 'data/input_files_testing'))
-        self.RNASTRUCTURE_PATH = kwargs.get('RNASTRUCTURE_PATH', os.environ.get('RNASTRUCTURE_PATH', 'RNAstructure/exe/Fold'))
+        self.RNASTRUCTURE_PATH = kwargs.get('RNASTRUCTURE_PATH', os.environ.get('RNASTRUCTURE_PATH', ''))
         self.RNASTRUCTURE_TEMP_FOLDER = kwargs.get('RNASTRUCTURE_TEMP_FOLDER', os.environ.get('RNASTRUCTURE_TEMP_FOLDER', 'temp'))
         
     @classmethod

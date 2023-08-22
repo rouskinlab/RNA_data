@@ -23,7 +23,7 @@ requires-python = ">=3.10"
 
 [tool.pytest.ini_options]
 # add docstrings
-addopts = "--doctest-modules --doctest-glob='*.py' -v --capture=no --envfile env"
+addopts = "--doctest-modules --doctest-glob='*.py' -v --capture=no"
 pythonpath = [
   "src"
 ]

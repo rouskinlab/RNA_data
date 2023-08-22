@@ -1,0 +1,9 @@
+{
+    "name": "test_ct_files",
+    "upload_date": "2023-08-22 13:35:04",
+    "user": "ymdt",
+    "source": "`test_ct_files` (CT files format)",
+    "structure": "source",
+    "about structure": "Read from source.",
+    "filtering_report": "Over a total of 5 datapoints, there are:\n    - 1 valid datapoints\n    - 1 invalid datapoints (ex: sequence with non-regular characters)\n    - 0 datapoints with the same reference\n    - 1 duplicate sequences with the same structure / dms\n    - 2 duplicate sequences with different structure / dms"
+}
