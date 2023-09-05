@@ -337,15 +337,15 @@ class LoadDatafolderFromHF(LoadDatafolder):
     Examples
     --------
 
-    >>> datafolder = LoadDatafolderFromHF(name='for_testing', path_out='data/datafolders')
-    Over a total of 2 datapoints, there are:
-        - 2 valid datapoints
+    >>> datafolder = LoadDatafolderFromHF(name='test_dreem_output', path_out='data/datafolders')
+    Over a total of 12 datapoints, there are:
+        - 12 valid datapoints
         - 0 invalid datapoints (ex: sequence with non-regular characters)
         - 0 datapoints with the same reference
         - 0 duplicate sequences with the same structure / dms
         - 0 duplicate sequences with different structure / dms
     >>> datafolder.name
-    'for_testing'
+    'test_dreem_output'
     """
 
     def __init__(self, name, path_out, revision='main', tqdm=True, verbose=True) -> None:

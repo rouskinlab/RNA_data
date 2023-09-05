@@ -11,7 +11,7 @@ pretty_name: test_sequences
 ---
 
 # test_sequences
-	upload_date: 2023-08-22 13:35:04
+	upload_date: 2023-09-05 15:11:41
 	user: ymdt
 	source: `test_sequences.fasta` (fasta file format)
 

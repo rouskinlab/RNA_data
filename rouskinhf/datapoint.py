@@ -3,7 +3,7 @@ from .parsers import *
 from .util import add_braces_if_no_braces, dot2int, int2dot, seq2int, standardize_sequence, sequence_has_regular_characters
 import numpy as np
 from .rnastructure import RNAstructure_singleton
-
+from .env import env
 class Datapoint:
 
     """A datapoint is a data structure where:

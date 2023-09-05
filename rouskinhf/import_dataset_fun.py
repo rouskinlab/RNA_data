@@ -22,20 +22,6 @@ def import_dataset(name:str, data:str, force_download:bool=False, force_generate
 
     dict: {str: ndarray}
         Dictionary with the following keys: 'references', 'sequences', and 'structure' or 'DMS' depending on the data type.
-
-    Example
-    -------
-
-    >>> import_dataset(name='for_testing', data='structure', force_download=True).keys()
-    Force download from HuggingFace Hub
-    Over a total of 2 datapoints, there are:
-        - 2 valid datapoints
-        - 0 invalid datapoints (ex: sequence with non-regular characters)
-        - 0 datapoints with the same reference
-        - 0 duplicate sequences with the same structure / dms
-        - 0 duplicate sequences with different structure / dms
-    Using data from HuggingFace Hub
-    dict_keys(['references', 'sequences', 'structure'])
     """
     if data == 'dms': data = 'DMS'
     assert data in ['structure', 'DMS'], "data must be either 'structure' or 'DMS'"

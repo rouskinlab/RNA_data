@@ -1,6 +1,6 @@
 {
     "name": "test_sequences",
-    "upload_date": "2023-08-22 13:35:04",
+    "upload_date": "2023-09-05 15:11:41",
     "user": "ymdt",
     "source": "`test_sequences.fasta` (fasta file format)",
     "filtering_report": "Over a total of 5 datapoints, there are:\n    - 2 valid datapoints\n    - 1 invalid datapoints (ex: sequence with non-regular characters)\n    - 1 datapoints with the same reference\n    - 1 duplicate sequences"

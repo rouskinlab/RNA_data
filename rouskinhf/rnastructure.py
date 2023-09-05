@@ -12,11 +12,9 @@ def run_command(cmd):
 class RNAstructure(object):
 
     """RNAstructure wrapper.
-
+    
     Example
     -------
-    >>> from rouskinhf.rouskinhf import setup_env
-    >>> setup_env('env')
     >>> rnastructure = RNAstructure()
     >>> seq = 'TTAAACCGGCCAACATACCGCATATGAGGATCACCCATATGCTCAAGATATTCGAAAGAATATCTTTCCACAGTCGAAAGACTGTGTCTCTCTCTTCCTTTTTCTCTTCCTCTTTCTCTTTCTCTTTCTCTTCTCTTCTGTATTACGAGTTCGCTACTCGTTCCTTTCGA'
     >>> np.random.seed(seed=0)
@@ -125,6 +123,9 @@ class RNAstructure(object):
         self.__make_temp_folder()
         self.__make_files()
         self.__create_fasta_file('reference', sequence)
+        envir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        import sys
+        files = sys.path
         cmd = f"{os.path.join(env.RNASTRUCTURE_PATH, 'Fold')} {self.fasta_file} {self.ct_file}"
         if type(dms) != type(None):
             assert len(sequence) == len(dms), 'The length of the sequence is not the same as the length of the signal.'
