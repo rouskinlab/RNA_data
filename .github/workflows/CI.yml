@@ -64,5 +64,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install .
           mkdir temp
+          echo "" >> env
           python -m pytest rouskinhf -v --doctest-modules
 
