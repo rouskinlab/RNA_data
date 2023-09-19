@@ -87,24 +87,14 @@ class DreemOutput:
 
         df = pd.DataFrame(DreemUtils.flatten_json(DreemUtils.sort_dict(json.load(open(dreem_output_file, 'r')))))[['reference', 'sequence', 'sub_rate']]
 
-        df['max_mut'] = df.sub_rate.apply(lambda x: max(x))
-        len_before = len(df)
-        df = df[df.max_mut < max_mut].reset_index(drop=True)
+        # df['max_mut'] = df.sub_rate.apply(lambda x: max(x))
+        # len_before = len(df)
+        # df = df[df.max_mut < max_mut].reset_index(drop=True)
 
-        len_before = len(df)
-        if drop_duplicates:
-            df.drop_duplicates(subset='sequence', inplace=True)
-
-
-        values = np.concatenate(df.sub_rate.values)
-        percentile975 = np.percentile(values, 97.5)
-
-        def normalize(sub_rate):
-            sub_rate = np.array(sub_rate)
-            sub_rate = sub_rate / percentile975
-            sub_rate[sub_rate > 1] = 1
-            return sub_rate.tolist()
+        # len_before = len(df)
+        # if drop_duplicates:
+        #     df.drop_duplicates(subset='sequence', inplace=True)
 
         for _, row in df.iterrows():
-            yield row['reference'], row['sequence'], normalize(row['sub_rate'])
+            yield row['reference'], row['sequence'], row['sub_rate']
 

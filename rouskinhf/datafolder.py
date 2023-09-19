@@ -18,6 +18,7 @@ class DataFolderTemplate(PathDatafolder):
         super().__init__(name, path_out)
         self.name = name
         self.datapoints = ListofDatapoints([], verbose=False)
+        self.api = HfApi(token=env.HUGGINGFACE_TOKEN)
 
     def generate_npy(self):
         """Generate the npy files:
@@ -46,37 +47,10 @@ class DataFolderTemplate(PathDatafolder):
 
         if hasattr(d1, 'dms'):
             self.datapoints.to_dms_npy(self.get_dms_npy())
-
-class CreateDatafolderTemplate(DataFolderTemplate):
-
-    def __init__(self, path_in, path_out, name, source, predict_structure, predict_dms) -> None:
-        name = self._set_name(name, path_in)
-        super().__init__(name, path_out)
-        self.name = name
-        self.path_in = path_in
-        self.path_out = path_out
-        self.api = HfApi(token=env.HUGGINGFACE_TOKEN)
-        self.predict_structure = predict_structure
-        self.predict_dms = predict_dms
-
-        # move path_in to source folder
-        os.makedirs(self.get_source_folder(), exist_ok=True)
-        os.system(f'cp -fr {path_in} {self.get_source_folder()}')
-
-        # Write info file
-        self.infofile = infoFileWriter(source=source, datafolder=self, predict_dms=predict_dms, predict_structure=predict_dms)
-
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__} @{self.get_main_folder()}"
-
-    def _set_name(self, name, path_in):
-        if name is None:
-            name = path_in.replace('\\','/').split('/')[-1].split('.')[0]
-        return name
-
+            
+            
     def create_repo(self, exist_ok=False, private=True):
-
+    
         """Create a repo on huggingface.co.
 
         Parameters
@@ -96,7 +70,7 @@ class CreateDatafolderTemplate(DataFolderTemplate):
         """
 
         self.api.create_repo(
-            repo_id=ROUSKINLAB+self.name,
+            repo_id=ROUSKINLAB+os.path.basename(self.name),
             token=env.HUGGINGFACE_TOKEN,
             exist_ok=exist_ok,
             private=private,
@@ -139,7 +113,7 @@ class CreateDatafolderTemplate(DataFolderTemplate):
         """
 
         future = self.api.upload_folder(
-            repo_id=ROUSKINLAB+self.name,
+            repo_id=ROUSKINLAB+os.path.basename(self.name),
             folder_path=self.get_main_folder(),
             repo_type="dataset",
             token=env.HUGGINGFACE_TOKEN,
@@ -163,6 +137,34 @@ class CreateDatafolderTemplate(DataFolderTemplate):
 
         if generate_npy:
             self.generate_npy()
+
+
+class CreateDatafolderTemplate(DataFolderTemplate):
+
+    def __init__(self, path_in, path_out, name, source, predict_structure, predict_dms) -> None:
+        name = self._set_name(name, path_in)
+        super().__init__(name, path_out)
+        self.name = name
+        self.path_in = path_in
+        self.path_out = path_out
+        self.predict_structure = predict_structure
+        self.predict_dms = predict_dms
+
+        # move path_in to source folder
+        os.makedirs(self.get_source_folder(), exist_ok=True)
+        os.system(f'cp -fr {path_in} {self.get_source_folder()}')
+
+        # Write info file
+        self.infofile = infoFileWriter(source=source, datafolder=self, predict_dms=predict_dms, predict_structure=predict_dms)
+
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__} @{self.get_main_folder()}"
+
+    def _set_name(self, name, path_in):
+        if name is None:
+            name = path_in.replace('\\','/').split('/')[-1].split('.')[0]
+        return name
 
 
 

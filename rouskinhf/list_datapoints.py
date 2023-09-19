@@ -188,7 +188,6 @@ class ListofDatapoints:
             len_df_before = len(df)
             df.drop_duplicates(**kwargs)
             return len_df_before - len(df)
-
         
         # Don't allow multiple sequences with the same reference
         n_same_ref_datapoints = drop_duplicates(df, subset=['reference'], inplace=True)
