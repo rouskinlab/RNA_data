@@ -31,15 +31,15 @@ def import_dataset(name:str, data:str, force_download:bool=False, force_generate
         assert not force_download, "Force download from HuggingFace Hub"
         datafolder = DataFolder.from_local(name=name, generate_npy=force_generate_npy)
         source = 'local'
-        print("Using local data")
+        print("Using local data for: {}".format(name))
     except AssertionError as e:
         try:
             print(e)
             datafolder = DataFolder.from_huggingface(name=name)
             source = 'huggingface'
-            print("Using data from HuggingFace Hub")
-        except:
-            raise ValueError("Dataset not found on HuggingFace Hub")
+            print("Using data from HuggingFace Hub for {}".format(name))
+        except AssertionError as e:
+            raise AssertionError("Could not find dataset: {} because of error: {}".format(name, e))
 
     if not exists(datafolder.get_references_npy()) or not exists(datafolder.get_sequences_npy()) or source == 'huggingface' or force_generate_npy:
         datafolder.generate_npy()

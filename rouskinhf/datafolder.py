@@ -5,15 +5,15 @@ from .info_file import infoFileWriter
 import os
 from huggingface_hub import HfApi
 from huggingface_hub import snapshot_download
-
+from os.path import join
 
 GENERATE_NPY = True
 PREDICT_STRUCTURE = False
 PREDICT_DMS = False
-ROUSKINLAB = 'rouskinlab/'
+ROUSKINLAB = "rouskinlab/"
+
 
 class DataFolderTemplate(PathDatafolder):
-
     def __init__(self, name, path_out) -> None:
         super().__init__(name, path_out)
         self.name = name
@@ -42,15 +42,13 @@ class DataFolderTemplate(PathDatafolder):
 
         d1 = self.datapoints.datapoints[0]
 
-        if hasattr(d1, 'paired_bases'):
+        if hasattr(d1, "paired_bases"):
             self.datapoints.to_base_pairs_npy(self.get_base_pairs_npy())
 
-        if hasattr(d1, 'dms'):
+        if hasattr(d1, "dms"):
             self.datapoints.to_dms_npy(self.get_dms_npy())
-            
-            
+
     def create_repo(self, exist_ok=False, private=True):
-    
         """Create a repo on huggingface.co.
 
         Parameters
@@ -70,15 +68,22 @@ class DataFolderTemplate(PathDatafolder):
         """
 
         self.api.create_repo(
-            repo_id=ROUSKINLAB+os.path.basename(self.name),
+            repo_id=ROUSKINLAB + os.path.basename(self.name),
             token=env.HUGGINGFACE_TOKEN,
             exist_ok=exist_ok,
             private=private,
             repo_type="dataset",
         )
 
-    def upload_folder(self, revision = 'main', commit_message=None, commit_description=None, multi_commits=False, run_as_future=False, **kwargs):
-
+    def upload_folder(
+        self,
+        revision="main",
+        commit_message=None,
+        commit_description=None,
+        multi_commits=False,
+        run_as_future=False,
+        **kwargs,
+    ):
         """Upload the datafolder to huggingface.co. Only the json file, the README.md and the source files are uploaded.
 
         Parameters
@@ -113,7 +118,7 @@ class DataFolderTemplate(PathDatafolder):
         """
 
         future = self.api.upload_folder(
-            repo_id=ROUSKINLAB+os.path.basename(self.name),
+            repo_id=ROUSKINLAB + os.path.basename(self.name),
             folder_path=self.get_main_folder(),
             repo_type="dataset",
             token=env.HUGGINGFACE_TOKEN,
@@ -123,12 +128,11 @@ class DataFolderTemplate(PathDatafolder):
             multi_commits=multi_commits,
             run_as_future=run_as_future,
             allow_patterns=["source/*", "info.json", "data.json", "README.md"],
-            **kwargs
+            **kwargs,
         )
 
         if run_as_future:
             return future
-
 
     def dump_datapoints(self, generate_npy):
         """Dump the datapoints to a json file."""
@@ -140,8 +144,9 @@ class DataFolderTemplate(PathDatafolder):
 
 
 class CreateDatafolderTemplate(DataFolderTemplate):
-
-    def __init__(self, path_in, path_out, name, source, predict_structure, predict_dms) -> None:
+    def __init__(
+        self, path_in, path_out, name, source, predict_structure, predict_dms
+    ) -> None:
         name = self._set_name(name, path_in)
         super().__init__(name, path_out)
         self.name = name
@@ -152,20 +157,23 @@ class CreateDatafolderTemplate(DataFolderTemplate):
 
         # move path_in to source folder
         os.makedirs(self.get_source_folder(), exist_ok=True)
-        os.system(f'cp -fr {path_in} {self.get_source_folder()}')
+        os.system(f"cp -fr {path_in} {self.get_source_folder()}")
 
         # Write info file
-        self.infofile = infoFileWriter(source=source, datafolder=self, predict_dms=predict_dms, predict_structure=predict_dms)
-
+        self.infofile = infoFileWriter(
+            source=source,
+            datafolder=self,
+            predict_dms=predict_dms,
+            predict_structure=predict_dms,
+        )
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__} @{self.get_main_folder()}"
 
     def _set_name(self, name, path_in):
         if name is None:
-            name = path_in.replace('\\','/').split('/')[-1].split('.')[0]
+            name = path_in.replace("\\", "/").split("/")[-1].split(".")[0]
         return name
-
 
 
 class CreateDatafolderFromDreemOutput(CreateDatafolderTemplate):
@@ -209,16 +217,35 @@ class CreateDatafolderFromDreemOutput(CreateDatafolderTemplate):
     True
     """
 
-    def __init__(self, path_in, path_out, name, predict_structure, generate_npy, tqdm=True, verbose=True) -> None:
-        super().__init__(path_in, path_out, name, source = 'dreem_output', predict_structure = predict_structure, predict_dms = False)
+    def __init__(
+        self,
+        path_in,
+        path_out,
+        name,
+        predict_structure,
+        generate_npy,
+        tqdm=True,
+        verbose=True,
+    ) -> None:
+        super().__init__(
+            path_in,
+            path_out,
+            name,
+            source="dreem_output",
+            predict_structure=predict_structure,
+            predict_dms=False,
+        )
 
-        self.datapoints = ListofDatapoints.from_dreem_output(path_in, predict_structure = predict_structure, tqdm=tqdm, verbose=verbose)
+        self.datapoints = ListofDatapoints.from_dreem_output(
+            path_in, predict_structure=predict_structure, tqdm=tqdm, verbose=verbose
+        )
         self.dump_datapoints(generate_npy)
         self.infofile.add_filtering_report(self.datapoints.filtering_report).write()
 
+
 class CreateDatafolderFromFasta(CreateDatafolderTemplate):
 
-    """ Create a datafolder from a fasta file.
+    """Create a datafolder from a fasta file.
 
     Parameters
     ----------
@@ -256,18 +283,40 @@ class CreateDatafolderFromFasta(CreateDatafolderTemplate):
     True
     """
 
-    def __init__(self, path_in, path_out, name, predict_structure, predict_dms, generate_npy, tqdm, verbose=True) -> None:
-        super().__init__(path_in, path_out, name, source = 'fasta', predict_structure = predict_structure, predict_dms = predict_dms)
+    def __init__(
+        self,
+        path_in,
+        path_out,
+        name,
+        predict_structure,
+        predict_dms,
+        generate_npy,
+        tqdm,
+        verbose=True,
+    ) -> None:
+        super().__init__(
+            path_in,
+            path_out,
+            name,
+            source="fasta",
+            predict_structure=predict_structure,
+            predict_dms=predict_dms,
+        )
 
-        self.datapoints = ListofDatapoints.from_fasta(path_in, predict_structure = predict_structure, predict_dms = predict_dms, tqdm=tqdm, verbose=verbose)
+        self.datapoints = ListofDatapoints.from_fasta(
+            path_in,
+            predict_structure=predict_structure,
+            predict_dms=predict_dms,
+            tqdm=tqdm,
+            verbose=verbose,
+        )
         self.dump_datapoints(generate_npy)
         self.infofile.add_filtering_report(self.datapoints.filtering_report).write()
 
 
-
 class CreateDatafolderFromCTfolder(CreateDatafolderTemplate):
 
-    """ Create a datafolder from a folder of ct files.
+    """Create a datafolder from a folder of ct files.
 
     Parameters
     ----------
@@ -305,17 +354,38 @@ class CreateDatafolderFromCTfolder(CreateDatafolderTemplate):
     True
     """
 
-    def __init__(self, path_in, path_out, name, predict_dms, generate_npy, tqdm=True, verbose=True) -> None:
-        super().__init__(path_in, path_out, name, source = 'ct', predict_structure = False, predict_dms = predict_dms)
+    def __init__(
+        self,
+        path_in,
+        path_out,
+        name,
+        predict_dms,
+        generate_npy,
+        tqdm=True,
+        verbose=True,
+    ) -> None:
+        super().__init__(
+            path_in,
+            path_out,
+            name,
+            source="ct",
+            predict_structure=False,
+            predict_dms=predict_dms,
+        )
 
-        ct_files = [os.path.join(path_in, f) for f in os.listdir(path_in) if f.endswith('.ct') or f.endswith('.txt')]
-        self.datapoints = ListofDatapoints.from_ct(ct_files, predict_dms = predict_dms, tqdm=tqdm, verbose=verbose)
+        ct_files = [
+            os.path.join(path_in, f)
+            for f in os.listdir(path_in)
+            if f.endswith(".ct") or f.endswith(".txt")
+        ]
+        self.datapoints = ListofDatapoints.from_ct(
+            ct_files, predict_dms=predict_dms, tqdm=tqdm, verbose=verbose
+        )
         self.dump_datapoints(generate_npy)
         self.infofile.add_filtering_report(self.datapoints.filtering_report).write()
 
 
 class LoadDatafolder(DataFolderTemplate):
-
     def __init__(self, name, root) -> None:
         super().__init__(name, root)
 
@@ -350,23 +420,33 @@ class LoadDatafolderFromHF(LoadDatafolder):
     'test_dreem_output'
     """
 
-    def __init__(self, name, path_out, revision='main', tqdm=True, verbose=True) -> None:
+    def __init__(
+        self, name, path_out, revision="main", tqdm=True, verbose=True
+    ) -> None:
         super().__init__(name, path_out)
+
+        os.makedirs(join(self.get_main_folder(), self.name), exist_ok=True)
 
         # Download the datafolder #TODO : check if the datafolder is already downloaded
         snapshot_download(
-            repo_id = ROUSKINLAB+self.name,
-            repo_type='dataset',
+            repo_id=ROUSKINLAB + self.name,
+            repo_type="dataset",
             local_dir=self.get_main_folder(),
             revision=revision,
             token=env.HUGGINGFACE_TOKEN,
-            allow_patterns=['info.json', 'data.json']
-            )
+            allow_patterns=["info.json", "data.json"],
+        )
 
-        assert os.path.isdir(self.get_main_folder()), f'No folder found in {self.get_main_folder()}'
-        assert os.path.isfile(self.get_json()), f'No json file found in {self.get_main_folder()}'
+        assert os.path.isdir(
+            self.get_main_folder()
+        ), f"No folder found in {self.get_main_folder()}"
+        assert os.path.isfile(
+            self.get_json()
+        ), f"No json file found in {self.get_main_folder()}"
 
-        self.datapoints = ListofDatapoints.from_json(self.get_json(), tqdm=tqdm, verbose=verbose)
+        self.datapoints = ListofDatapoints.from_json(
+            self.get_json(), tqdm=tqdm, verbose=verbose
+        )
 
 
 class LoadDatafolderFromLocal(LoadDatafolder):
@@ -398,12 +478,19 @@ class LoadDatafolderFromLocal(LoadDatafolder):
     def __init__(self, name, path, generate_npy, tqdm=True, verbose=True) -> None:
         super().__init__(name, path)
 
-        assert os.path.isdir(self.get_main_folder()), f'No folder found in {self.get_main_folder()}'
-        assert os.path.isfile(self.get_json()), f'No json file found in {self.get_main_folder()}'
+        assert os.path.isdir(
+            self.get_main_folder()
+        ), f"No folder found in {self.get_main_folder()}"
+        assert os.path.isfile(
+            self.get_json()
+        ), f"No json file found in {self.get_main_folder()}"
 
         if generate_npy:
-            self.datapoints = ListofDatapoints.from_json(self.get_json(), tqdm=tqdm, verbose=verbose)
+            self.datapoints = ListofDatapoints.from_json(
+                self.get_json(), tqdm=tqdm, verbose=verbose
+            )
             self.generate_npy()
+
 
 class DataFolder:
     """Create a datafolder from a fasta file, a json file or a folder of ct files.
@@ -434,22 +521,78 @@ class DataFolder:
 
     """
 
-    def from_fasta(path_in, path_out=env.DATA_FOLDER, name = None, predict_structure = PREDICT_STRUCTURE, predict_dms = PREDICT_DMS, generate_npy = GENERATE_NPY, tqdm=True, verbose=True)->CreateDatafolderFromFasta:
+    def from_fasta(
+        path_in,
+        path_out=env.DATA_FOLDER,
+        name=None,
+        predict_structure=PREDICT_STRUCTURE,
+        predict_dms=PREDICT_DMS,
+        generate_npy=GENERATE_NPY,
+        tqdm=True,
+        verbose=True,
+    ) -> CreateDatafolderFromFasta:
         """Create a datafolder from a fasta file. See CreateDatafolderFromFasta for more details."""
-        return CreateDatafolderFromFasta(path_in, path_out, name, predict_structure, predict_dms, generate_npy, tqdm=tqdm, verbose=verbose)
+        return CreateDatafolderFromFasta(
+            path_in,
+            path_out,
+            name,
+            predict_structure,
+            predict_dms,
+            generate_npy,
+            tqdm=tqdm,
+            verbose=verbose,
+        )
 
-    def from_dreem_output(path_in, path_out=env.DATA_FOLDER, name = None, predict_structure = PREDICT_STRUCTURE, generate_npy = GENERATE_NPY, tqdm=True, verbose=True)->CreateDatafolderFromDreemOutput:
+    def from_dreem_output(
+        path_in,
+        path_out=env.DATA_FOLDER,
+        name=None,
+        predict_structure=PREDICT_STRUCTURE,
+        generate_npy=GENERATE_NPY,
+        tqdm=True,
+        verbose=True,
+    ) -> CreateDatafolderFromDreemOutput:
         """Create a datafolder from a dreem output file. See CreateDatafolderFromDreemOutput for more details."""
-        return CreateDatafolderFromDreemOutput(path_in, path_out, name, predict_structure, generate_npy, tqdm=tqdm, verbose= verbose)
+        return CreateDatafolderFromDreemOutput(
+            path_in,
+            path_out,
+            name,
+            predict_structure,
+            generate_npy,
+            tqdm=tqdm,
+            verbose=verbose,
+        )
 
-    def from_local(name, path=env.DATA_FOLDER, tqdm=True, verbose=True, generate_npy=False)->LoadDatafolderFromLocal:
+    def from_local(
+        name, path=env.DATA_FOLDER, tqdm=True, verbose=True, generate_npy=False
+    ) -> LoadDatafolderFromLocal:
         """Load a datafolder from local. See LoadDatafolderFromLocal for more details."""
-        return LoadDatafolderFromLocal(name, path, tqdm=tqdm, verbose=verbose, generate_npy=generate_npy)
+        return LoadDatafolderFromLocal(
+            name, path, tqdm=tqdm, verbose=verbose, generate_npy=generate_npy
+        )
 
-    def from_ct_folder(path_in, path_out=env.DATA_FOLDER, name = None, predict_dms = PREDICT_DMS, generate_npy = GENERATE_NPY, tqdm=True, verbose=True)->CreateDatafolderFromCTfolder:
+    def from_ct_folder(
+        path_in,
+        path_out=env.DATA_FOLDER,
+        name=None,
+        predict_dms=PREDICT_DMS,
+        generate_npy=GENERATE_NPY,
+        tqdm=True,
+        verbose=True,
+    ) -> CreateDatafolderFromCTfolder:
         """Create a datafolder from a folder of ct files. See CreateDatafolderFromCTfolder for more details."""
-        return CreateDatafolderFromCTfolder(path_in, path_out, name, predict_dms, generate_npy, tqdm=tqdm, verbose= verbose)
+        return CreateDatafolderFromCTfolder(
+            path_in,
+            path_out,
+            name,
+            predict_dms,
+            generate_npy,
+            tqdm=tqdm,
+            verbose=verbose,
+        )
 
-    def from_huggingface(name, path_out=env.DATA_FOLDER, tqdm=True, verbose=True)->LoadDatafolderFromHF:
+    def from_huggingface(
+        name, path_out=env.DATA_FOLDER, tqdm=True, verbose=True
+    ) -> LoadDatafolderFromHF:
         """Load a datafolder from HuggingFace. See LoadDatafolderFromHF for more details."""
         return LoadDatafolderFromHF(name, path_out, tqdm=tqdm, verbose=verbose)
