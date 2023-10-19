@@ -197,7 +197,7 @@ class DatapointFactory:
                 dms=mutation_rate)
 
 
-    def from_json_line(string):
+    def from_json_line(ref, d, predict_structure=False, predict_dms=False):
         """Create a datapoint from a json line. The json line should have the following format:
         "reference": {"sequence": "sequence", "paired_bases": [[1, 2], [3,4]], "dms": [1.0, 2.0, 3.0]}
 
@@ -209,22 +209,21 @@ class DatapointFactory:
         >>> DatapointFactory.from_json_line('"reference": {"sequence": "something else than ACGTUacgtu", "paired_bases": [[1, 2], [3, 4]], "dms": [1.0, 2.0, 3.0]}')
         """
 
-        # process the string into a dictionary
-        string= string.strip()[:-1] if string.strip()[-1] == ',' else string.strip()
-        string = add_braces_if_no_braces(string)
-        d = json.loads(string)
-        ref = list(d.keys())[0]
-        d = d[ref]
-
         # create the datapoint
         sequence = d['sequence']
         sequence = standardize_sequence(sequence)
+        
+        if predict_structure and not 'paired_bases' in d:
+            d['structure'] = RNAstructure_singleton.predictStructure(sequence)
+            
+        if predict_dms and not 'dms' in d:
+            d['dms'] = RNAstructure_singleton.predictPairingProbability(sequence)
 
         if sequence_has_regular_characters(sequence):
             return Datapoint(
                 reference=ref,
                 sequence=sequence,
-                paired_bases=d['paired_bases'] if 'paired_bases' in d else None,
+                structure=d['structure'] if 'structure' in d else None,
                 dms=d['dms'] if 'dms' in d else None
             )
 

@@ -101,6 +101,15 @@ class InfoFileWriterFromFasta(InfoFileWriterTemplate):
         if predict_dms:
             self.info['DMS'] = DMS_FROM_RNASTRUCTURE
             self.info['about DMS'] = 'Predicted using RNAstructure at 310K.'
+            
+            
+class InfoFileWriterFromDataJson(InfoFileWriterTemplate):
+    
+    def __init__(self, name, root, path_in, predict_dms, predict_structure) -> None:
+        super().__init__(name, root, predict_dms, predict_structure)
+        
+        self.info['source'] = "`{}` (data.json file format)".format(os.path.basename(path_in))
+        
 
 
 def infoFileWriter(source, datafolder, predict_dms, predict_structure):
@@ -111,5 +120,8 @@ def infoFileWriter(source, datafolder, predict_dms, predict_structure):
         return InfoFileWriterFromCT(datafolder.name, datafolder.path_out, datafolder.path_in, predict_dms=predict_dms, predict_structure=predict_structure)
     if source == 'fasta':
         return InfoFileWriterFromFasta(datafolder.name, datafolder.path_out, datafolder.path_in, predict_dms=predict_dms, predict_structure=predict_structure)
+    if source == 'data.json':
+        return InfoFileWriterFromDataJson(datafolder.name, datafolder.path_out, datafolder.path_in, predict_dms=predict_dms, predict_structure=predict_structure)
+    
     raise ValueError(f"Unknown source: {source}")
 
