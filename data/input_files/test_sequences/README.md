@@ -11,8 +11,8 @@ pretty_name: test_sequences
 ---
 
 # test_sequences
-	upload_date: 2023-09-05 15:11:41
-	user: ymdt
+	upload_date: 2023-10-18 18:03:08
+	user: alberic
 	source: `test_sequences.fasta` (fasta file format)
 
 	Data types:

@@ -6,6 +6,7 @@ my_config.yaml
 temp
 data/datafolders
 env
+tutorials/data/
 
 docs/_*
 

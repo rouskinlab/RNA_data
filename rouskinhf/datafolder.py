@@ -471,6 +471,7 @@ class LoadDatafolderFromLocal(LoadDatafolder):
         - 0 datapoints with the same reference
         - 0 duplicate sequences with the same structure / dms
         - 0 duplicate sequences with different structure / dms
+        - 0 datapoints removed because of low AUROC (<0.8)
     >>> datafolder.name
     'for_testing'
     """

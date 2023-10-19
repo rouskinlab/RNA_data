@@ -20,6 +20,7 @@ setup(
         'pytest-dotenv',
         'python-dotenv',
         'tqdm',
-        'pytest-env'
+        'pytest-env',
+        'scikit-learn'
         ],
 )

@@ -4,7 +4,10 @@ import numpy as np
 from .datapoint import Datapoint, DatapointFactory
 from typing import List
 from .parsers import Fasta, DreemOutput
+from .util import UKN
+
 import pandas as pd
+from sklearn.metrics import roc_auc_score
 from tqdm import tqdm as tqdm_parser
 
 class ListofDatapoints:
@@ -51,7 +54,7 @@ class ListofDatapoints:
             np.array: structure matrix of pairs of 0-based indices.
 
         Examples:
-            >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0])], verbose=False)
+            >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1,0,0,0,0,1])], verbose=False)
             >>> datapoints.to_base_pairs_npy('temp/base_pairs.npy')
             array([[[1, 2],
                     [3, 4]]], dtype=object)
@@ -72,9 +75,9 @@ class ListofDatapoints:
             np.array: dms matrix of floats arrays.
 
         Examples:
-            >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0])], verbose=False)
+            >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1,0,0,0,0,1])], verbose=False)
             >>> datapoints.to_dms_npy('temp/dms.npy')
-            array([[1.0, 2.0, 3.0]], dtype=object)
+            array([[1.0, 0.0, 0.0, 0.0, 0.0, 1.0]], dtype=object)
         """
         
         arr = np.array([np.array(datapoint.dms, dtype=np.float32) for datapoint in self.datapoints], dtype=object)
@@ -93,8 +96,8 @@ class ListofDatapoints:
 
         Examples:
             >>> from numpy import array
-            >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0]),\
-                                               Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0])], verbose=False)
+            >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1,0,0,0,0,1]),\
+                                               Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1,0,0,0,0,1])], verbose=False)
             >>> assert not (datapoints.to_sequence_npy('temp/sequence.npy') - array([[1, 1, 2, 2, 3, 3],[1, 1, 2, 2, 3, 3]], dtype=object)).any(), "The sequence matrix is not correct."
         """
 
@@ -113,7 +116,7 @@ class ListofDatapoints:
             np.array: reference matrix of int-encoded.
 
         Examples:
-            >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0])], verbose=False)
+            >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1,0,0,0,0,1])], verbose=False)
             >>> datapoints.to_reference_npy('temp/reference.npy')
             array(['reference'], dtype='<U9')
         """
@@ -136,10 +139,16 @@ class ListofDatapoints:
         """Converts the list of datapoints into a pandas dataframe.
 
         Example:
-        >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0])], verbose=False)
-        >>> datapoints.to_pandas()
-           reference sequence      paired_bases              dms
-        0  reference   AACCGG  ((1, 2), (3, 4))  (1.0, 2.0, 3.0)
+        >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1,0,0,0,0,1])], verbose=False)
+        >>> temp = datapoints.to_pandas()
+        >>> temp['reference'].iloc[0]
+        'reference'
+        >>> temp['sequence'].iloc[0]
+        'AACCGG'
+        >>> temp['paired_bases'].iloc[0]
+        ((1, 2), (3, 4))
+        >>> temp['dms'].iloc[0]
+        (1, 0, 0, 0, 0, 1)
         """
         if datapoints is None: datapoints = self.datapoints
         return pd.DataFrame([datapoint.to_flat_dict() for datapoint in datapoints])
@@ -154,14 +163,14 @@ class ListofDatapoints:
         """
         return [Datapoint.from_flat_dict(datapoint_dict) for datapoint_dict in df.to_dict('records')]
 
-    def filter_duplicates_and_unvalid(self, datapoints, verbose=True):
+    def filter_duplicates_and_unvalid(self, datapoints, verbose=True, min_AUROC:int=0.8):
         """Filters out duplicate sequences.
         Only keep the first occurence of a sequence if all the other structures are the same.
 
         Examples:
-            >>> datapoints = ListofDatapoints([ Datapoint(reference='ref1', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[0,0,0,0,0,0]),\
-                                Datapoint(reference='ref2', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[0,0,0,0,0,0]),\
-                                Datapoint(reference='ref2', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[0,0,0,0,0,0]),\
+            >>> datapoints = ListofDatapoints([ Datapoint(reference='ref1', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1,0,0,0,0,1]),\
+                                Datapoint(reference='ref2', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1,0,0,0,0,1]),\
+                                Datapoint(reference='ref2', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1,0,0,0,0,1]),\
                                 Datapoint(reference='ref4', sequence='AUGGC', paired_bases=[[1, 2]], dms=[0,0,0,0,1]),\
                                 Datapoint(reference='ref5', sequence='AUGGC', paired_bases=[[0, 4], [2, 3]], dms=[0,0,0,0,0]),\
                                 Datapoint(reference='ref6', sequence='not a regular sequence', paired_bases=[[0, 4]], dms=[0,0,0,0,0]) ])
@@ -171,8 +180,9 @@ class ListofDatapoints:
                 - 1 datapoints with the same reference
                 - 1 duplicate sequences with the same structure / dms
                 - 2 duplicate sequences with different structure / dms
+                - 0 datapoints removed because of low AUROC (<0.8)
             >>> datapoints.datapoints
-            [Datapoint('ref1', sequence='AACCGG', paired_bases=((1, 2), (3, 4)), dms=(0, 0, 0, 0, 0, 0))]
+            [Datapoint('ref1', sequence='AACCGG', paired_bases=((1, 2), (3, 4)), dms=(1, 0, 0, 0, 0, 1))]
         """
         
         # Remove None datapoints        
@@ -204,6 +214,19 @@ class ListofDatapoints:
         # If there are multiple structures / dms with the same structure, keep none
         n_same_seq_datapoints = drop_duplicates(df, subset=['sequence'], inplace=True, ignore_index=True, keep='first' if not ('paired_bases' in df.columns or 'dms' in df.columns) else False)
 
+
+        ## Filter out references with low AUROC 
+        if 'paired_bases' in df.columns and 'dms' in df.columns:
+            def calculate_auroc(row):
+                dms = np.array(row['dms'])
+                isUnpaired = np.ones_like(dms)
+                isUnpaired[np.array(row['paired_bases']).flatten()] = 0
+                return roc_auc_score(isUnpaired[dms!=UKN], dms[dms!=UKN])
+
+            # Create a boolean mask for rows with auroc score greater than or equal to a threshold
+            mask_high_AUROC = df.apply(lambda row: calculate_auroc(row) >= min_AUROC, axis=1)
+            df = df[mask_high_AUROC]
+
         # Convert back to list of datapoints
         datapoints = self.from_pandas(df)
 
@@ -219,6 +242,9 @@ class ListofDatapoints:
         else:
             report += f"""
     - {n_same_seq_datapoints} duplicate sequences"""
+        if 'paired_bases' in df.columns and 'dms' in df.columns:
+            report += f"""
+    - {np.sum(~mask_high_AUROC)} datapoints removed because of low AUROC (<{min_AUROC})"""
     
         if verbose: print(report)
             
