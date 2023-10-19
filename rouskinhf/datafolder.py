@@ -164,7 +164,7 @@ class CreateDatafolderTemplate(DataFolderTemplate):
             source=source,
             datafolder=self,
             predict_dms=predict_dms,
-            predict_structure=predict_dms,
+            predict_structure=predict_structure,
         )
 
     def __repr__(self) -> str:
@@ -383,8 +383,66 @@ class CreateDatafolderFromCTfolder(CreateDatafolderTemplate):
         )
         self.dump_datapoints(generate_npy)
         self.infofile.add_filtering_report(self.datapoints.filtering_report).write()
+        
+        
+class CreateDatafolderFromDataJson(CreateDatafolderTemplate):
+    """Create a datafolder from a data.json file.
+
+    Parameters
+    ----------
+
+    path_in : str
+    path_in to the data.json file.
+
+    name : str, optional
+    Name of the datafolder. If None, the name is the name of the file or folder.
+
+    predict_dms : bool, optional
+    If True, the dms of the RNA is predicted. 
+
+    predict_structure : bool, optional
+    If True, the structure of the RNA is predicted.
+
+    generate_npy : bool, optional
+    If True, the npy files are generated. 
+
+    tqdm : bool, optional
+    If True, a progress bar is displayed.
+
+    Examples
+    --------
 
 
+    """
+
+    def __init__(
+        self,
+        path_in,
+        path_out,
+        name,
+        predict_dms,
+        predict_structure,
+        generate_npy,
+        tqdm=True,
+        verbose=True,
+    ) -> None:
+        super().__init__(
+            path_in,
+            path_out,
+            name,
+            source="data.json",
+            predict_structure=False,
+            predict_dms=predict_dms,
+        )
+
+        self.datapoints = ListofDatapoints.from_json(
+            json_file=path_in, predict_structure=predict_structure, predict_dms=predict_dms, tqdm=tqdm, verbose=verbose
+        )
+        
+        self.dump_datapoints(generate_npy)
+        self.infofile.add_filtering_report(self.datapoints.filtering_report).write()
+        
+        
 class LoadDatafolder(DataFolderTemplate):
     def __init__(self, name, root) -> None:
         super().__init__(name, root)
@@ -597,3 +655,26 @@ class DataFolder:
     ) -> LoadDatafolderFromHF:
         """Load a datafolder from HuggingFace. See LoadDatafolderFromHF for more details."""
         return LoadDatafolderFromHF(name, path_out, tqdm=tqdm, verbose=verbose)
+
+
+    def from_data_json(
+        path_in,
+        path_out=env.DATA_FOLDER,
+        name=None,
+        predict_dms=PREDICT_DMS,
+        predict_structure=PREDICT_STRUCTURE,
+        generate_npy=GENERATE_NPY,
+        tqdm=True,
+        verbose=True,
+    ) -> CreateDatafolderFromDataJson:
+        """Create a datafolder from a folder of ct files. See CreateDatafolderFromCTfolder for more details."""
+        return CreateDatafolderFromDataJson(
+            path_in,
+            path_out,
+            name,
+            predict_dms,
+            generate_npy,
+            predict_structure,
+            tqdm=tqdm,
+            verbose=verbose,
+        )

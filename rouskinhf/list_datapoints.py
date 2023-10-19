@@ -9,6 +9,7 @@ from .util import UKN
 import pandas as pd
 from sklearn.metrics import roc_auc_score
 from tqdm import tqdm as tqdm_parser
+import json
 
 class ListofDatapoints:
 
@@ -38,10 +39,10 @@ class ListofDatapoints:
             for reference, sequence, mutation_rate in tqdm_parser(DreemOutput.parse(dreem_output_file), total=n_lines, desc='Parsing dreem output file', disable=not tqdm)], verbose=verbose)
 
     @classmethod
-    def from_json(cls, json_file, tqdm=True, verbose=True):
+    def from_json(cls, json_file, predict_structure=False, predict_dms=False, tqdm=True, verbose=True):
         """Create a list of datapoint from a json file."""
-        with open(json_file) as f:
-            return cls([DatapointFactory.from_json_line(line) for line in tqdm_parser(f, total=sum(1 for line in open(json_file) if line.strip() not in ['{', '}']), desc='Parsing json file', disable= not tqdm) if line.strip() not in ['{', '}']], verbose=verbose)
+        data = json.load(open(json_file))
+        return cls([DatapointFactory.from_json_line(reference, line, predict_structure, predict_dms) for reference, line in tqdm_parser(data.items(), total=len(data), desc='Parsing json file', disable=not tqdm)], verbose=verbose)
 
 
     def to_base_pairs_npy(self, path):
