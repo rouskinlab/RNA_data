@@ -4,7 +4,8 @@ __pycache__/
 
 my_config.yaml
 temp
-data/datafolders
+data/datafolders/*
+!data/datafolders/for_testing/
 env
 tutorials/data/
 
