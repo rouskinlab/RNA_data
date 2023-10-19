@@ -524,12 +524,12 @@ class LoadDatafolderFromLocal(LoadDatafolder):
 
     >>> datafolder = LoadDatafolderFromLocal(name='for_testing', path='data/datafolders', generate_npy=True)
     Over a total of 2 datapoints, there are:
-        - 2 valid datapoints
+        - 0 valid datapoints
         - 0 invalid datapoints (ex: sequence with non-regular characters)
         - 0 datapoints with the same reference
         - 0 duplicate sequences with the same structure / dms
         - 0 duplicate sequences with different structure / dms
-        - 0 datapoints removed because of low AUROC (<0.8)
+        - 2 datapoints removed because of low AUROC (<0.8)
     >>> datafolder.name
     'for_testing'
     """

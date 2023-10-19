@@ -202,18 +202,18 @@ class DatapointFactory:
         "reference": {"sequence": "sequence", "paired_bases": [[1, 2], [3,4]], "dms": [1.0, 2.0, 3.0]}
 
         Example:
-        >>> DatapointFactory.from_json_line('"reference": {"sequence": "ACAAGU"}')
+        >>> DatapointFactory.from_json_line("reference", {"sequence": "ACAAGU"})
         Datapoint('reference', sequence='ACAAGU')
-        >>> DatapointFactory.from_json_line('"reference": {"sequence": "ACAAGU", "paired_bases": [[1, 2], [3, 4]], "dms": [1.0, 2.0, 3.0]}')
+        >>> DatapointFactory.from_json_line("reference", {"sequence": "ACAAGU", "paired_bases": [[1, 2], [3, 4]], "dms": [1.0, 2.0, 3.0]})
         Datapoint('reference', sequence='ACAAGU', paired_bases=((1, 2), (3, 4)), dms=(1.0, 2.0, 3.0))
-        >>> DatapointFactory.from_json_line('"reference": {"sequence": "something else than ACGTUacgtu", "paired_bases": [[1, 2], [3, 4]], "dms": [1.0, 2.0, 3.0]}')
+        >>> DatapointFactory.from_json_line("reference", {"sequence": "something else than ACGTUacgtu", "paired_bases": [[1, 2], [3, 4]], "dms": [1.0, 2.0, 3.0]})
         """
 
         # create the datapoint
         sequence = d['sequence']
         sequence = standardize_sequence(sequence)
         
-        if predict_structure and not 'paired_bases' in d:
+        if predict_structure and not 'structure' in d and not 'paired_bases' in d:
             d['structure'] = RNAstructure_singleton.predictStructure(sequence)
             
         if predict_dms and not 'dms' in d:
@@ -224,6 +224,7 @@ class DatapointFactory:
                 reference=ref,
                 sequence=sequence,
                 structure=d['structure'] if 'structure' in d else None,
+                paired_bases=d['paired_bases'] if 'paired_bases' in d else None,
                 dms=d['dms'] if 'dms' in d else None
             )
 
