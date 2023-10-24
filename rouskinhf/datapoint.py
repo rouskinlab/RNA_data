@@ -102,7 +102,7 @@ class Datapoint:
         """
         if type(dms) == np.ndarray:
             dms = dms.tolist()
-        return tuple(dms) 
+        return tuple([round(d, 4) for d in dms]) if dms is not None else None
         
 
     def to_dict(self):
