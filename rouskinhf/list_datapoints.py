@@ -81,7 +81,7 @@ class ListofDatapoints:
             array([[1.0, 0.0, 0.0, 0.0, 0.0, 1.0]], dtype=object)
         """
         
-        arr = np.array([np.array(datapoint.dms, dtype=np.float32) for datapoint in self.datapoints], dtype=object)
+        arr = np.array([datapoint.embed_dms() for datapoint in self.datapoints])
         np.save(path, arr, allow_pickle=True)
         return arr
 
@@ -102,7 +102,7 @@ class ListofDatapoints:
             >>> assert not (datapoints.to_sequence_npy('temp/sequence.npy') - array([[1, 1, 2, 2, 3, 3],[1, 1, 2, 2, 3, 3]], dtype=object)).any(), "The sequence matrix is not correct."
         """
 
-        arr = np.array([datapoint.embed_sequence() for datapoint in self.datapoints], dtype=object)
+        arr = np.array([datapoint.embed_sequence() for datapoint in self.datapoints])#, dtype=object)
         np.save(path, arr)
         return arr
 
