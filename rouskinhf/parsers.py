@@ -24,7 +24,12 @@ class Ct:
         for line in lines[1:]:
             if line.strip() == '':
                 break
-            utr5, base, _, _, utr3, _ = line.split()
+            try:
+                utr5, base, _, _, utr3, _ = line.split()
+            except ValueError as e:
+                raise ValueError("The ct file `{}` is not formatted correctly. Please check the file and try again. ValueError: {}".format(ct_file, e))
+            except Exception as e:
+                raise Exception("An unknown error occured while parsing the ct file `{}`. Please check the file and try again. Exception: {}".format(ct_file, e))
             sequence += base
             if int(utr3) > int(utr5) and int(utr3) != 0:
                 paired_bases.append([int(utr5)-1, int(utr3)-1])
