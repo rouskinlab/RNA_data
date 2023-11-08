@@ -78,10 +78,10 @@ class ListofDatapoints:
         Examples:
             >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1,0,0,0,0,1])], verbose=False)
             >>> datapoints.to_dms_npy('temp/dms.npy')
-            array([[1.0, 0.0, 0.0, 0.0, 0.0, 1.0]], dtype=object)
+            array([[1., 0., 0., 0., 0., 1.]], dtype=float32)
         """
         
-        arr = np.array([datapoint.embed_dms() for datapoint in self.datapoints])
+        arr = np.array([datapoint.embed_dms() for datapoint in self.datapoints], dtype=object)
         np.save(path, arr, allow_pickle=True)
         return arr
 
@@ -122,7 +122,7 @@ class ListofDatapoints:
             array(['reference'], dtype='<U9')
         """
 
-        arr = np.array([datapoint.reference for datapoint in self.datapoints])
+        arr = np.array([datapoint.reference for datapoint in self.datapoints], dtype=object)
         np.save(path, arr)
         return arr
 

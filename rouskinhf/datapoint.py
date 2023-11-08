@@ -154,9 +154,9 @@ class Datapoint:
     def embed_dms(self):
         """Returns a list of floats corresponding to the dms.
 
+        >>> from numpy import array, float32
         >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
-        >>> datapoint.embed_dms()
-        array([1., 2., 3.])
+        >>> assert (datapoint.embed_dms() == array([1., 2., 3.], dtype=float32)).all(), 'The dms are not embedded correctly.'
         """
         return np.array([round(d,4) for d in self.dms], dtype=np.float32)
 
@@ -223,9 +223,9 @@ class Datapoint:
     def embed_sequence(self):
         """Returns a list of integers corresponding to the sequence.
 
+        >>> from numpy import array
         >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
-        >>> datapoint.embed_sequence()
-        array([1, 1, 2, 2, 3, 3])
+        >>> assert (datapoint.embed_sequence() == array([1, 1, 2, 2, 3, 3])).all(), 'The sequence is not embedded correctly.'
         """
         return np.array([seq2int[base] for base in self.sequence], dtype=np.int8)
 
