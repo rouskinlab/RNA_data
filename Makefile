@@ -1,5 +1,5 @@
 
-PYPI_PASSWORD := $(shell cat pypi_pass.txt)
+PYPI_PASSWORD := $(shell cat ~/.pypi_pass.txt)
 
 default:
 	python setup.py install
