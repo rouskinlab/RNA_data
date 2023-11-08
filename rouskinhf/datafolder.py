@@ -669,12 +669,12 @@ class DataFolder:
     ) -> CreateDatafolderFromDataJson:
         """Create a datafolder from a folder of ct files. See CreateDatafolderFromCTfolder for more details."""
         return CreateDatafolderFromDataJson(
-            path_in,
-            path_out,
-            name,
-            predict_dms,
-            generate_npy,
-            predict_structure,
-            tqdm=tqdm,
-            verbose=verbose,
+            path_in = path_in,
+            path_out = path_out,
+            name = name,
+            predict_dms = predict_dms,
+            predict_structure = predict_structure,
+            generate_npy = generate_npy,
+            tqdm = tqdm,
+            verbose = verbose,
         )

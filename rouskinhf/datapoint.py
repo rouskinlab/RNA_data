@@ -306,10 +306,10 @@ class DatapointFactory:
         sequence = d["sequence"]
         sequence = standardize_sequence(sequence)
 
-        if predict_structure and not "structure" in d and not "paired_bases" in d:
+        if predict_structure and (not "structure" in d) and (not "paired_bases" in d):
             d["structure"] = RNAstructure_singleton.predictStructure(sequence)
 
-        if predict_dms and not "dms" in d:
+        if predict_dms and (not "dms" in d):
             d["dms"] = RNAstructure_singleton.predictPairingProbability(sequence)
 
         if sequence_has_regular_characters(sequence):

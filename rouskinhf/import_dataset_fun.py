@@ -24,7 +24,7 @@ def import_dataset(name:str, data:str, force_download:bool=False, force_generate
         Dictionary with the following keys: 'references', 'sequences', and 'structure' or 'DMS' depending on the data type.
     """
     if data == 'dms': data = 'DMS'
-    assert data in ['structure', 'DMS'], "data must be either 'structure' or 'DMS'"
+    assert data in ['structure', 'DMS', 'sequence'], "data must be either 'structure' or 'DMS'"
 
     # Get the data folder
     try:
