@@ -59,7 +59,7 @@ class Datapoint:
         return instance
 
     def __init__(
-        self, sequence, reference, structure=None, dms=None, paired_bases=None
+        self, sequence, reference, structure=None, dms=None, paired_bases=None, shape=None
     ):
         for attr in [sequence, reference]:
             assert isinstance(
@@ -87,10 +87,14 @@ class Datapoint:
                 )
             )
         if dms is not None:
-            self.dms = self._format_dms(dms)
+            self.dms = self._format_signal(dms)
+        
+        if shape is not None:
+            self.shape = self._format_signal(shape)
+        
         self.opt_dict = {
             attr: eval(f"self.{attr}")
-            for attr in ["paired_bases", "dms"]
+            for attr in ["paired_bases", "dms", "shape"]
             if hasattr(self, attr)
         }
 
@@ -141,24 +145,25 @@ class Datapoint:
         else:
             return True
 
-    def _format_dms(self, dms):
+    def _format_signal(self, signal):
         """returns a tuple
         >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
-        >>> datapoint._format_dms([1.0, 2.0, 3.0])
+        >>> datapoint._format_signal([1.0, 2.0, 3.0])
         (1.0, 2.0, 3.0)
         """
-        if type(dms) == np.ndarray:
-            dms = dms.tolist()
-        return tuple(dms)
+        if type(signal) == np.ndarray:
+            signal = signal.tolist()
+        return tuple(signal)
     
-    def embed_dms(self):
+    def embed_signal(self, signal):
         """Returns a list of floats corresponding to the dms.
 
         >>> from numpy import array, float32
         >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
-        >>> assert (datapoint.embed_dms() == array([1., 2., 3.], dtype=float32)).all(), 'The dms are not embedded correctly.'
+        >>> assert (datapoint.embed_signal() == array([1., 2., 3.], dtype=float32)).all(), 'The dms are not embedded correctly.'
         """
-        return np.array([round(d,4) for d in self.dms], dtype=np.float32)
+        assert signal in ['dms', 'shape'], f"signal should be 'dms' or 'shape'"
+        return np.array([round(d,4) for d in getattr(self, signal)], dtype=np.float32)
 
     def to_dict(self):
         return self.reference, {
@@ -207,6 +212,9 @@ class Datapoint:
             out += f", paired_bases={self.paired_bases}"
         if hasattr(self, "dms"):
             out += f", dms={self.dms}"
+        if hasattr(self, "shape"):
+            out += f", shape={self.shape}"
+            
         return out + ")"
 
     def structure_to_paired_bases(self, structure):
@@ -305,9 +313,12 @@ class DatapointFactory:
         # create the datapoint
         sequence = d["sequence"]
         sequence = standardize_sequence(sequence)
+        shape = d["shape"] if "shape" in d else None
 
         if predict_structure and (not "structure" in d) and (not "paired_bases" in d):
-            d["structure"] = RNAstructure_singleton.predictStructure(sequence, dms=d["dms"] if "dms" in d else None)
+            if 'dms' in d and 'shape' in d:
+                print('DMS and SHAPE are both present in the json line. Using DMS.')
+            d["structure"] = RNAstructure_singleton.predictStructure(sequence, dms=d["dms"] if "dms" in d else d["shape"] if "shape" in d else None)
 
         if predict_dms and (not "dms" in d):
             d["dms"] = RNAstructure_singleton.predictPairingProbability(sequence)
@@ -319,4 +330,5 @@ class DatapointFactory:
                 structure=d["structure"] if "structure" in d else None,
                 paired_bases=d["paired_bases"] if "paired_bases" in d else None,
                 dms=d["dms"] if "dms" in d else None,
+                shape=d["shape"] if "shape" in d else None,
             )

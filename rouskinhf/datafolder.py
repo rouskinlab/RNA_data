@@ -47,6 +47,9 @@ class DataFolderTemplate(PathDatafolder):
 
         if hasattr(d1, "dms"):
             self.datapoints.to_dms_npy(self.get_dms_npy())
+            
+        if hasattr(d1, "shape"):
+            self.datapoints.to_shape_npy(self.get_shape_npy())
 
     def create_repo(self, exist_ok=False, private=True):
         """Create a repo on huggingface.co.
@@ -138,7 +141,6 @@ class DataFolderTemplate(PathDatafolder):
         """Dump the datapoints to a json file."""
 
         self.datapoints.to_json(self.get_json())
-
         if generate_npy:
             self.generate_npy()
 

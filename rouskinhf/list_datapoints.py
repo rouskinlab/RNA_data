@@ -81,7 +81,26 @@ class ListofDatapoints:
             >>> assert (datapoints.to_dms_npy('temp/dms.npy') == array([[1., 0., 0., 0., 0., 1.]], dtype=object)).all(), "The dms matrix is not correct."
         """
         
-        arr = np.array([datapoint.embed_dms() for datapoint in self.datapoints], dtype=object)
+        arr = np.array([datapoint.embed_signal(signal='dms') for datapoint in self.datapoints], dtype=object)
+        np.save(path, arr, allow_pickle=True)
+        return arr
+    
+    def to_shape_npy(self, path):
+        """Writes the shape npy file from the list of datapoints.
+        
+        Args:
+            path (str): path to the npy file
+        
+        Returns:
+            np.array: shape matrix of floats arrays.
+            
+        Examples:
+            >>> from numpy import array
+            >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], shape=[1,0,0,0,0,1])], verbose=False)
+            >>> assert (datapoints.to_shape_npy('temp/shape.npy') == array([[1., 0., 0., 0., 0., 1.]], dtype=object)).all(), "The shape matrix is not correct."
+        """
+        
+        arr = np.array([datapoint.embed_signal(signal='shape') for datapoint in self.datapoints], dtype=object)
         np.save(path, arr, allow_pickle=True)
         return arr
 
@@ -208,27 +227,29 @@ class ListofDatapoints:
             n_duplicates_datapoints = drop_duplicates(df, subset=['sequence','paired_bases'], inplace=True, ignore_index=True)
 
         # Keep only one datapoint per sequence and dms
-        if 'dms' in df.columns:
-            if not 'paired_bases' in df.columns: n_duplicates_datapoints = 0
-            n_duplicates_datapoints += drop_duplicates(df, subset=['sequence','dms'], inplace=True, ignore_index=True)
-        
+        for signal in ['dms', 'shape']:
+            if signal in df.columns:
+                if not 'paired_bases' in df.columns: n_duplicates_datapoints = 0
+                n_duplicates_datapoints += drop_duplicates(df, subset=['sequence', signal], inplace=True, ignore_index=True)
+            
         # If there are multiple structures / dms with the same structure, keep none
-        n_same_seq_datapoints = drop_duplicates(df, subset=['sequence'], inplace=True, ignore_index=True, keep='first' if not ('paired_bases' in df.columns or 'dms' in df.columns) else False)
+        n_same_seq_datapoints = drop_duplicates(df, subset=['sequence'], inplace=True, ignore_index=True, keep='first' if not ('paired_bases' in df.columns or 'dms' in df.columns or 'shape' in df.columns) else False)
 
 
         ## Filter out references with low AUROC 
-        if 'paired_bases' in df.columns and 'dms' in df.columns:
-            def calculate_auroc(row):
-                dms = np.array(row['dms'])
-                isUnpaired = np.ones_like(dms)
-                isUnpaired[np.array(row['paired_bases']).flatten()] = 0
-                if set(isUnpaired[dms!=UKN]) != set([0,1]):
-                    return 0
-                return roc_auc_score(isUnpaired[dms!=UKN], dms[dms!=UKN])
+        for signal in ['dms', 'shape']:
+            if 'paired_bases' in df.columns and signal in df.columns:
+                def calculate_auroc(row):
+                    s = np.array(row[signal])
+                    isUnpaired = np.ones_like(s)
+                    isUnpaired[np.array(row['paired_bases']).flatten()] = 0
+                    if set(isUnpaired[s!=UKN]) != set([0,1]):
+                        return 0
+                    return roc_auc_score(isUnpaired[s!=UKN], s[s!=UKN])
 
-            # Create a boolean mask for rows with auroc score greater than or equal to a threshold
-            mask_high_AUROC = df.apply(lambda row: calculate_auroc(row) >= min_AUROC, axis=1)
-            df = df[mask_high_AUROC]
+                # Create a boolean mask for rows with auroc score greater than or equal to a threshold
+                mask_high_AUROC = df.apply(lambda row: calculate_auroc(row) >= min_AUROC, axis=1)
+                df = df[mask_high_AUROC]
 
         # Convert back to list of datapoints
         datapoints = self.from_pandas(df)
@@ -238,14 +259,14 @@ class ListofDatapoints:
     - {len(datapoints)} valid datapoints
     - {n_unvalid_datapoints} invalid datapoints (ex: sequence with non-regular characters)
     - {n_same_ref_datapoints} datapoints with the same reference"""
-        if 'paired_bases' in df.columns or 'dms' in df.columns:
+        if 'paired_bases' in df.columns or 'dms' in df.columns or 'shape' in df.columns:
             report += f"""
     - {n_duplicates_datapoints} duplicate sequences with the same structure / dms
     - {n_same_seq_datapoints} duplicate sequences with different structure / dms"""
         else:
             report += f"""
     - {n_same_seq_datapoints} duplicate sequences"""
-        if 'paired_bases' in df.columns and 'dms' in df.columns:
+        if 'paired_bases' in df.columns and 'dms' in df.columns or 'shape' in df.columns:
             report += f"""
     - {np.sum(~mask_high_AUROC)} datapoints removed because of low AUROC (<{min_AUROC})"""
     

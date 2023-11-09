@@ -46,6 +46,10 @@ class PathDatafolder:
     def get_dms_npy(self)->str:
         """Returns the path to the DMS npy file"""
         return join(self.get_main_folder(), 'dms.npy')
+    
+    def get_shape_npy(self)->str:
+        """Returns the path to the shape npy file"""
+        return join(self.get_main_folder(), 'shape.npy')
 
     def get_base_pairs_npy(self)->str:
         """Returns the path to the structure npy file"""
