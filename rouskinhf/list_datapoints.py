@@ -222,6 +222,8 @@ class ListofDatapoints:
                 dms = np.array(row['dms'])
                 isUnpaired = np.ones_like(dms)
                 isUnpaired[np.array(row['paired_bases']).flatten()] = 0
+                if set(isUnpaired[dms!=UKN]) != set([0,1]):
+                    return 0
                 return roc_auc_score(isUnpaired[dms!=UKN], dms[dms!=UKN])
 
             # Create a boolean mask for rows with auroc score greater than or equal to a threshold

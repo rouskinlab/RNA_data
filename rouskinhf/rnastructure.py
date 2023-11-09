@@ -118,7 +118,7 @@ class RNAstructure(object):
         self.__create_fasta_file(reference, sequence)
         return self.predict_partition(dms = dms)
 
-    def predictStructure(self, sequence, dms = None):
+    def predictStructure(self, sequence, dms = None, shape = None):
         self.sequence = sequence
         self.__make_temp_folder()
         self.__make_files()
@@ -132,6 +132,11 @@ class RNAstructure(object):
             assert type(dms) in [list, tuple, np.ndarray], 'The dms signal should be a list of floats.'
             self.__write_dms_to_file(sequence, dms)
             cmd += ' --dms ' + self.dms_file
+        if type(shape) != type(None):
+            assert len(sequence) == len(shape), 'The length of the sequence is not the same as the length of the signal.'
+            assert type(shape) in [list, tuple, np.ndarray], 'The shape signal should be a list of floats.'
+            self.__write_dms_to_file(sequence, shape)
+            cmd += ' --shape ' + self.dms_file
         run_command(cmd)
         cmd = f"{os.path.join(env.RNASTRUCTURE_PATH, 'ct2dot')} {self.ct_file} 0 {self.dot_file}"
         run_command(cmd)
