@@ -76,9 +76,9 @@ class ListofDatapoints:
             np.array: dms matrix of floats arrays.
 
         Examples:
+            >>> from numpy import array
             >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1,0,0,0,0,1])], verbose=False)
-            >>> datapoints.to_dms_npy('temp/dms.npy')
-            array([[1., 0., 0., 0., 0., 1.]], dtype=float32)
+            >>> assert (datapoints.to_dms_npy('temp/dms.npy') == array([[1., 0., 0., 0., 0., 1.]], dtype=object)).all(), "The dms matrix is not correct."
         """
         
         arr = np.array([datapoint.embed_dms() for datapoint in self.datapoints], dtype=object)
@@ -119,7 +119,7 @@ class ListofDatapoints:
         Examples:
             >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], dms=[1,0,0,0,0,1])], verbose=False)
             >>> datapoints.to_reference_npy('temp/reference.npy')
-            array(['reference'], dtype='<U9')
+            array(['reference'], dtype=object)
         """
 
         arr = np.array([datapoint.reference for datapoint in self.datapoints], dtype=object)
