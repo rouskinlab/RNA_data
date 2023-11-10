@@ -23,8 +23,9 @@ def import_dataset(name:str, data:str, force_download:bool=False, force_generate
     dict: {str: ndarray}
         Dictionary with the following keys: 'references', 'sequences', and 'structure' or 'DMS' depending on the data type.
     """
-    if data == 'dms': data = 'DMS'
-    assert data in ['structure', 'DMS', 'sequence'], "data must be either 'structure' or 'DMS'"
+    if data in ['dms','shape']:
+        data = data.capitalize()
+    assert data in ['structure', 'DMS', 'sequence', 'SHAPE'], "data must be either 'structure', 'SHAPE' or 'DMS'"
 
     # Get the data folder
     try:
@@ -59,5 +60,10 @@ def import_dataset(name:str, data:str, force_download:bool=False, force_generate
         if not exists(datafolder.get_dms_npy()) or force_download:
             datafolder.generate_npy()
         out['DMS'] = np.load(datafolder.get_dms_npy(), allow_pickle=True)
+        
+    elif data == 'SHAPE':
+        if not exists(datafolder.get_shape_npy()) or force_download:
+            datafolder.generate_npy()
+        out['SHAPE'] = np.load(datafolder.get_shape_npy(), allow_pickle=True)
 
     return out
