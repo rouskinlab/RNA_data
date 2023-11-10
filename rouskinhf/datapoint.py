@@ -151,9 +151,7 @@ class Datapoint:
         >>> datapoint._format_signal([1.0, 2.0, 3.0])
         (1.0, 2.0, 3.0)
         """
-        if type(signal) == np.ndarray:
-            signal = signal.tolist()
-        return tuple(signal)
+        return tuple([round(d,4) for d in signal])
     
     def embed_signal(self, signal):
         """Returns a list of floats corresponding to the dms.
@@ -285,7 +283,6 @@ class DatapointFactory:
     def from_dreem_output(reference, sequence, mutation_rate, predict_structure):
         """Create a datapoint from a dreem output file. The structure and dms will be predicted if predict_structure and predict_dms are True."""
         sequence = standardize_sequence(sequence)
-        mutation_rate = np.array([float(m) for m in mutation_rate], dtype=np.float32)
         if sequence_has_regular_characters(sequence):
             return Datapoint(
                 sequence=sequence,

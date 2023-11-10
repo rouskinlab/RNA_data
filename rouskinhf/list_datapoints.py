@@ -81,8 +81,9 @@ class ListofDatapoints:
             >>> assert (datapoints.to_dms_npy('temp/dms.npy') == array([[1., 0., 0., 0., 0., 1.]], dtype=object)).all(), "The dms matrix is not correct."
         """
         
-        arr = np.array([datapoint.embed_signal(signal='dms') for datapoint in self.datapoints], dtype=object)
+        arr = np.array([np.array(datapoint.dms).astype(float) for datapoint in self.datapoints])
         np.save(path, arr, allow_pickle=True)
+
         return arr
     
     def to_shape_npy(self, path):
@@ -100,7 +101,7 @@ class ListofDatapoints:
             >>> assert (datapoints.to_shape_npy('temp/shape.npy') == array([[1., 0., 0., 0., 0., 1.]], dtype=object)).all(), "The shape matrix is not correct."
         """
         
-        arr = np.array([datapoint.embed_signal(signal='shape') for datapoint in self.datapoints], dtype=object)
+        arr = np.array(np.array([datapoint.shape for datapoint in self.datapoints]), dtype=object)
         np.save(path, arr, allow_pickle=True)
         return arr
 
