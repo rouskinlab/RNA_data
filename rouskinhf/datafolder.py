@@ -20,12 +20,14 @@ class DataFolderTemplate(PathDatafolder):
         self.datapoints = ListofDatapoints([], verbose=False)
         self.api = HfApi(token=env.HUGGINGFACE_TOKEN)
 
+
     def generate_npy(self):
         """Generate the npy files:
             - reference.npy
             - sequence.npy
             - base_pairs.npy
             - dms.npy
+            - shape.npy
 
         Each file corresponds to a key in the datapoints dictionary contained in the json file.
         For example, if the 1st line of the json file is:
@@ -581,6 +583,7 @@ class DataFolder:
         If True, the filtering report is displayed. Default is True.
 
     """
+
 
     def from_fasta(
         path_in,

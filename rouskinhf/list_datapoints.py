@@ -11,13 +11,37 @@ from sklearn.metrics import roc_auc_score
 from tqdm import tqdm as tqdm_parser
 import json
 
+def save_array(func):
+    def wrapper(self, path):
+        arr = func(self, path)
+        if os.path.exists(path):
+            os.remove(path)
+        np.save(path, arr)
+        return arr
+    return wrapper
+
+
 class ListofDatapoints:
 
-    def __init__(self, datapoints=[], verbose=True):
-        self.datapoints, self.filtering_report = self.filter_duplicates_and_unvalid(datapoints, verbose)
-        
+    def __init__(self, datapoints=None, filtering = True, verbose=True):
+        datapoints = [] if datapoints is None else datapoints
+        if filtering:
+            self.datapoints, self.filtering_report = self.filter_duplicates_and_unvalid(datapoints, verbose)
+        else:
+            self.datapoints = datapoints
+            self.filtering_report = None    
+            
     def __call__(self) -> List[Datapoint]:
         return self.datapoints
+    
+    def __add__(self, other):
+        
+        datapoints = self.datapoints.copy() + other.datapoints.copy()
+    
+        return ListofDatapoints(datapoints, verbose=False, filtering=False)
+    
+    def __len__(self):  
+        return len(self.datapoints)
 
     @classmethod
     def from_fasta(cls, fasta_file, predict_structure, predict_dms, tqdm=True, verbose=True):
@@ -45,6 +69,7 @@ class ListofDatapoints:
         return cls([DatapointFactory.from_json_line(reference, line, predict_structure, predict_dms) for reference, line in tqdm_parser(data.items(), total=len(data), desc='Parsing json file', disable=not tqdm)], verbose=verbose)
 
 
+    @save_array
     def to_base_pairs_npy(self, path):
         """Writes the structure npy file from the list of datapoints.
 
@@ -61,11 +86,10 @@ class ListofDatapoints:
                     [3, 4]]], dtype=object)
         """
 
-        arr = np.array([np.array(datapoint.paired_bases, dtype=np.uint8) for datapoint in self.datapoints], dtype=object)
-        np.save(path, arr)
-        return arr
+        return np.array([np.array(datapoint.paired_bases, dtype=np.uint8) for datapoint in self.datapoints], dtype=object)
+        
 
-
+    @save_array
     def to_dms_npy(self, path):
         """Writes the dms npy file from the list of datapoints.
 
@@ -81,11 +105,9 @@ class ListofDatapoints:
             >>> assert (datapoints.to_dms_npy('temp/dms.npy') == array([[1., 0., 0., 0., 0., 1.]], dtype=object)).all(), "The dms matrix is not correct."
         """
         
-        arr = np.array([np.array(datapoint.dms).astype(float) for datapoint in self.datapoints])
-        np.save(path, arr, allow_pickle=True)
-
-        return arr
-    
+        return np.array([np.array(datapoint.dms).astype(float) for datapoint in self.datapoints], dtype=object)
+       
+    @save_array
     def to_shape_npy(self, path):
         """Writes the shape npy file from the list of datapoints.
         
@@ -100,12 +122,10 @@ class ListofDatapoints:
             >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], shape=[1,0,0,0,0,1])], verbose=False)
             >>> assert (datapoints.to_shape_npy('temp/shape.npy') == array([[1., 0., 0., 0., 0., 1.]], dtype=object)).all(), "The shape matrix is not correct."
         """
-        
-        arr = np.array(np.array([datapoint.shape for datapoint in self.datapoints]), dtype=object)
-        np.save(path, arr, allow_pickle=True)
-        return arr
+        return np.array([np.array(datapoint.shape).astype(float) for datapoint in self.datapoints], dtype=object)
 
 
+    @save_array
     def to_sequence_npy(self, path):
         """Writes the sequence npy file from the list of datapoints.
 
@@ -122,11 +142,9 @@ class ListofDatapoints:
             >>> assert not (datapoints.to_sequence_npy('temp/sequence.npy') - array([[1, 1, 2, 2, 3, 3],[1, 1, 2, 2, 3, 3]], dtype=object)).any(), "The sequence matrix is not correct."
         """
 
-        arr = np.array([datapoint.embed_sequence() for datapoint in self.datapoints], dtype=object)
-        np.save(path, arr)
-        return arr
+        return np.array([datapoint.embed_sequence() for datapoint in self.datapoints], dtype=object)
 
-
+    @save_array
     def to_reference_npy(self, path):
         """Writes the reference npy file from the list of datapoints.
 
@@ -142,10 +160,8 @@ class ListofDatapoints:
             array(['reference'], dtype=object)
         """
 
-        arr = np.array([datapoint.reference for datapoint in self.datapoints], dtype=object)
-        np.save(path, arr)
-        return arr
-
+        return np.array([datapoint.reference for datapoint in self.datapoints], dtype=object)
+       
 
     def to_json(self, path) -> None:
         """Write a list of datapoints to a json file."""
@@ -238,19 +254,21 @@ class ListofDatapoints:
 
 
         ## Filter out references with low AUROC 
-        for signal in ['dms', 'shape']:
-            if 'paired_bases' in df.columns and signal in df.columns:
-                def calculate_auroc(row):
-                    s = np.array(row[signal])
-                    isUnpaired = np.ones_like(s)
-                    isUnpaired[np.array(row['paired_bases']).flatten()] = 0
-                    if set(isUnpaired[s!=UKN]) != set([0,1]):
-                        return 0
-                    return roc_auc_score(isUnpaired[s!=UKN], s[s!=UKN])
+        mask_high_AUROC= None
+        if not ('dms' in df.columns and'shape' in df.columns): # don't filter if there is both dms and shape
+            for signal in ['dms', 'shape']:
+                if 'paired_bases' in df.columns and signal in df.columns:
+                    def calculate_auroc(row):
+                        s = np.array(row[signal])
+                        isUnpaired = np.ones_like(s)
+                        isUnpaired[np.array(row['paired_bases']).flatten()] = 0
+                        if set(isUnpaired[s!=UKN]) != set([0,1]):
+                            return 0
+                        return roc_auc_score(isUnpaired[s!=UKN], s[s!=UKN])
 
-                # Create a boolean mask for rows with auroc score greater than or equal to a threshold
-                mask_high_AUROC = df.apply(lambda row: calculate_auroc(row) >= min_AUROC, axis=1)
-                df = df[mask_high_AUROC]
+                    # Create a boolean mask for rows with auroc score greater than or equal to a threshold
+                    mask_high_AUROC = df.apply(lambda row: calculate_auroc(row) >= min_AUROC, axis=1)
+                    df = df[mask_high_AUROC]
 
         # Convert back to list of datapoints
         datapoints = self.from_pandas(df)
@@ -267,7 +285,7 @@ class ListofDatapoints:
         else:
             report += f"""
     - {n_same_seq_datapoints} duplicate sequences"""
-        if 'paired_bases' in df.columns and 'dms' in df.columns or 'shape' in df.columns:
+        if mask_high_AUROC is not None:
             report += f"""
     - {np.sum(~mask_high_AUROC)} datapoints removed because of low AUROC (<{min_AUROC})"""
     

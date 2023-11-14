@@ -3,7 +3,7 @@ from numpy import ndarray
 import numpy as np
 from .datafolder import DataFolder
 
-def import_dataset(name:str, data:str, force_download:bool=False, force_generate_npy=False)->ndarray:
+def import_dataset(name:str, force_download:bool=False)->ndarray:
 
     """Finds the dataset with the given name for the given type of data.
 
@@ -12,8 +12,6 @@ def import_dataset(name:str, data:str, force_download:bool=False, force_generate
 
     name : str
         Name of the dataset to find.
-    data : str
-        Name of the type of data to find the dataset for (structure or DMS).
     force_download : bool
         Whether to force download the dataset from HuggingFace Hub. Defaults to False.
 
@@ -23,14 +21,11 @@ def import_dataset(name:str, data:str, force_download:bool=False, force_generate
     dict: {str: ndarray}
         Dictionary with the following keys: 'references', 'sequences', and 'structure' or 'DMS' depending on the data type.
     """
-    if data in ['dms','shape']:
-        data = data.capitalize()
-    assert data in ['structure', 'DMS', 'sequence', 'SHAPE'], "data must be either 'structure', 'SHAPE' or 'DMS'"
-
+    
     # Get the data folder
     try:
         assert not force_download, "Force download from HuggingFace Hub"
-        datafolder = DataFolder.from_local(name=name, generate_npy=force_generate_npy)
+        datafolder = DataFolder.from_local(name=name)
         source = 'local'
         print("Using local data for: {}".format(name))
     except AssertionError as e:
@@ -42,28 +37,18 @@ def import_dataset(name:str, data:str, force_download:bool=False, force_generate
         except AssertionError as e:
             raise AssertionError("Could not find dataset: {} because of error: {}".format(name, e))
 
-    if not exists(datafolder.get_references_npy()) or not exists(datafolder.get_sequences_npy()) or source == 'huggingface' or force_generate_npy:
-        datafolder.generate_npy()
+    datafolder.generate_npy()
 
     out = {
         'references': np.load(datafolder.get_references_npy(), allow_pickle=True),
-        'sequences': np.load(datafolder.get_sequences_npy(), allow_pickle=True)
+        'sequences': np.load(datafolder.get_sequences_npy(), allow_pickle=True),
         }
 
-    # Get the dataset
-    if data == 'structure':
-        if not exists(datafolder.get_base_pairs_npy()) or force_download:
-            datafolder.generate_npy()
-        out['structure'] = np.load(datafolder.get_base_pairs_npy(), allow_pickle=True)
-
-    elif data == 'DMS':
-        if not exists(datafolder.get_dms_npy()) or force_download:
-            datafolder.generate_npy()
-        out['DMS'] = np.load(datafolder.get_dms_npy(), allow_pickle=True)
-        
-    elif data == 'SHAPE':
-        if not exists(datafolder.get_shape_npy()) or force_download:
-            datafolder.generate_npy()
-        out['SHAPE'] = np.load(datafolder.get_shape_npy(), allow_pickle=True)
+    if exists(datafolder.get_base_pairs_npy()):
+        out['base_pairs'] = np.load(datafolder.get_base_pairs_npy(), allow_pickle=True)
+    if exists(datafolder.get_dms_npy()):
+        out['dms'] = np.load(datafolder.get_dms_npy(), allow_pickle=True)
+    if exists(datafolder.get_shape_npy()):
+        out['shape'] = np.load(datafolder.get_shape_npy(), allow_pickle=True)
 
     return out
