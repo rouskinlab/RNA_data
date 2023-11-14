@@ -158,7 +158,7 @@ class Datapoint:
 
         >>> from numpy import array, float32
         >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
-        >>> assert (datapoint.embed_signal() == array([1., 2., 3.], dtype=float32)).all(), 'The dms are not embedded correctly.'
+        >>> assert (datapoint.embed_signal('dms') == array([1., 2., 3.], dtype=float32)).all(), 'The dms are not embedded correctly.'
         """
         assert signal in ['dms', 'shape'], f"signal should be 'dms' or 'shape'"
         return np.array([round(d,4) for d in getattr(self, signal)], dtype=np.float32)
