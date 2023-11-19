@@ -1,4 +1,5 @@
 from os.path import exists
+from os import remove
 from numpy import ndarray
 import numpy as np
 from .datafolder import DataFolder
@@ -31,6 +32,7 @@ def import_dataset(name:str, force_download:bool=False)->ndarray:
     except AssertionError as e:
         try:
             print(e)
+            remove(datafolder.get_main_folder())
             datafolder = DataFolder.from_huggingface(name=name)
             source = 'huggingface'
             print("Using data from HuggingFace Hub for {}".format(name))
