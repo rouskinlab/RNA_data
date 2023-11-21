@@ -33,7 +33,6 @@ def import_dataset(name:str, force_download:bool=False)->ndarray:
     except AssertionError as e:
         try:
             print(e)
-            os.system("rm -rf {}".format(datafolder.get_data_folder()))
             datafolder = DataFolder.from_huggingface(name=name, overwrite=True)
             source = 'huggingface'
             print("Using data from HuggingFace Hub for {}".format(name))

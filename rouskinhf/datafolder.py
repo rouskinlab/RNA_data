@@ -483,9 +483,12 @@ class LoadDatafolderFromHF(LoadDatafolder):
     """
 
     def __init__(
-        self, name, path_out, revision="main", tqdm=True, verbose=True
+        self, name, path_out, overwrite, revision="main", tqdm=True, verbose=True
     ) -> None:
         super().__init__(name, path_out)
+
+        if overwrite:
+            os.system(f"rm -fr {self.get_main_folder()}")
 
         os.makedirs(join(self.get_main_folder(), self.name), exist_ok=True)
 
@@ -656,10 +659,10 @@ class DataFolder:
         )
 
     def from_huggingface(
-        name, path_out=env.DATA_FOLDER, tqdm=True, verbose=True
+        name, overwrite, path_out=env.DATA_FOLDER, tqdm=True, verbose=True
     ) -> LoadDatafolderFromHF:
         """Load a datafolder from HuggingFace. See LoadDatafolderFromHF for more details."""
-        return LoadDatafolderFromHF(name, path_out, tqdm=tqdm, verbose=verbose)
+        return LoadDatafolderFromHF(name, path_out, overwrite, tqdm=tqdm, verbose=verbose)
 
 
     def from_data_json(
