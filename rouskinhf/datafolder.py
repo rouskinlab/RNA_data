@@ -52,6 +52,17 @@ class DataFolderTemplate(PathDatafolder):
             
         if hasattr(d1, "shape"):
             self.datapoints.to_shape_npy(self.get_shape_npy())
+            
+        if hasattr(d1, "score_dms"):
+            self.datapoints.to_score_dms_npy(self.get_score_dms_npy())
+            
+        if hasattr(d1, "score_shape"):
+            self.datapoints.to_score_shape_npy(self.get_score_shape_npy())
+            
+        if hasattr(d1, "score_structure"):
+            self.datapoints.to_score_structure_npy(self.get_score_structure_npy())
+            
+            
 
     def create_repo(self, exist_ok=False, private=True):
         """Create a repo on huggingface.co.

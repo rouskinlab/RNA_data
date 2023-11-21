@@ -7,7 +7,8 @@ py-modules = ['rouskinhf']
 
 [project]
 name =  "rouskinhf"
-version = "0.3.0"
+license = { file = "LICENSE" }
+version = "0.3.4"
 authors = [
     {name = "Yves Martin", email = "yves@martin.yt"},
     {name = "Alberic de Lajarte", email = "albericlajarte@gmail.com"},

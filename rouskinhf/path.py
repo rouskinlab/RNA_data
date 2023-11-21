@@ -54,6 +54,19 @@ class PathDatafolder:
     def get_base_pairs_npy(self)->str:
         """Returns the path to the structure npy file"""
         return join(self.get_main_folder(), 'base_pairs.npy')
+    
+    def get_score_dms_npy(self)->str:
+        """Returns the path to the score DMS npy file"""
+        return join(self.get_main_folder(), 'score_dms.npy')
+    
+    def get_score_shape_npy(self)->str:
+        """Returns the path to the score shape npy file"""
+        return join(self.get_main_folder(), 'score_shape.npy')
+    
+    def get_score_structure_npy(self)->str:
+        """Returns the path to the score structure npy file"""
+        return join(self.get_main_folder(), 'score_structure.npy')
+        
 
     def get_references_npy(self)->str:
         """Returns the path to the names npy file"""
