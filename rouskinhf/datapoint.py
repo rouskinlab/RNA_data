@@ -61,6 +61,9 @@ class Datapoint:
     def __init__(
         self, sequence, reference, structure=None, dms=None, paired_bases=None, shape=None
     ):
+        self.dms = None
+        self.shape = None
+        self.structure = None
         for attr in [sequence, reference]:
             assert isinstance(
                 attr, str
@@ -86,10 +89,10 @@ class Datapoint:
                     self.structure_to_paired_bases(structure)
                 )
             )
-        if dms is not None:
+        if dms is not None and not type(dms) == float:
             self.dms = self._format_signal(dms)
         
-        if shape is not None:
+        if shape is not None and not type(shape) == float:
             self.shape = self._format_signal(shape)
         
         self.opt_dict = {
