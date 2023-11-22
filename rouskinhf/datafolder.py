@@ -53,14 +53,14 @@ class DataFolderTemplate(PathDatafolder):
         if hasattr(d1, "shape"):
             self.datapoints.to_shape_npy(self.get_shape_npy())
             
-        if hasattr(d1, "score_dms"):
-            self.datapoints.to_score_dms_npy(self.get_score_dms_npy())
+        if hasattr(d1, "quality_dms"):
+            self.datapoints.to_quality_dms_npy(self.get_quality_dms_npy())
             
-        if hasattr(d1, "score_shape"):
-            self.datapoints.to_score_shape_npy(self.get_score_shape_npy())
+        if hasattr(d1, "quality_shape"):
+            self.datapoints.to_quality_shape_npy(self.get_quality_shape_npy())
             
-        if hasattr(d1, "score_structure"):
-            self.datapoints.to_score_structure_npy(self.get_score_structure_npy())
+        if hasattr(d1, "quality_structure"):
+            self.datapoints.to_quality_structure_npy(self.get_quality_structure_npy())
             
             
 

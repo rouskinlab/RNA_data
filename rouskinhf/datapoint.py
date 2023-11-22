@@ -59,14 +59,14 @@ class Datapoint:
         return instance
 
     def __init__(
-        self, sequence, reference, structure=None, dms=None, paired_bases=None, shape=None, score_dms=None, score_shape=None, score_structure=None
+        self, sequence, reference, structure=None, dms=None, paired_bases=None, shape=None, quality_dms=1., quality_shape=1., quality_structure=1.
     ):
         self.dms = None
         self.shape = None
         self.structure = None
-        self.score_dms = score_dms  
-        self.score_shape = score_shape
-        self.score_structure = score_structure
+        self.quality_dms = quality_dms  
+        self.quality_shape = quality_shape
+        self.quality_structure = quality_structure
         
         for attr in [sequence, reference]:
             assert isinstance(
@@ -101,7 +101,7 @@ class Datapoint:
         
         self.opt_dict = {
             attr: eval(f"self.{attr}")
-            for attr in ["paired_bases", "dms", "shape", "score_dms", "score_shape", "score_structure"]
+            for attr in ["paired_bases", "dms", "shape", "quality_dms", "quality_shape", "quality_structure"]
             if hasattr(self, attr)
         }
 
@@ -334,7 +334,7 @@ class DatapointFactory:
                 paired_bases=d["paired_bases"] if "paired_bases" in d else None,
                 dms=d["dms"] if "dms" in d else None,
                 shape=d["shape"] if "shape" in d else None,
-                score_dms=d["score_dms"] if "score_dms" in d else None,
-                score_shape=d["score_shape"] if "score_shape" in d else None,
-                score_structure=d["score_structure"] if "score_structure" in d else None,
+                quality_dms=d["quality_dms"] if "quality_dms" in d else 1.0,
+                quality_shape=d["quality_shape"] if "quality_shape" in d else 1.0,
+                quality_structure=d["quality_structure"] if "quality_structure" in d else 1.0,
             )

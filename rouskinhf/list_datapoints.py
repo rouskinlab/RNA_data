@@ -126,7 +126,7 @@ class ListofDatapoints:
 
 
     @save_array
-    def to_score_dms_npy(self, path):
+    def to_quality_dms_npy(self, path):
         """Writes the score dms npy file from the list of datapoints.
 
         Args:
@@ -137,13 +137,13 @@ class ListofDatapoints:
 
         Examples:
             >>> from numpy import array
-            >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], score_dms=1.)], verbose=False)
-            >>> assert (datapoints.to_score_dms_npy('temp/score_dms.npy') == array([[1., 0., 0., 0., 0., 1.]], dtype=object)).all(), "The score dms matrix is not correct."
+            >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], quality_dms=1.)], verbose=False)
+            >>> assert (datapoints.to_quality_dms_npy('temp/quality_dms.npy') == array([[1., 0., 0., 0., 0., 1.]], dtype=object)).all(), "The score dms matrix is not correct."
         """
-        return np.array([datapoint.score_dms for datapoint in self.datapoints], dtype=float)
+        return np.array([datapoint.quality_dms for datapoint in self.datapoints], dtype=float)
 
     @save_array
-    def to_score_shape_npy(self, path):
+    def to_quality_shape_npy(self, path):
         """Writes the score shape npy file from the list of datapoints.
 
         Args:
@@ -154,13 +154,13 @@ class ListofDatapoints:
 
         Examples:
             >>> from numpy import array
-            >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], score_shape=1.)], verbose=False)
-            >>> assert (datapoints.to_score_shape_npy('temp/score_shape.npy') == array([[1., 0., 0., 0., 0., 1.]], dtype=object)).all(), "The score shape matrix is not correct."
+            >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], quality_shape=1.)], verbose=False)
+            >>> assert (datapoints.to_quality_shape_npy('temp/quality_shape.npy') == array([[1., 0., 0., 0., 0., 1.]], dtype=object)).all(), "The score shape matrix is not correct."
         """
-        return np.array([datapoint.score_shape for datapoint in self.datapoints], dtype=float)
+        return np.array([datapoint.quality_shape for datapoint in self.datapoints], dtype=float)
     
     @save_array
-    def to_score_structure_npy(self, path):
+    def to_quality_structure_npy(self, path):
         """Writes the score structure npy file from the list of datapoints.
 
         Args:
@@ -171,10 +171,10 @@ class ListofDatapoints:
 
         Examples:
             >>> from numpy import array
-            >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], score_structure=1.)], verbose=False)
-            >>> assert (datapoints.to_score_structure_npy('temp/score_structure.npy') == array([[1., 0., 0., 0., 0., 1.]], dtype=object)).all(), "The score structure matrix is not correct."
+            >>> datapoints = ListofDatapoints([Datapoint(reference='reference', sequence='AACCGG', paired_bases=[[1, 2], [3, 4]], quality_structure=1.)], verbose=False)
+            >>> assert (datapoints.to_quality_structure_npy('temp/quality_structure.npy') == array([[1., 0., 0., 0., 0., 1.]], dtype=object)).all(), "The score structure matrix is not correct."
         """
-        return np.array([datapoint.score_structure for datapoint in self.datapoints], dtype=float)
+        return np.array([datapoint.quality_structure for datapoint in self.datapoints], dtype=float)
 
 
     @save_array
