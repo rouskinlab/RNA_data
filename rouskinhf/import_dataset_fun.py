@@ -48,9 +48,15 @@ def import_dataset(name:str, force_download:bool=False)->ndarray:
 
     if exists(datafolder.get_base_pairs_npy()):
         out['base_pairs'] = np.load(datafolder.get_base_pairs_npy(), allow_pickle=True)
+        if exists(datafolder.get_score_structure_npy()):
+            out['quality_base_pairs'] = np.load(datafolder.get_score_structure_npy(), allow_pickle=True)
     if exists(datafolder.get_dms_npy()):
         out['dms'] = np.load(datafolder.get_dms_npy(), allow_pickle=True)
+        if exists(datafolder.get_score_dms_npy()):
+            out['quality_dms'] = np.load(datafolder.get_score_dms_npy(), allow_pickle=True)
     if exists(datafolder.get_shape_npy()):
         out['shape'] = np.load(datafolder.get_shape_npy(), allow_pickle=True)
-
+        if exists(datafolder.get_score_shape_npy()):
+            out['quality_shape'] = np.load(datafolder.get_score_shape_npy(), allow_pickle=True)
+            
     return out
