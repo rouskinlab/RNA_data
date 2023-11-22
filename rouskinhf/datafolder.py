@@ -20,12 +20,14 @@ class DataFolderTemplate(PathDatafolder):
         self.datapoints = ListofDatapoints([], verbose=False)
         self.api = HfApi(token=env.HUGGINGFACE_TOKEN)
 
+
     def generate_npy(self):
         """Generate the npy files:
             - reference.npy
             - sequence.npy
             - base_pairs.npy
             - dms.npy
+            - shape.npy
 
         Each file corresponds to a key in the datapoints dictionary contained in the json file.
         For example, if the 1st line of the json file is:
@@ -47,6 +49,20 @@ class DataFolderTemplate(PathDatafolder):
 
         if hasattr(d1, "dms"):
             self.datapoints.to_dms_npy(self.get_dms_npy())
+            
+        if hasattr(d1, "shape"):
+            self.datapoints.to_shape_npy(self.get_shape_npy())
+            
+        if hasattr(d1, "quality_dms"):
+            self.datapoints.to_quality_dms_npy(self.get_quality_dms_npy())
+            
+        if hasattr(d1, "quality_shape"):
+            self.datapoints.to_quality_shape_npy(self.get_quality_shape_npy())
+            
+        if hasattr(d1, "quality_structure"):
+            self.datapoints.to_quality_structure_npy(self.get_quality_structure_npy())
+            
+            
 
     def create_repo(self, exist_ok=False, private=True):
         """Create a repo on huggingface.co.
@@ -138,7 +154,6 @@ class DataFolderTemplate(PathDatafolder):
         """Dump the datapoints to a json file."""
 
         self.datapoints.to_json(self.get_json())
-
         if generate_npy:
             self.generate_npy()
 
@@ -479,9 +494,12 @@ class LoadDatafolderFromHF(LoadDatafolder):
     """
 
     def __init__(
-        self, name, path_out, revision="main", tqdm=True, verbose=True
+        self, name, path_out, overwrite, revision="main", tqdm=True, verbose=True
     ) -> None:
         super().__init__(name, path_out)
+
+        if overwrite:
+            os.system(f"rm -fr {self.get_main_folder()}")
 
         os.makedirs(join(self.get_main_folder(), self.name), exist_ok=True)
 
@@ -580,6 +598,7 @@ class DataFolder:
 
     """
 
+
     def from_fasta(
         path_in,
         path_out=env.DATA_FOLDER,
@@ -651,10 +670,10 @@ class DataFolder:
         )
 
     def from_huggingface(
-        name, path_out=env.DATA_FOLDER, tqdm=True, verbose=True
+        name, overwrite, path_out=env.DATA_FOLDER, tqdm=True, verbose=True
     ) -> LoadDatafolderFromHF:
         """Load a datafolder from HuggingFace. See LoadDatafolderFromHF for more details."""
-        return LoadDatafolderFromHF(name, path_out, tqdm=tqdm, verbose=verbose)
+        return LoadDatafolderFromHF(name, path_out, overwrite, tqdm=tqdm, verbose=verbose)
 
 
     def from_data_json(

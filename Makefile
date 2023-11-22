@@ -9,6 +9,6 @@ test:
 
 push_to_pypi:
 	rm -fr dist
-	python3 -m build
+	python -m build
 	twine upload -r pypi dist/* --user yvesmartindestaillades --password $(PYPI_PASSWORD) --skip-existing
 	rm -fr dist
