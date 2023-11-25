@@ -48,6 +48,52 @@ class Ct:
         """Predict the dms of a ct file using RNAstructure"""
         rna = RNAstructure()
         return rna.predictPairingProbability(Ct.parse(ct_file)[1])
+    
+
+
+class BPseq:
+    def parse(bpseq_file):
+        """Parse a bpseq file and return the sequence and structure
+
+        Args:
+            bpseq_file (str): path to bpseq file
+
+        Returns:
+            (str,str,str): (reference, sequence, paired_bases)
+
+
+        """
+        with open(bpseq_file, 'r') as f:
+            lines = f.readlines()
+
+        paired_bases, sequence = [], ''
+        for line in lines:
+            if line.strip() == '':
+                break
+            try:
+                utr5, base, utr3 = line.split()
+            except ValueError as e:
+                raise ValueError("The bpseq file `{}` is not formatted correctly. Please check the file and try again. ValueError: {}".format(bpseq_file, e))
+            except Exception as e:
+                raise Exception("An unknown error occured while parsing the bpseq file `{}`. Please check the file and try again. Exception: {}".format(bpseq_file, e))
+            sequence += base
+            if int(utr3) > int(utr5) and int(utr3) != 0:
+                paired_bases.append([int(utr5)-1, int(utr3)-1])
+
+        return BPseq.get_reference_from_title(bpseq_file), sequence, paired_bases
+
+
+    def parse_list(bpseq_files):
+        """Parse a list of ct files and return the sequences and structures"""
+        return [BPseq.parse(bpseq_file) for bpseq_file in bpseq_files]
+
+    def get_reference_from_title(bpseq_file):
+        return os.path.basename(bpseq_file).split('.')[0]
+
+    def predict_dms(bpseq_file):
+        """Predict the dms of a ct file using RNAstructure"""
+        rna = RNAstructure()
+        return rna.predictPairingProbability(BPseq.parse(bpseq_file)[1])
 
 
 class Fasta:

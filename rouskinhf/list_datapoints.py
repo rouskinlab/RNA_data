@@ -25,6 +25,11 @@ class ListofDatapoints:
         sequences, references = Fasta.parse(fasta_file)
         return cls([DatapointFactory.from_fasta(sequence, reference, predict_structure, predict_dms)
                     for sequence, reference in tqdm_parser(zip(sequences, references), total=len(sequences), desc='Parsing fasta file', disable=not tqdm)], verbose=verbose)
+    
+    @classmethod
+    def from_bpseq(cls, bpseq_files, predict_dms, tqdm=True, verbose=True):
+        """Create a list of datapoint from a bpseq file. The dms will be predicted if predict_dms is True."""
+        return cls([DatapointFactory.from_bpseq(ct_file, predict_dms) for ct_file in tqdm_parser(bpseq_files, total=len(bpseq_files), desc='Parsing bpseq files', disable=not tqdm)], verbose=verbose)
 
     @classmethod
     def from_ct(cls, ct_files, predict_dms, tqdm=True, verbose=True):

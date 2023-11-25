@@ -313,6 +313,79 @@ class CreateDatafolderFromFasta(CreateDatafolderTemplate):
         self.dump_datapoints(generate_npy)
         self.infofile.add_filtering_report(self.datapoints.filtering_report).write()
 
+        
+class CreateDatafolderFromBPseqfolder(CreateDatafolderTemplate):
+
+    """Create a datafolder from a folder of bpseq files.
+
+    Parameters
+    ----------
+
+    path_in : str
+        path_in to the folder of bpseq files.
+
+    name : str, optional
+        Name of the datafolder. If None, the name is the name of the file or folder.
+
+    predict_dms : bool, optional
+        If True, the dms of the RNA is predicted. Default is True.
+
+    generate_npy : bool, optional
+        If True, the npy files are generated. Default is True.
+
+    tqdm : bool, optional
+        If True, a progress bar is displayed. Default is True.
+
+    Examples
+    --------
+
+    >>> datafolder = DataFolder.from_bpseq_folder(path_in='data/input_files_for_testing/test_bpseq_files', generate_npy=True)
+    Over a total of 5 datapoints, there are:
+        - 1 valid datapoints
+        - 1 invalid datapoints (ex: sequence with non-regular characters)
+        - 0 datapoints with the same reference
+        - 1 duplicate sequences with the same structure / dms
+        - 2 duplicate sequences with different structure / dms
+    >>> datafolder.name
+    'test_bpseq_files'
+    >>> print(str(datafolder).split(' ')[0])
+    CreateDatafolderFromBPseqfolder
+    >>> os.path.isfile(datafolder.get_json())
+    True
+    >>> datafolder.datapoints.datapoints
+    [Datapoint('valid1', sequence='CGCGUCACAC', paired_bases=((1, 8), (2, 7), (3, 6)))]
+    """
+
+    def __init__(
+        self,
+        path_in,
+        path_out,
+        name,
+        predict_dms,
+        generate_npy,
+        tqdm=True,
+        verbose=True,
+    ) -> None:
+        super().__init__(
+            path_in,
+            path_out,
+            name,
+            source="bpseq",
+            predict_structure=False,
+            predict_dms=predict_dms,
+        )
+
+        bpseq_files = [
+            os.path.join(path_in, f)
+            for f in os.listdir(path_in)
+            if f.endswith(".bpseq") or f.endswith(".txt")
+        ]
+        self.datapoints = ListofDatapoints.from_bpseq(
+            bpseq_files, predict_dms=predict_dms, tqdm=tqdm, verbose=verbose
+        )
+        self.dump_datapoints(generate_npy)
+        self.infofile.add_filtering_report(self.datapoints.filtering_report).write()
+
 
 class CreateDatafolderFromCTfolder(CreateDatafolderTemplate):
 
@@ -322,7 +395,7 @@ class CreateDatafolderFromCTfolder(CreateDatafolderTemplate):
     ----------
 
     path_in : str
-        path_in to the dreem output file.
+        path_in to the folder of ct files.
 
     name : str, optional
         Name of the datafolder. If None, the name is the name of the file or folder.
@@ -628,6 +701,26 @@ class DataFolder:
         """Load a datafolder from local. See LoadDatafolderFromLocal for more details."""
         return LoadDatafolderFromLocal(
             name, path, tqdm=tqdm, verbose=verbose, generate_npy=generate_npy
+        )
+    
+    def from_bpseq_folder(
+        path_in,
+        path_out=env.DATA_FOLDER,
+        name=None,
+        predict_dms=PREDICT_DMS,
+        generate_npy=GENERATE_NPY,
+        tqdm=True,
+        verbose=True,
+    ) -> CreateDatafolderFromBPseqfolder:
+        """Create a datafolder from a folder of bpseq files. See CreateDatafolderFromBPseqfolder for more details."""
+        return CreateDatafolderFromBPseqfolder(
+            path_in,
+            path_out,
+            name,
+            predict_dms,
+            generate_npy,
+            tqdm=tqdm,
+            verbose=verbose,
         )
 
     def from_ct_folder(

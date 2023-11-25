@@ -249,6 +249,19 @@ class DatapointFactory:
 
     """
 
+    def from_bpseq(bpseq_file, predict_dms):
+        """Create a datapoint from a bpseq file. If predict_dms is True, the dms will be predicted using RNAstructure"""
+        reference, sequence, paired_bases = BPseq.parse(bpseq_file)
+        sequence = standardize_sequence(sequence)
+
+        if sequence_has_regular_characters(sequence):
+            return Datapoint(
+                sequence,
+                reference,
+                paired_bases=paired_bases,
+                dms=BPseq.predict_dms(bpseq_file) if predict_dms else None,
+            )
+
     def from_ct(ct_file, predict_dms):
         """Create a datapoint from a ct file. If predict_dms is True, the dms will be predicted using RNAstructure"""
         reference, sequence, paired_bases = Ct.parse(ct_file)

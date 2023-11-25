@@ -75,6 +75,18 @@ class InfoFileWriterFromDREEMoutput(InfoFileWriterTemplate):
         self.info['DMS'] = DMS_FROM_SOURCE
         self.info['about DMS'] = 'Measured experimentally using the attached experimental conditions.'
 
+class InfoFileWriterFromBPseq(InfoFileWriterTemplate):
+
+    def __init__(self, name, root, path_in, predict_dms, predict_structure) -> None:
+        super().__init__(name, root, has_dms=predict_dms, has_structure=True)
+
+        self.info['source'] = "`{}` (BPSEQ files format)".format(os.path.basename(path_in))
+        self.info['structure'] = STRUCTURE_FROM_SOURCE
+        self.info['about structure'] = 'Read from source.'
+        if predict_dms:
+            self.info['DMS'] = DMS_FROM_RNASTRUCTURE
+            self.info['about DMS'] = 'Predicted using RNAstructure at 310K.'
+
 
 class InfoFileWriterFromCT(InfoFileWriterTemplate):
 
@@ -118,6 +130,10 @@ def infoFileWriter(source, datafolder, predict_dms, predict_structure):
         return InfoFileWriterFromDREEMoutput(datafolder.name, datafolder.path_out, datafolder.path_in, predict_dms=predict_dms, predict_structure=predict_structure)
     if source == 'ct':
         return InfoFileWriterFromCT(datafolder.name, datafolder.path_out, datafolder.path_in, predict_dms=predict_dms, predict_structure=predict_structure)
+    
+    if source == 'bpseq':
+        return InfoFileWriterFromBPseq(datafolder.name, datafolder.path_out, datafolder.path_in, predict_dms=predict_dms, predict_structure=predict_structure)
+    
     if source == 'fasta':
         return InfoFileWriterFromFasta(datafolder.name, datafolder.path_out, datafolder.path_in, predict_dms=predict_dms, predict_structure=predict_structure)
     if source == 'data.json':
