@@ -67,7 +67,14 @@ class PathDatafolder:
         """Returns the path to the score structure npy file"""
         return join(self.get_main_folder(), 'quality_structure.npy')
         
+    def get_error_dms_npy(self)->str:
+        """Returns the path to the error DMS npy file"""
+        return join(self.get_main_folder(), 'error_dms.npy')
 
+    def get_error_shape_npy(self)->str:
+        """Returns the path to the error shape npy file"""
+        return join(self.get_main_folder(), 'error_shape.npy')
+        
     def get_references_npy(self)->str:
         """Returns the path to the names npy file"""
         return join(self.get_main_folder(), 'references.npy')

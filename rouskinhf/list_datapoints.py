@@ -48,25 +48,25 @@ class ListofDatapoints:
         """Create a list of datapoint from a fasta file. The structure and dms will be predicted if predict_structure and predict_dms are True."""
         sequences, references = Fasta.parse(fasta_file)
         return cls([DatapointFactory.from_fasta(sequence, reference, predict_structure, predict_dms)
-                    for sequence, reference in tqdm_parser(zip(sequences, references), total=len(sequences), desc='Parsing fasta file', disable=not tqdm)], verbose=verbose)
+                    for sequence, reference in tqdm_parser(zip(sequences, references), total=len(sequences), desc='Parsing fasta file', disable=not tqdm, colour='red')], verbose=verbose)
 
     @classmethod
     def from_ct(cls, ct_files, predict_dms, tqdm=True, verbose=True):
         """Create a list of datapoint from a ct file. The dms will be predicted if predict_dms is True."""
-        return cls([DatapointFactory.from_ct(ct_file, predict_dms) for ct_file in tqdm_parser(ct_files, total=len(ct_files), desc='Parsing ct files', disable=not tqdm)], verbose=verbose)
+        return cls([DatapointFactory.from_ct(ct_file, predict_dms) for ct_file in tqdm_parser(ct_files, total=len(ct_files), desc='Parsing ct files', disable=not tqdm, colour='red')], verbose=verbose)
 
     @classmethod
     def from_dreem_output(cls, dreem_output_file, predict_structure, tqdm=True, verbose=True):
         """Create a list of datapoint from a dreem output file. The structure and dms will be predicted if predict_structure and predict_dms are True."""
         n_lines = len(list(DreemOutput.parse(dreem_output_file)))
         return cls([DatapointFactory.from_dreem_output(reference, sequence, mutation_rate, predict_structure)
-            for reference, sequence, mutation_rate in tqdm_parser(DreemOutput.parse(dreem_output_file), total=n_lines, desc='Parsing dreem output file', disable=not tqdm)], verbose=verbose)
+            for reference, sequence, mutation_rate in tqdm_parser(DreemOutput.parse(dreem_output_file), total=n_lines, desc='Parsing dreem output file', disable=not tqdm, colour='red')], verbose=verbose)
 
     @classmethod
-    def from_json(cls, json_file, predict_structure=False, predict_dms=False, tqdm=True, verbose=True):
+    def from_json(cls, json_file, predict_structure=False, predict_dms=False, filtering=True, tqdm=True, verbose=True):
         """Create a list of datapoint from a json file."""
         data = json.load(open(json_file))
-        return cls([DatapointFactory.from_json_line(reference, line, predict_structure, predict_dms) for reference, line in tqdm_parser(data.items(), total=len(data), desc='Parsing json file', disable=not tqdm)], verbose=verbose)
+        return cls([DatapointFactory.from_json_line(reference, line, predict_structure, predict_dms) for reference, line in tqdm_parser(data.items(), total=len(data), desc='Parsing json file', disable=not tqdm, colour='red')], filtering=filtering, verbose=verbose)
 
 
     @save_array
@@ -86,7 +86,7 @@ class ListofDatapoints:
                     [3, 4]]], dtype=object)
         """
 
-        return np.array([np.array(datapoint.paired_bases, dtype=np.uint8) for datapoint in self.datapoints], dtype=object)
+        return np.array([np.array(datapoint.paired_bases, dtype=np.uint8) if datapoint.paired_bases is not None else None for datapoint in self.datapoints], dtype=object)
         
 
     @save_array
@@ -214,6 +214,13 @@ class ListofDatapoints:
 
         return np.array([datapoint.reference for datapoint in self.datapoints], dtype=object)
        
+    @save_array
+    def to_error_dms_npy(self, path):
+        return np.array([datapoint.error_dms for datapoint in self.datapoints], dtype=object)
+    
+    @save_array
+    def to_error_shape_npy(self, path):
+        return np.array([datapoint.error_shape for datapoint in self.datapoints], dtype=object)
 
     def to_json(self, path) -> None:
         """Write a list of datapoints to a json file."""
@@ -303,7 +310,6 @@ class ListofDatapoints:
             
         # If there are multiple structures / dms with the same structure, keep none
         n_same_seq_datapoints = drop_duplicates(df, subset=['sequence'], inplace=True, ignore_index=True, keep='first' if not ('paired_bases' in df.columns or 'dms' in df.columns or 'shape' in df.columns) else False)
-
 
         ## Filter out references with low AUROC 
         mask_high_AUROC= None

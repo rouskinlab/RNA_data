@@ -62,8 +62,13 @@ class DataFolderTemplate(PathDatafolder):
         if hasattr(d1, "quality_structure"):
             self.datapoints.to_quality_structure_npy(self.get_quality_structure_npy())
             
+        if hasattr(d1, "error_dms"):
+            self.datapoints.to_error_dms_npy(self.get_error_dms_npy())
             
-
+        if hasattr(d1, "error_shape"):
+            self.datapoints.to_error_shape_npy(self.get_error_shape_npy())
+            
+            
     def create_repo(self, exist_ok=False, private=True):
         """Create a repo on huggingface.co.
 
@@ -438,6 +443,7 @@ class CreateDatafolderFromDataJson(CreateDatafolderTemplate):
         predict_dms,
         predict_structure,
         generate_npy,
+        filtering=True,
         tqdm=True,
         verbose=True,
     ) -> None:
@@ -451,7 +457,7 @@ class CreateDatafolderFromDataJson(CreateDatafolderTemplate):
         )
 
         self.datapoints = ListofDatapoints.from_json(
-            json_file=path_in, predict_structure=predict_structure, predict_dms=predict_dms, tqdm=tqdm, verbose=verbose
+            json_file=path_in, predict_structure=predict_structure, predict_dms=predict_dms, filtering=filtering, tqdm=tqdm, verbose=verbose
         )
         
         self.dump_datapoints(generate_npy)
@@ -683,6 +689,7 @@ class DataFolder:
         predict_dms=PREDICT_DMS,
         predict_structure=PREDICT_STRUCTURE,
         generate_npy=GENERATE_NPY,
+        filtering=True,
         tqdm=True,
         verbose=True,
     ) -> CreateDatafolderFromDataJson:
@@ -694,6 +701,7 @@ class DataFolder:
             predict_dms = predict_dms,
             predict_structure = predict_structure,
             generate_npy = generate_npy,
+            filtering=filtering,
             tqdm = tqdm,
             verbose = verbose,
         )

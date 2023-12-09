@@ -50,16 +50,14 @@ class Datapoint:
         ):
             return None
 
-        if "paired_bases" in kwargs:
-            if not cls._assert_paired_bases(None, kwargs["paired_bases"], sequence):
-                return None
 
         # If conditions are met, create and return the new instance
         instance = super().__new__(cls)
         return instance
 
     def __init__(
-        self, sequence, reference, structure=None, dms=None, paired_bases=None, shape=None, quality_dms=1., quality_shape=1., quality_structure=1.
+        self, sequence, reference, structure=None, dms=None, paired_bases=None, shape=None, quality_dms=1., quality_shape=1., quality_structure=1.,
+        error_dms=None, error_shape=None
     ):
         self.dms = None
         self.shape = None
@@ -67,6 +65,8 @@ class Datapoint:
         self.quality_dms = quality_dms  
         self.quality_shape = quality_shape
         self.quality_structure = quality_structure
+        self.error_dms = error_dms
+        self.error_shape = error_shape
         
         for attr in [sequence, reference]:
             assert isinstance(
@@ -93,17 +93,24 @@ class Datapoint:
                     self.structure_to_paired_bases(structure)
                 )
             )
+            if not self._assert_paired_bases(self.paired_bases, sequence):
+                self.paired_bases = None
+                    
         if dms is not None and not type(dms) == float:
             self.dms = self._format_signal(dms)
         
         if shape is not None and not type(shape) == float:
             self.shape = self._format_signal(shape)
         
-        self.opt_dict = {
-            attr: eval(f"self.{attr}")
-            for attr in ["paired_bases", "dms", "shape", "quality_dms", "quality_shape", "quality_structure"]
-            if hasattr(self, attr)
-        }
+        self.opt_dict = {}
+        for attr in ["paired_bases", "dms", "shape", "quality_dms", "quality_shape", "quality_structure", "error_dms", "error_shape"]:
+            if not hasattr(self, attr):
+                continue
+            if getattr(self, attr) is None:
+                continue
+            if type(getattr(self, attr)) == float and np.isnan(getattr(self, attr)):
+                continue
+            self.opt_dict[attr] = getattr(self, attr)
 
     def _format_paired_bases(self, paired_bases):
         """Returns a set of tuples.
@@ -113,7 +120,7 @@ class Datapoint:
         """
         return (
             tuple(sorted([tuple(sorted(pair)) for pair in paired_bases]))
-            if paired_bases is not None
+            if paired_bases is not None and type(paired_bases) != float
             else None
         )
 
@@ -150,7 +157,7 @@ class Datapoint:
                 == len(paired_bases) * 2
             )
         else:
-            return True
+            return False
 
     def _format_signal(self, signal):
         """returns a tuple
@@ -337,4 +344,6 @@ class DatapointFactory:
                 quality_dms=d["quality_dms"] if "quality_dms" in d else 1.0,
                 quality_shape=d["quality_shape"] if "quality_shape" in d else 1.0,
                 quality_structure=d["quality_structure"] if "quality_structure" in d else 1.0,
+                error_dms=d["error_dms"] if "error_dms" in d else None,
+                error_shape=d["error_shape"] if "error_shape" in d else None,
             )
