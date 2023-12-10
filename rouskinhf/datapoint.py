@@ -93,7 +93,11 @@ class Datapoint:
             for attr in ["paired_bases", "dms"]
             if hasattr(self, attr)
         }
-
+        
+        # rename paired_bases to structure
+        if "paired_bases" in self.opt_dict:
+            self.opt_dict["structure"] = self.opt_dict.pop("paired_bases")
+        
     def _format_paired_bases(self, paired_bases):
         """Returns a set of tuples.
         >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
