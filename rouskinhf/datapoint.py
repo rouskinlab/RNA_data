@@ -9,26 +9,7 @@ from .rnastructure import RNAstructure_singleton
 
 class Datapoint:
 
-    """A datapoint is a data structure where:
-    - reference is the name of the sequence in the fasta file
-    - sequence is a string of A, C, G, U
-    - structure is a string of (, ), .
-    - dms is a list of floats corresponding to the reactivity of each base in the sequence
-    - paired_bases is a list of tuples (i,j) where i and j are paired bases.
-
-
-    Example:
-    >>> print(Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0]))
-    "reference":{"sequence": "AACCGG", "paired_bases": [[0, 5], [1, 4]], "dms": [1.0, 2.0, 3.0]}
-    >>> print(Datapoint(reference='reference', sequence='not a valid sequence', structure='((..))'))
-    None
-    >>> print(Datapoint(reference='reference', sequence='NNNNNNN', structure='((..))'))
-    None
-    >>> print(Datapoint(reference='reference', sequence='AACCGG', paired_bases=[(0, 5), (1, 4)]))
-    "reference":{"sequence": "AACCGG", "paired_bases": [[0, 5], [1, 4]]}
-    >>> print(Datapoint(reference='reference', sequence='AACCGG', paired_bases=[(1, 5), (1, 4)]))
-    None
-    """
+    """A datapoint is a data structure corresponding to a sequence, a reference, and optionally a structure, dms and shape."""
 
     def __new__(cls, *args, **kwargs):
         # Check if the conditions are met before creating the object
@@ -109,12 +90,6 @@ class Datapoint:
             self.structure = [list(pair) for pair in self.structure]
 
     def _format_signal(self, signal):
-        """Returns a list of floats corresponding to the dms.
-
-        >>> from numpy import array, float32
-        >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
-        >>> assert (datapoint.embed_dms() == array([1., 2., 3.], dtype=float32)).all(), 'The dms are not embedded correctly.'
-        """
         return [round(d, 4) for d in signal]
 
     def to_dict(self):
@@ -208,14 +183,7 @@ class Datapoint:
 
 
 class DatapointFactory:
-    """A datapoint is a tuple (sequence, reference, structure, dms) where:
-
-    - reference is the name of the sequence in the fasta file
-    - sequence is a string of A, C, G, U
-    - structure is a string of (, ), .
-    - dms is a list of floats corresponding to the reactivity of each base in the sequence
-
-    """
+    """Factory class to create datapoints from different formats."""
 
     def from_bpseq(bpseq_file):
         """Create a datapoint from a bpseq file. If predict_dms is True, the dms will be predicted using RNAstructure"""

@@ -12,6 +12,18 @@ def convert(
     min_AUROC=0.8,
     verbose: bool = True,
 ):
+    """Converts a file or folder into a json file. Different formats are supported.
+    
+    Args:
+        format (str): Format of the input file. Can be 'ct', 'seismic', 'json', 'bpseq' or 'fasta'.
+        file_or_folder (str): Path to the file or folder to convert.
+        name (str, optional): Name of the dataset. Defaults to None, in which case the name of the file or folder will be used.
+        path_out (str, optional): Path to the output folder. Defaults to 'data'.
+        predict_structure (bool, optional): Whether to predict the structure or not using RNAstructure. Defaults to False.
+        filter (bool, optional): Whether to filter the datapoints or not. Defaults to True. Datapoints with no sequence or reference will be dropped anyways.
+        min_AUROC (float, optional): Minimum AUROC to keep a datapoint. Defaults to 0.8.
+        verbose (bool, optional): Whether to print the conversion report or not. Defaults to True.
+    """
     assert format in ["ct", "seismic", "json", "bpseq", "fasta"], "Format not supported"
 
     if name is None:

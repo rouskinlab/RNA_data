@@ -11,7 +11,33 @@ from .path import Path
 from .env import Env
 
 
+
+def get_dataset(name: str, force_download=False, tqdm=True):
+    """Get a dataset from HuggingFace or from the local cache.
+    
+    Args:
+        name (str): Name of the dataset.
+        force_download (bool, optional): Whether to force the download or not. Defaults to False.
+        tqdm (bool, optional): Whether to display a progress bar or not. Defaults to True.
+    """
+    
+    path = Path(name=name)
+
+    if force_download:
+        os.system(f"rm -rf {path.get_main_folder()}")
+
+    if not exists(path.get_data_json()):
+        print("{}: Downloading dataset from HuggingFace Hub...".format(name))
+        download_dataset(name)
+        print(
+            "{}: Download complete. File saved at {}".format(name, path.get_data_json())
+        )
+
+    return json.load(open(path.get_data_json(), "r"))
+
+
 def download_dataset(name: str):
+    """Download a dataset from HuggingFace Hub. The name corresponds to the name of the dataset on HuggingFace Hub."""
     snapshot_download(
         repo_id="rouskinlab/" + name,
         repo_type="dataset",
@@ -19,6 +45,8 @@ def download_dataset(name: str):
         token=Env.get_hf_token(),
         allow_patterns=["data.json"],
     )
+
+
 
 
 def name_from_path(datapath: str):
@@ -130,20 +158,3 @@ date: {}
 
     return path.get_card()
 
-
-def get_dataset(name: str, force_download=False, tqdm=True):
-    """This function returns a list of datapoints, similar to what's in the data.json file."""
-
-    path = Path(name=name)
-
-    if force_download:
-        os.system(f"rm -rf {path.get_main_folder()}")
-
-    if not exists(path.get_data_json()):
-        print("{}: Downloading dataset from HuggingFace Hub...".format(name))
-        download_dataset(name)
-        print(
-            "{}: Download complete. File saved at {}".format(name, path.get_data_json())
-        )
-
-    return json.load(open(path.get_data_json(), "r"))

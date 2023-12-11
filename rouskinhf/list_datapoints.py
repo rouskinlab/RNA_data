@@ -10,6 +10,7 @@ import json
 
 
 class ListofDatapoints:
+    """Class to store a list of datapoints."""
     def __init__(self, datapoints=[], verbose=True):
         self.datapoints = datapoints
 
