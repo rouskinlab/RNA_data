@@ -1,9 +1,8 @@
-
-from .env import env
-import os
 from os.path import join
+import os
+from .env import Env
 
-class PathDatafolder:
+class Path:
     """Path to files and folders of a datafolder of name `name`. The path to the data folder is `DATA_FOLDER`, which is defined in `env`.
 
     Parameters
@@ -26,55 +25,41 @@ class PathDatafolder:
     PathDatafolder(name='my_test_datafolder_pytest')
     """
 
-    def __init__(self, name, root = env.DATA_FOLDER) -> None:
-        assert type(name) == str, f'name {name} is not a string'
-        assert type(root) == str, f'root {root} is not a string'
+    def __init__(self, name, root=Env.get_data_folder()) -> None:
+        assert isinstance(name, str), f"name {name} is not a string"
+        assert isinstance(root, str), f"root {root} is not a string"
         self.root = root
         self.name = name
+
+    def make(self, force=False):
+        """Creates the data folder."""
+        if force:
+            self.clear()
+        os.system(f"mkdir -p {self.get_main_folder()}")
+
+    def clear(self):
+        """Clears the data folder."""
+        os.system(f"rm -rf {self.get_main_folder()}")
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name='{self.name}')"
 
-    def get_data_folder(self)->str:
+    def get_data_folder(self) -> str:
         """Returns the path to the data folder."""
         return self.root
 
-    def get_main_folder(self)->str:
+    def get_main_folder(self) -> str:
         """Returns the path to the main folder."""
         return join(self.get_data_folder(), self.name)
 
-    def get_dms_npy(self)->str:
-        """Returns the path to the DMS npy file"""
-        return join(self.get_main_folder(), 'dms.npy')
-
-    def get_base_pairs_npy(self)->str:
-        """Returns the path to the structure npy file"""
-        return join(self.get_main_folder(), 'base_pairs.npy')
-
-    def get_references_npy(self)->str:
-        """Returns the path to the names npy file"""
-        return join(self.get_main_folder(), 'references.npy')
-
-    def get_sequences_npy(self)->str:
-        """Returns the path to the sequences npy file"""
-        return join(self.get_main_folder(), 'sequences.npy')
-
-    def get_json(self)->str:
-        """Returns the path to the json."""
+    def get_data_json(self) -> str:
+        """Returns the path to the data.json file."""
         return join(self.get_main_folder(), "data.json")
 
-    def get_source_folder(self):
-        """Returns the path to the source folder."""
-        return join(self.get_main_folder(), "source")
-
-    def get_source_files(self):
-        """Returns the list of source files, if the source folder exists."""
-        return [os.path.join(self.get_source_folder(), f) for f in os.listdir(self.get_source_folder())]
-
-    def get_info_file(self):
-        """Returns the path to the info file."""
-        return join(self.get_main_folder(), "info.json")
-
-    def get_readme_file(self):
-        """Returns the path to the readme file."""
+    def get_card(self) -> str:
+        """Returns the path to the README.md file."""
         return join(self.get_main_folder(), "README.md")
+
+    def get_conversion_report(self) -> str:
+        """Returns the path to the conversion report file."""
+        return join(self.get_main_folder(), "conversion_report.txt")

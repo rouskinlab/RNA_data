@@ -17,51 +17,6 @@ int2dot = {v: k for k, v in dot2int.items()}
 UKN = -1000
 
 
-def fastaToDict(fasta_file):
-    """
-    Reads a fasta file and returns a dictionary {sequence: reference}.
-
-    Args:
-        fasta_file (str): The path to the input fasta file.
-    Returns:
-        refSeq (dict): A dictionary with reference as key and sequence as value.
-
-
-    Example:
-    >>> import os
-    >>> os.makedirs('temp', exist_ok=True)
-    >>> f = open('temp/test.fasta', 'w')
-    >>> f.write('>ref1\\nACGT\\n>ref2\\nCGTA')
-    21
-    >>> f.close()
-    >>> print(fastaToDict('temp/test.fasta'))
-    {'ref1': {'sequence': 'ACGT'}, 'ref2': {'sequence': 'CGTA'}}
-
-    """
-
-    refSeq = {}
-
-    assert os.path.exists(fasta_file), f'The fasta file {fasta_file} does not exist.'
-    with open(fasta_file, 'r') as handle:
-        while True: # while not EOF
-            ref, seq = handle.readline(), handle.readline()
-            if ref == '' or seq == '':
-                break
-            assert ref[0] == '>', 'The reference should start with ">"'
-
-            refSeq[ref[1:].strip()] = {'sequence': seq.strip().upper()}
-
-    return refSeq
-
-
-def add_braces_if_no_braces(s:str):
-    if not s[0] == '{' or not s[-1] == '}':
-        return '{' + s + '}'
-    return s
-
-
-
-
 class DreemUtils:
     def flatten_json(data):
         out, row = [], {}

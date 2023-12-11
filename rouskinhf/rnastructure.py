@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
-from .env import env
+from .env import Env
 
 def run_command(cmd):
     import subprocess
@@ -32,7 +32,7 @@ class RNAstructure(object):
 
     def predict_partition(self, temperature_k =None, dms = None):
         # predict the partition of rna structures
-        cmd = f"{os.path.join(env.RNASTRUCTURE_PATH, 'partition')} {self.fasta_file} {self.pfs_file}"
+        cmd = f"{os.path.join(Env.get_rnastructure_path(), 'partition')} {self.fasta_file} {self.pfs_file}"
         if temperature_k != None:
             cmd += ' --temperature '+str(temperature_k)
         if type(dms) != type(None):
@@ -43,7 +43,7 @@ class RNAstructure(object):
         run_command(cmd)
 
         # sum it into pairing probability
-        run_command(os.path.join(env.RNASTRUCTURE_PATH,'ProbabilityPlot')+ ' ' +self.pfs_file + ' -t '+self.prob_file)
+        run_command(os.path.join(Env.get_rnastructure_path(),'ProbabilityPlot')+ ' ' +self.pfs_file + ' -t '+self.prob_file)
 
         # read the probability file
         with open(self.prob_file,"r") as f:
@@ -90,14 +90,14 @@ class RNAstructure(object):
 
     def __make_temp_folder(self):
         """Remove content and make a new folder for temporary files."""
-        path = env.RNASTRUCTURE_TEMP_FOLDER
+        path = Env.get_rnastructure_temp_path()
         if os.path.exists(path):
             import shutil
             shutil.rmtree(path)
         os.makedirs(path)
 
     def __make_files(self, temp_prefix='temp'):
-        this_file = lambda x: os.path.join(env.RNASTRUCTURE_TEMP_FOLDER, x)
+        this_file = lambda x: os.path.join(Env.get_rnastructure_temp_path(), x)
         self.pfs_file = this_file(f"{temp_prefix}.pfs")
         self.ct_file = this_file(f"{temp_prefix}.ct")
         self.dms_file = this_file(f"{temp_prefix}.shape")
@@ -126,7 +126,7 @@ class RNAstructure(object):
         envir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         import sys
         files = sys.path
-        cmd = f"{os.path.join(env.RNASTRUCTURE_PATH, 'Fold')} {self.fasta_file} {self.ct_file}"
+        cmd = f"{os.path.join(Env.get_rnastructure_path(), 'Fold')} {self.fasta_file} {self.ct_file}"
         if type(dms) != type(None):
             assert len(sequence) == len(dms), 'The length of the sequence is not the same as the length of the signal.'
             assert type(dms) in [list, tuple, np.ndarray], 'The dms signal should be a list of floats.'
@@ -138,7 +138,7 @@ class RNAstructure(object):
             self.__write_dms_to_file(sequence, shape)
             cmd += ' --shape ' + self.dms_file
         run_command(cmd)
-        cmd = f"{os.path.join(env.RNASTRUCTURE_PATH, 'ct2dot')} {self.ct_file} 0 {self.dot_file}"
+        cmd = f"{os.path.join(Env.get_rnastructure_path(), 'ct2dot')} {self.ct_file} 0 {self.dot_file}"
         run_command(cmd)
         assert os.path.exists(self.dot_file), 'The dot file was not created. Check RNAstructure installation. If you use a Mac, make sure to run `setup_env(RNASTRUCTURE_PATH="abs/path/to/RNAstructure/exe")`.'
         with open(self.dot_file, 'r') as f:

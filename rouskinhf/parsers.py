@@ -4,7 +4,6 @@ from .rnastructure import RNAstructure
 from .util import DreemUtils
 import pandas as pd
 
-
 class Ct:
     def parse(ct_file):
         """Parse a ct file and return the sequence and structure
@@ -49,7 +48,6 @@ class Ct:
         rna = RNAstructure()
         return rna.predictPairingProbability(Ct.parse(ct_file)[1])
     
-
 
 class BPseq:
     def parse(bpseq_file):
@@ -124,7 +122,7 @@ class Fasta:
 
 
 class DreemOutput:
-    def parse(dreem_output_file, drop_duplicates=True, max_mut=0.5):
+    def parse(dreem_output_file):
         """Parse a dreem output file and return the references and sequences.
 
         Args:

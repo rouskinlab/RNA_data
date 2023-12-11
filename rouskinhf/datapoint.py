@@ -1,15 +1,10 @@
 from .parsers import *
 from .util import (
-    add_braces_if_no_braces,
-    dot2int,
-    int2dot,
-    seq2int,
     standardize_sequence,
     sequence_has_regular_characters,
 )
 import numpy as np
 from .rnastructure import RNAstructure_singleton
-from .env import env
 
 
 class Datapoint:
@@ -39,27 +34,21 @@ class Datapoint:
         # Check if the conditions are met before creating the object
         sequence = kwargs.get("sequence", args[0] if len(args) > 0 else None)
         reference = kwargs.get("reference", args[1] if len(args) > 1 else None)
-        if sequence is None or reference is None:
+        if sequence is None or reference is None or len(sequence) == 0 or len(reference) == 0:
             return None
-        sequence = standardize_sequence(sequence)
-
-        if (
-            not sequence_has_regular_characters(sequence)
-            or len(sequence) == 0
-            or len(reference) == 0
-        ):
-            return None
-
-        if "paired_bases" in kwargs:
-            if not cls._assert_paired_bases(None, kwargs["paired_bases"], sequence):
-                return None
 
         # If conditions are met, create and return the new instance
         instance = super().__new__(cls)
         return instance
 
     def __init__(
-        self, sequence, reference, structure=None, dms=None, paired_bases=None
+        self,
+        sequence,
+        reference,
+        structure=None,
+        dms=None,
+        shape=None,
+        paired_bases=None,
     ):
         for attr in [sequence, reference]:
             assert isinstance(
@@ -77,104 +66,62 @@ class Datapoint:
 
         self.reference = reference
         self.sequence = sequence
-        self.structure = structure
         if paired_bases is not None or structure is not None:
-            self.paired_bases = (
-                self._format_paired_bases(paired_bases)
+            self.structure = (
+                paired_bases
                 if paired_bases is not None
-                else self._format_paired_bases(
-                    self.structure_to_paired_bases(structure)
-                )
+                else self.structure_to_paired_bases(structure)
             )
+        else:
+            self.structure = None
         if dms is not None:
-            self.dms = self._format_dms(dms)
-        self.opt_dict = {
+            self.dms = self._format_signal(dms)
+
+        if shape is not None:
+            self.shape = self._format_signal(shape)
+
+    def get_opt_dict(self):
+        return {
             attr: eval(f"self.{attr}")
-            for attr in ["paired_bases", "dms"]
+            for attr in ["structure", "dms", "shape"]
             if hasattr(self, attr)
         }
-        
-        # rename paired_bases to structure
-        if "paired_bases" in self.opt_dict:
-            self.opt_dict["structure"] = self.opt_dict.pop("paired_bases")
-        
-    def _format_paired_bases(self, paired_bases):
+
+    def convert_structure_to_tuple(self):
         """Returns a set of tuples.
         >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
         >>> datapoint._format_paired_bases([[1, 4], [0, 5]])
         ((0, 5), (1, 4))
         """
-        return (
-            tuple(sorted([tuple(sorted(pair)) for pair in paired_bases]))
-            if paired_bases is not None
-            else None
-        )
+        if self.structure is None:
+            return None
+        self.structure = tuple(sorted([tuple(sorted(pair)) for pair in self.structure]))
+        
+    def convert_structure_to_list(self):
+        if self.structure is None:
+            return None
+        self.structure = [list(pair) for pair in self.structure]
 
-    def _assert_paired_bases(self, paired_bases, sequence):
-        """Ensures that the base pairs are 0=<bp<len(sequence) and that that there's maximum one pair per base.
-        >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
-        >>> datapoint._assert_paired_bases([(0, 5), (1, 4)], 'AACCGG')
-        True
-        >>> datapoint._assert_paired_bases([(0, 5), (1, 4), (1, 2)], 'AACCGG')
-        False
-        >>> datapoint._assert_paired_bases([(0, 5), (4, 1), (1, 2)], 'AACCGG')
-        False
-        >>> datapoint._assert_paired_bases([(0, 8), (3, 4), (1, 2)], 'AACCGG')
-        False
-        >>> datapoint._assert_paired_bases(None, 'AACCGG')
-        True
-        """
-        if paired_bases is not None:
-            return (
-                all(
-                    [
-                        0 <= pair[0] < len(sequence)
-                        and 0 <= pair[1] < len(sequence)
-                        and pair[0] != pair[1]
-                        for pair in paired_bases
-                    ]
-                )
-                and len(
-                    set(
-                        [pair[0] for pair in paired_bases]
-                        + [pair[1] for pair in paired_bases]
-                    )
-                )
-                == len(paired_bases) * 2
-            )
-        else:
-            return True
-
-    def _format_dms(self, dms):
-        """returns a tuple
-        >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
-        >>> datapoint._format_dms([1.0, 2.0, 3.0])
-        (1.0, 2.0, 3.0)
-        """
-        if type(dms) == np.ndarray:
-            dms = dms.tolist()
-        return tuple(dms)
-    
-    def embed_dms(self):
+    def _format_signal(self):
         """Returns a list of floats corresponding to the dms.
 
         >>> from numpy import array, float32
         >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
         >>> assert (datapoint.embed_dms() == array([1., 2., 3.], dtype=float32)).all(), 'The dms are not embedded correctly.'
         """
-        return np.array([round(d,4) for d in self.dms], dtype=np.float32)
+        return np.array([round(d, 4) for d in self.dms], dtype=np.float32)
 
     def to_dict(self):
         return self.reference, {
             "sequence": self.sequence,
-            **{k: v for k, v in self.opt_dict.items() if v is not None},
+            **{k: v for k, v in self.get_opt_dict().items() if v is not None},
         }
 
     def to_flat_dict(self):
         return {
             "reference": self.reference,
             "sequence": self.sequence,
-            **{k: v for k, v in self.opt_dict.items() if v is not None},
+            **{k: v for k, v in self.get_opt_dict().items() if v is not None},
         }
 
     @classmethod
@@ -187,14 +134,11 @@ class Datapoint:
 
     def __str__(self):
         return (
-            '"'
-            + self.reference
-            + '"'
-            + ":"
+            f'"{self.reference}":'
             + str(
                 {
                     "sequence": self.sequence,
-                    **{k: v for k, v in self.opt_dict.items() if v is not None},
+                    **{k: v for k, v in self.get_opt_dict().items() if v is not None},
                 }
             )
             .replace("'", '"')
@@ -207,8 +151,8 @@ class Datapoint:
         out = (
             f"{self.__class__.__name__}('{self.reference}', sequence='{self.sequence}'"
         )
-        if hasattr(self, "paired_bases"):
-            out += f", paired_bases={self.paired_bases}"
+        if hasattr(self, "structure"):
+            out += f", structure={self.structure}"
         if hasattr(self, "dms"):
             out += f", dms={self.dms}"
         return out + ")"
@@ -224,23 +168,44 @@ class Datapoint:
                 paired_bases.add((stack.pop(), i))
         return paired_bases
 
-    def embed_sequence(self):
-        """Returns a list of integers corresponding to the sequence.
-
-        >>> from numpy import array
+    def _assert_paired_bases(self):
+        """Ensures that the base pairs are 0=<bp<len(sequence) and that that there's maximum one pair per base.
         >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
-        >>> assert (datapoint.embed_sequence() == array([1, 1, 2, 2, 3, 3])).all(), 'The sequence is not embedded correctly.'
+        >>> datapoint._assert_paired_bases([(0, 5), (1, 4)], 'AACCGG')
+        True
+        >>> datapoint._assert_paired_bases([(0, 5), (1, 4), (1, 2)], 'AACCGG')
+        False
+        >>> datapoint._assert_paired_bases([(0, 5), (4, 1), (1, 2)], 'AACCGG')
+        False
+        >>> datapoint._assert_paired_bases([(0, 8), (3, 4), (1, 2)], 'AACCGG')
+        False
+        >>> datapoint._assert_paired_bases(None, 'AACCGG')
+        True
         """
-        return np.array([seq2int[base] for base in self.sequence], dtype=np.int8)
-
-    def embed_structure(self):
-        """Returns a list of integers corresponding to the structure.
-
-        >>> from numpy import array
-        >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
-        >>> assert not (datapoint.embed_structure() - array([2, 2, 1, 1, 3, 3])).any(), 'The sequence is not embedded correctly.'
-        """
-        return np.array([dot2int[base] for base in self.structure], dtype=np.int8)
+        sequence = self.sequence
+        paired_bases = self.structure
+        
+        if paired_bases is None:
+            return True
+        return (
+            all(
+                # check boundaries
+                [
+                    0 <= pair[0] < len(sequence)
+                    and 0 <= pair[1] < len(sequence)
+                    and pair[0] != pair[1]
+                    for pair in paired_bases
+                ]
+            )
+            # check that there's maximum one pair per base
+            and len(
+                set(
+                    [pair[0] for pair in paired_bases]
+                    + [pair[1] for pair in paired_bases]
+                )
+            )
+            == len(paired_bases) * 2
+        )
 
 
 class DatapointFactory:
@@ -253,7 +218,7 @@ class DatapointFactory:
 
     """
 
-    def from_bpseq(bpseq_file, predict_dms):
+    def from_bpseq(bpseq_file):
         """Create a datapoint from a bpseq file. If predict_dms is True, the dms will be predicted using RNAstructure"""
         reference, sequence, paired_bases = BPseq.parse(bpseq_file)
         sequence = standardize_sequence(sequence)
@@ -263,10 +228,9 @@ class DatapointFactory:
                 sequence,
                 reference,
                 paired_bases=paired_bases,
-                dms=BPseq.predict_dms(bpseq_file) if predict_dms else None,
             )
 
-    def from_ct(ct_file, predict_dms):
+    def from_ct(ct_file):
         """Create a datapoint from a ct file. If predict_dms is True, the dms will be predicted using RNAstructure"""
         reference, sequence, paired_bases = Ct.parse(ct_file)
         sequence = standardize_sequence(sequence)
@@ -276,10 +240,9 @@ class DatapointFactory:
                 sequence,
                 reference,
                 paired_bases=paired_bases,
-                dms=Ct.predict_dms(ct_file) if predict_dms else None,
             )
 
-    def from_fasta(sequence, reference, predict_structure, predict_dms):
+    def from_fasta(sequence, reference, predict_structure):
         """Create a datapoint from a fasta file. The structure and dms will be None."""
         sequence = standardize_sequence(sequence)
 
@@ -287,8 +250,6 @@ class DatapointFactory:
             structure, dms = None, None
             if predict_structure:
                 structure = Fasta.predict_structure(sequence)
-            if predict_dms:
-                dms = Fasta.predict_dms(sequence)
             return Datapoint(sequence, reference, structure, dms)
 
     def from_dreem_output(reference, sequence, mutation_rate, predict_structure):
@@ -307,7 +268,7 @@ class DatapointFactory:
                 dms=mutation_rate,
             )
 
-    def from_json_line(ref, d, predict_structure=False, predict_dms=False):
+    def from_json_line(ref, d, predict_structure=False):
         """Create a datapoint from a json line. The json line should have the following format:
         "reference": {"sequence": "sequence", "paired_bases": [[1, 2], [3,4]], "dms": [1.0, 2.0, 3.0]}
 
@@ -324,10 +285,9 @@ class DatapointFactory:
         sequence = standardize_sequence(sequence)
 
         if predict_structure and (not "structure" in d) and (not "paired_bases" in d):
-            d["structure"] = RNAstructure_singleton.predictStructure(sequence, dms=d["dms"] if "dms" in d else None)
-
-        if predict_dms and (not "dms" in d):
-            d["dms"] = RNAstructure_singleton.predictPairingProbability(sequence)
+            d["structure"] = RNAstructure_singleton.predictStructure(
+                sequence, dms=d["dms"] if "dms" in d else None
+            )
 
         if sequence_has_regular_characters(sequence):
             return Datapoint(
