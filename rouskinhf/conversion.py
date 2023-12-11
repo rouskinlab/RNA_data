@@ -1,6 +1,6 @@
 from .list_datapoints import ListofDatapoints
 from .path import Path
-
+from .filter import filter as filter_datapoints
 
 def convert(
     format: str,
@@ -45,7 +45,7 @@ def convert(
         )
 
     if filter:
-        report = datapoints.filter(min_AUROC=min_AUROC)
+        report = filter_datapoints(datapoints, min_AUROC=min_AUROC)
     else:
         _, report = datapoints.drop_none_dp()
         report = (

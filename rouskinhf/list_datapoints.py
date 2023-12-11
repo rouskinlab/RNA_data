@@ -3,10 +3,8 @@ import numpy as np
 from .datapoint import Datapoint, DatapointFactory
 from typing import List
 from .parsers import Fasta, DreemOutput
-from .util import UKN
 
 import pandas as pd
-from sklearn.metrics import roc_auc_score
 from tqdm import tqdm as tqdm_parser
 import json
 
@@ -17,6 +15,9 @@ class ListofDatapoints:
 
     def __call__(self) -> List[Datapoint]:
         return self.datapoints
+    
+    def __len__(self) -> int:
+        return len(self.datapoints)
 
     @classmethod
     def from_fasta(
@@ -178,128 +179,4 @@ class ListofDatapoints:
         n_unvalid_datapoints = n_input_datapoints - len(self.datapoints)
         return self.datapoints, n_unvalid_datapoints
 
-    def filter(self, min_AUROC: int = 0.8):
-        """Filters out duplicate sequences.
-        Only keep the first occurence of a sequence if all the other structures are the same.
-
-        Examples:
-            >>> datapoints = ListofDatapoints([ Datapoint(reference='ref1', sequence='AACCGG', structure=[[1, 2], [3, 4]], dms=[1,0,0,0,0,1]),\
-                                Datapoint(reference='ref2', sequence='AACCGG', structure=[[1, 2], [3, 4]], dms=[1,0,0,0,0,1]),\
-                                Datapoint(reference='ref2', sequence='AACCGG', structure=[[1, 2], [3, 4]], dms=[1,0,0,0,0,1]),\
-                                Datapoint(reference='ref4', sequence='AUGGC', structure=[[1, 2]], dms=[0,0,0,0,1]),\
-                                Datapoint(reference='ref5', sequence='AUGGC', structure=[[0, 4], [2, 3]], dms=[0,0,0,0,0]),\
-                                Datapoint(reference='ref6', sequence='not a regular sequence', structure=[[0, 4]], dms=[0,0,0,0,0]) ])
-            Over a total of 6 datapoints, there are:
-                - 1 valid datapoints
-                - 1 invalid datapoints (ex: sequence with non-regular characters)
-                - 1 datapoints with the same reference
-                - 1 duplicate sequences with the same structure / dms
-                - 2 duplicate sequences with different structure / dms
-                - 0 datapoints removed because of low AUROC (<0.8)
-            >>> datapoints.datapoints
-            [Datapoint('ref1', sequence='AACCGG', structure=((1, 2), (3, 4)), dms=(1, 0, 0, 0, 0, 1))]
-        """
-
-        # Remove None datapoints
-        n_input_datapoints = len(self.datapoints)
-        datapoints, n_unvalid_datapoints = self.drop_none_dp()
-
-        # Remove bad structures
-        bad_structures_idx = []
-        for idx, datapoint in enumerate(datapoints):
-            if not datapoint._assert_paired_bases():
-                bad_structures_idx.append(idx)
-        datapoints = [
-            datapoint
-            for idx, datapoint in enumerate(datapoints)
-            if idx not in bad_structures_idx
-        ]
-        n_bad_structures_datapoints = len(bad_structures_idx)
-
-        # Convert to pandas
-        df = self.to_pandas(datapoints)
-
-        # Remove duplicate or conflicting datapoints and keep track of the number of datapoints removed
-        def drop_duplicates(df: pd.DataFrame, **kwargs):
-            len_df_before = len(df)
-            df.drop_duplicates(**kwargs)
-            return len_df_before - len(df)
-
-        # If multiple sequences with the same reference, rename the reference
-        refs = dict()
-        n_same_ref_datapoints = 0
-        for idx, row in df.iterrows():
-            if row["reference"] in refs:
-                df.at[idx, "reference"] = f"{row['reference']}_{refs[row['reference']]}"
-                n_same_ref_datapoints += 1
-            refs[row["reference"]] = 1
-
-        # Keep only one datapoint per sequence and structure
-        if "structure" in df.columns:
-            n_duplicates_datapoints = drop_duplicates(
-                df,
-                subset=["sequence", "structure"],
-                inplace=True,
-                ignore_index=True,
-                keep="first",
-            )
-
-        # Keep only one datapoint per sequence and dms
-        if "dms" in df.columns:
-            if not "structure" in df.columns:
-                n_duplicates_datapoints = 0
-            n_duplicates_datapoints += drop_duplicates(
-                df,
-                subset=["sequence", "dms"],
-                inplace=True,
-                ignore_index=True,
-                keep="first",
-            )
-
-        # If there are multiple structures / dms with the same sequence, keep none
-        n_same_seq_datapoints = drop_duplicates(
-            df, subset=["sequence"], inplace=True, ignore_index=True, keep="first"
-        )
-
-        ## Filter out references with low AUROC
-        mask_high_AUROC = None
-        if "structure" in df.columns and "dms" in df.columns:
-
-            def calculate_auroc(row):
-                dms = np.array(row["dms"])
-                isUnpaired = np.ones_like(dms)
-                isUnpaired[np.array(row["structure"]).flatten()] = 0
-                if set(isUnpaired[dms != UKN]) != set([0, 1]):
-                    return 0
-                return roc_auc_score(isUnpaired[dms != UKN], dms[dms != UKN])
-
-            # Create a boolean mask for rows with auroc score greater than or equal to a threshold
-            mask_high_AUROC = df.apply(
-                lambda row: calculate_auroc(row) >= min_AUROC, axis=1
-            )
-            df = df[mask_high_AUROC]
-
-        # Convert back to list of datapoints
-        self.datapoints = self.from_pandas(df)
-
-        # Write report
-        report = f"""Over a total of {n_input_datapoints} datapoints, there are:
-### OUTPUT
-- {len(self.datapoints)} valid datapoints
-### MODIFIED
-- {n_same_ref_datapoints} multiple sequences with the same reference (renamed reference)
-### FILTERED OUT
-- {n_unvalid_datapoints} invalid datapoints (ex: sequence with non-regular characters)
-- {n_bad_structures_datapoints} datapoints with bad structures"""
-        if "structure" in df.columns or "dms" in df.columns:
-            report += f"""
-- {n_duplicates_datapoints} duplicate sequences with the same structure / dms
-- {n_same_seq_datapoints} duplicate sequences with different structure / dms"""
-        else:
-            report += f"""
-- {n_same_seq_datapoints} duplicate sequences"""
-        if mask_high_AUROC is not None:
-            report += f"""
-- {np.sum(~mask_high_AUROC)} datapoints removed because of low AUROC (<{min_AUROC})"""
-
-        return report
+    
