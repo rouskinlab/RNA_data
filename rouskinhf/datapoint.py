@@ -73,6 +73,45 @@ class Datapoint:
             if hasattr(self, attr)
         }
 
+    def _assert_paired_bases(self):
+        """Ensures that the base pairs are 0=<bp<len(sequence) and that that there's maximum one pair per base.
+        >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
+        >>> datapoint._assert_paired_bases([(0, 5), (1, 4)], 'AACCGG')
+        True
+        >>> datapoint._assert_paired_bases([(0, 5), (1, 4), (1, 2)], 'AACCGG')
+        False
+        >>> datapoint._assert_paired_bases([(0, 5), (4, 1), (1, 2)], 'AACCGG')
+        False
+        >>> datapoint._assert_paired_bases([(0, 8), (3, 4), (1, 2)], 'AACCGG')
+        False
+        >>> datapoint._assert_paired_bases(None, 'AACCGG')
+        True
+        """
+        sequence = self.sequence
+        paired_bases = self.structure
+
+        if paired_bases is None:
+            return True
+        return (
+            all(
+                # check boundaries
+                [
+                    0 <= pair[0] < len(sequence)
+                    and 0 <= pair[1] < len(sequence)
+                    and pair[0] != pair[1]
+                    for pair in paired_bases
+                ]
+            )
+            # check that there's maximum one pair per base
+            and len(
+                set(
+                    [pair[0] for pair in paired_bases]
+                    + [pair[1] for pair in paired_bases]
+                )
+            )
+            == len(paired_bases) * 2
+        )
+
     def convert_arrays_to_tuple(self):
         if hasattr(self, "dms") and self.dms is not None:
             self.dms = tuple(self.dms)
@@ -141,45 +180,6 @@ class Datapoint:
             elif char == ")":
                 paired_bases.add((stack.pop(), i))
         return paired_bases
-
-    def _assert_paired_bases(self):
-        """Ensures that the base pairs are 0=<bp<len(sequence) and that that there's maximum one pair per base.
-        >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
-        >>> datapoint._assert_paired_bases([(0, 5), (1, 4)], 'AACCGG')
-        True
-        >>> datapoint._assert_paired_bases([(0, 5), (1, 4), (1, 2)], 'AACCGG')
-        False
-        >>> datapoint._assert_paired_bases([(0, 5), (4, 1), (1, 2)], 'AACCGG')
-        False
-        >>> datapoint._assert_paired_bases([(0, 8), (3, 4), (1, 2)], 'AACCGG')
-        False
-        >>> datapoint._assert_paired_bases(None, 'AACCGG')
-        True
-        """
-        sequence = self.sequence
-        paired_bases = self.structure
-
-        if paired_bases is None:
-            return True
-        return (
-            all(
-                # check boundaries
-                [
-                    0 <= pair[0] < len(sequence)
-                    and 0 <= pair[1] < len(sequence)
-                    and pair[0] != pair[1]
-                    for pair in paired_bases
-                ]
-            )
-            # check that there's maximum one pair per base
-            and len(
-                set(
-                    [pair[0] for pair in paired_bases]
-                    + [pair[1] for pair in paired_bases]
-                )
-            )
-            == len(paired_bases) * 2
-        )
 
 
 class DatapointFactory:
