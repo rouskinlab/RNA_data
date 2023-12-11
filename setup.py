@@ -1,6 +1,6 @@
 from setuptools import setup
 
-requirements = open('requirements.txt').read().splitlines()
+requirements = open('./requirements.txt').read().splitlines()
 
 setup(
     name="rouskinhf",

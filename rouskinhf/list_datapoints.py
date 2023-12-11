@@ -56,13 +56,8 @@ class ListofDatapoints:
         )
 
     @classmethod
-    def from_ct(cls, ct_folder, tqdm=True, verbose=True):
-        """Create a list of datapoint from a ct file. The dms will be predicted if predict_dms is True."""
-        ct_files = [
-            os.path.join(ct_folder, ct_file)
-            for ct_file in os.listdir(ct_folder)
-            if ct_file.endswith(".ct")
-        ]
+    def from_ct(cls, ct_files, tqdm=True, verbose=True):
+        """Create a list of datapoint from a list of ct files. The dms will be predicted if predict_dms is True."""
         return cls(
             [
                 DatapointFactory.from_ct(ct_file)
