@@ -78,11 +78,12 @@ def filter(listofdatapoints:ListofDatapoints, min_AUROC: int = 0.8):
                     keep="first",
                 )
 
-        # If there are multiple structures / dms with the same sequence, keep none
-        n_same_seq_datapoints = drop_duplicates(
-            df, subset=["sequence"], inplace=True, ignore_index=True, keep="first"
-        )
-
+        # Count how many multiple structures / dms with the same sequence
+        n_same_seq_datapoints = 0
+        for _, group in df.groupby("sequence"):
+            if len(group) > 1:
+                n_same_seq_datapoints += len(group) - 1
+            
         ## Filter out references with low AUROC
         mask_high_AUROC = None
         if "structure" in df.columns and "dms" in df.columns or "shape" in df.columns:
@@ -111,16 +112,13 @@ def filter(listofdatapoints:ListofDatapoints, min_AUROC: int = 0.8):
 - {len(listofdatapoints)} valid datapoints
 ### MODIFIED
 - {n_same_ref_datapoints} multiple sequences with the same reference (renamed reference)
+- {n_same_seq_datapoints} duplicate sequences with different structure / dms / shape
 ### FILTERED OUT
 - {n_unvalid_datapoints} invalid datapoints (ex: sequence with non-regular characters)
 - {n_bad_structures_datapoints} datapoints with bad structures"""
         if "structure" in df.columns or "dms" in df.columns or "shape" in df.columns:
             report += f"""
-- {n_duplicates_datapoints} duplicate sequences with the same structure / dms / shape
-- {n_same_seq_datapoints} duplicate sequences with different structure / dms / shape"""
-        else:
-            report += f"""
-- {n_same_seq_datapoints} duplicate sequences"""
+- {n_duplicates_datapoints} duplicate sequences with the same structure / dms / shape"""
         if mask_high_AUROC is not None:
             report += f"""
 - {np.sum(~mask_high_AUROC)} datapoints removed because of low AUROC (<{min_AUROC})"""

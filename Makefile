@@ -12,3 +12,6 @@ push_to_pypi:
 	python3 -m build
 	twine upload -r pypi dist/* --user yvesmartindestaillades --password $(PYPI_PASSWORD) --skip-existing
 	rm -fr dist
+
+github_actions:
+	act
