@@ -5,6 +5,7 @@ from .util import UKN
 import pandas as pd
 from sklearn.metrics import roc_auc_score
 from .list_datapoints import ListofDatapoints
+from .datapoint import Datapoint    
 
 def filter(listofdatapoints:ListofDatapoints, min_AUROC: int = 0.8):
         """Filters out duplicate sequences.
@@ -17,8 +18,18 @@ def filter(listofdatapoints:ListofDatapoints, min_AUROC: int = 0.8):
                                 Datapoint(reference='ref4', sequence='AUGGC', structure=[[1, 2]], dms=[0,0,0,0,1]),\
                                 Datapoint(reference='ref5', sequence='AUGGC', structure=[[0, 4], [2, 3]], dms=[0,0,0,0,0]),\
                                 Datapoint(reference='ref6', sequence='not a regular sequence', structure=[[0, 4]], dms=[0,0,0,0,0]) ])
-            >>> filter(datapoints, min_AUROC=0)
-            [Datapoint('ref1', sequence='AACCGG', structure=((1, 2), (3, 4)), dms=(1, 0, 0, 0, 0, 1))]
+            >>> print(filter(datapoints, min_AUROC=0))
+            Over a total of 6 datapoints, there are:
+            ### OUTPUT
+            - 3 valid datapoints
+            ### MODIFIED
+            - 1 multiple sequences with the same reference (renamed reference)
+            - 1 duplicate sequences with different structure / dms / shape
+            ### FILTERED OUT
+            - 1 invalid datapoints (ex: sequence with non-regular characters)
+            - 0 datapoints with bad structures
+            - 2 duplicate sequences with the same structure / dms / shape
+            - 0 datapoints removed because of low AUROC (<0)
         """
 
         # Remove None datapoints

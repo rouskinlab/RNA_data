@@ -14,16 +14,16 @@ class Path:
     Returns
     -------
 
-    PathDatafolder
+    Path
 
     Example
     -------
 
-    >>> path = PathDatafolder(name='my_test_datafolder_pytest')
+    >>> path = Path(name='my_test_datafolder_pytest', root='data')
     >>> path.name
     'my_test_datafolder_pytest'
     >>> print(path)
-    PathDatafolder(name='my_test_datafolder_pytest')
+    Path(name='my_test_datafolder_pytest')
     """
 
     def __init__(self, name, root) -> None:

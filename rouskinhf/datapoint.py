@@ -15,12 +15,20 @@ class Datapoint:
         # Check if the conditions are met before creating the object
         sequence = kwargs.get("sequence", args[0] if len(args) > 0 else None)
         reference = kwargs.get("reference", args[1] if len(args) > 1 else None)
+        dotbracket = kwargs.get("dotbracket", None)
         if (
             sequence is None
             or reference is None
             or len(sequence) == 0
             or len(reference) == 0
         ):
+            return None
+        
+        if dotbracket is not None:
+            if not dotbracket.count("(") == dotbracket.count(")"):
+                return None
+            
+        if not sequence_has_regular_characters(sequence):
             return None
 
         # If conditions are met, create and return the new instance
@@ -70,17 +78,22 @@ class Datapoint:
 
     def _assert_structure(self):
         """Ensures that the base pairs are 0=<bp<len(sequence) and that that there's maximum one pair per base.
-        >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
-        >>> datapoint._assert_structure([(0, 5), (1, 4)], 'AACCGG')
+        >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', dotbracket='((..))')
+        >>> datapoint._assert_structure()
         True
-        >>> datapoint._assert_structure([(0, 5), (1, 4), (1, 2)], 'AACCGG')
-        False
-        >>> datapoint._assert_structure([(0, 5), (4, 1), (1, 2)], 'AACCGG')
-        False
-        >>> datapoint._assert_structure([(0, 8), (3, 4), (1, 2)], 'AACCGG')
-        False
-        >>> datapoint._assert_structure(None, 'AACCGG')
+        >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', dotbracket='((..)(')
+        >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure=[[1, 2], [3, 4]])
+        >>> datapoint._assert_structure()
         True
+        >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure=[[1, 2], [3, 3]])
+        >>>> datapoint._assert_structure()
+        False
+        >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure=[[1, 2], [3, 6]])
+        >>> datapoint._assert_structure()
+        False   
+        >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure=[[1, 2], [3, -1]])
+        >>> datapoint._assert_structure()
+        False
         """
         sequence = self.sequence
         structure = self.structure

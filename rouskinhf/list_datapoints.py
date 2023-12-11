@@ -163,7 +163,7 @@ class ListofDatapoints:
         Example:
             >>> df = pd.DataFrame([{'reference': 'reference', 'sequence': 'AACCGG', 'structure': [[1, 2], [3, 4]], 'dms': [1.0, 2.0, 3.0]}])
             >>> ListofDatapoints(verbose=False).from_pandas(df)
-            [Datapoint('reference', sequence='AACCGG', structure=((1, 2), (3, 4)), dms=(1.0, 2.0, 3.0))]
+            [Datapoint('reference', sequence='AACCGG', structure=[[1, 2], [3, 4]], dms=[1.0, 2.0, 3.0])]
         """
         datapoints = [
             Datapoint.from_flat_dict(datapoint_dict)
