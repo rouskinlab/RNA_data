@@ -165,7 +165,6 @@ class ListofDatapoints:
             >>> ListofDatapoints(verbose=False).from_pandas(df)
             [Datapoint('reference', sequence='AACCGG', structure=((1, 2), (3, 4)), dms=(1.0, 2.0, 3.0))]
         """
-        df.rename(columns={"structure": "paired_bases"}, inplace=True)
         datapoints = [
             Datapoint.from_flat_dict(datapoint_dict)
             for datapoint_dict in df.to_dict("records")

@@ -31,10 +31,10 @@ class Datapoint:
         self,
         sequence,
         reference,
-        structure=None,
+        dotbracket=None,
         dms=None,
         shape=None,
-        paired_bases=None,
+        structure=None,
     ):
         for attr in [sequence, reference]:
             assert isinstance(
@@ -52,17 +52,12 @@ class Datapoint:
 
         self.reference = reference
         self.sequence = sequence
-        if paired_bases is not None or structure is not None:
-            self.structure = (
-                paired_bases
-                if paired_bases is not None
-                else self.structure_to_paired_bases(structure)
-            )
-        else:
-            self.structure = None
+        self.structure = structure
+        
+        if structure is None and dotbracket is not None:
+            self.structure = self.dotbracket_to_structure(dotbracket)
         if dms is not None:
             self.dms = self._format_signal(dms)
-
         if shape is not None:
             self.shape = self._format_signal(shape)
 
@@ -73,24 +68,24 @@ class Datapoint:
             if hasattr(self, attr)
         }
 
-    def _assert_paired_bases(self):
+    def _assert_structure(self):
         """Ensures that the base pairs are 0=<bp<len(sequence) and that that there's maximum one pair per base.
         >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
-        >>> datapoint._assert_paired_bases([(0, 5), (1, 4)], 'AACCGG')
+        >>> datapoint._assert_structure([(0, 5), (1, 4)], 'AACCGG')
         True
-        >>> datapoint._assert_paired_bases([(0, 5), (1, 4), (1, 2)], 'AACCGG')
+        >>> datapoint._assert_structure([(0, 5), (1, 4), (1, 2)], 'AACCGG')
         False
-        >>> datapoint._assert_paired_bases([(0, 5), (4, 1), (1, 2)], 'AACCGG')
+        >>> datapoint._assert_structure([(0, 5), (4, 1), (1, 2)], 'AACCGG')
         False
-        >>> datapoint._assert_paired_bases([(0, 8), (3, 4), (1, 2)], 'AACCGG')
+        >>> datapoint._assert_structure([(0, 8), (3, 4), (1, 2)], 'AACCGG')
         False
-        >>> datapoint._assert_paired_bases(None, 'AACCGG')
+        >>> datapoint._assert_structure(None, 'AACCGG')
         True
         """
         sequence = self.sequence
-        paired_bases = self.structure
+        structure = self.structure
 
-        if paired_bases is None:
+        if structure is None:
             return True
         return (
             all(
@@ -99,17 +94,17 @@ class Datapoint:
                     0 <= pair[0] < len(sequence)
                     and 0 <= pair[1] < len(sequence)
                     and pair[0] != pair[1]
-                    for pair in paired_bases
+                    for pair in structure
                 ]
             )
             # check that there's maximum one pair per base
             and len(
                 set(
-                    [pair[0] for pair in paired_bases]
-                    + [pair[1] for pair in paired_bases]
+                    [pair[0] for pair in structure]
+                    + [pair[1] for pair in structure]
                 )
             )
-            == len(paired_bases) * 2
+            == len(structure) * 2
         )
 
     def convert_arrays_to_tuple(self):
@@ -170,16 +165,16 @@ class Datapoint:
             out += f", dms={self.dms}"
         return out + ")"
 
-    def structure_to_paired_bases(self, structure):
+    def dotbracket_to_structure(self, dotbracket):
         """Returns a list of tuples (i,j) where i and j are paired bases."""
-        paired_bases = set()
+        structure = set()
         stack = []
-        for i, char in enumerate(structure):
+        for i, char in enumerate(dotbracket):
             if char == "(":
                 stack.append(i)
             elif char == ")":
-                paired_bases.add((stack.pop(), i))
-        return paired_bases
+                structure.add((stack.pop(), i))
+        return structure
 
 
 class DatapointFactory:
@@ -187,26 +182,26 @@ class DatapointFactory:
 
     def from_bpseq(bpseq_file):
         """Create a datapoint from a bpseq file. If predict_dms is True, the dms will be predicted using RNAstructure"""
-        reference, sequence, paired_bases = BPseq.parse(bpseq_file)
+        reference, sequence, structure = BPseq.parse(bpseq_file)
         sequence = standardize_sequence(sequence)
 
         if sequence_has_regular_characters(sequence):
             return Datapoint(
                 sequence,
                 reference,
-                paired_bases=paired_bases,
+                structure=structure,
             )
 
     def from_ct(ct_file):
         """Create a datapoint from a ct file. If predict_dms is True, the dms will be predicted using RNAstructure"""
-        reference, sequence, paired_bases = Ct.parse(ct_file)
+        reference, sequence, structure = Ct.parse(ct_file)
         sequence = standardize_sequence(sequence)
 
         if sequence_has_regular_characters(sequence):
             return Datapoint(
                 sequence,
                 reference,
-                paired_bases=paired_bases,
+                structure=structure,
             )
 
     def from_fasta(sequence, reference, predict_structure):
@@ -214,10 +209,10 @@ class DatapointFactory:
         sequence = standardize_sequence(sequence)
 
         if sequence_has_regular_characters(sequence):
-            structure, dms = None, None
+            dotbracket, dms = None, None
             if predict_structure:
-                structure = Fasta.predict_structure(sequence)
-            return Datapoint(sequence, reference, structure, dms)
+                dotbracket = Fasta.predict_structure(sequence)
+            return Datapoint(sequence, reference, dotbracket=dotbracket, dms=dms)
 
     def from_dreem_output(reference, sequence, mutation_rate, predict_structure):
         """Create a datapoint from a dreem output file. The structure and dms will be predicted if predict_structure and predict_dms are True."""
@@ -227,7 +222,7 @@ class DatapointFactory:
             return Datapoint(
                 sequence=sequence,
                 reference=reference,
-                structure=RNAstructure_singleton.predictStructure(
+                dotbracket=RNAstructure_singleton.predictStructure(
                     sequence, dms=mutation_rate
                 )
                 if predict_structure
@@ -237,14 +232,14 @@ class DatapointFactory:
 
     def from_json_line(ref, d, predict_structure=False):
         """Create a datapoint from a json line. The json line should have the following format:
-        "reference": {"sequence": "sequence", "paired_bases": [[1, 2], [3,4]], "dms": [1.0, 2.0, 3.0]}
+        "reference": {"sequence": "sequence", "structure": [[1, 2], [3,4]], "dms": [1.0, 2.0, 3.0]}
 
         Example:
         >>> DatapointFactory.from_json_line("reference", {"sequence": "ACAAGU"})
         Datapoint('reference', sequence='ACAAGU')
-        >>> DatapointFactory.from_json_line("reference", {"sequence": "ACAAGU", "paired_bases": [[1, 2], [3, 4]], "dms": [1.0, 2.0, 3.0]})
-        Datapoint('reference', sequence='ACAAGU', paired_bases=((1, 2), (3, 4)), dms=(1.0, 2.0, 3.0))
-        >>> DatapointFactory.from_json_line("reference", {"sequence": "something else than ACGTUacgtu", "paired_bases": [[1, 2], [3, 4]], "dms": [1.0, 2.0, 3.0]})
+        >>> DatapointFactory.from_json_line("reference", {"sequence": "ACAAGU", "structure": [[1, 2], [3, 4]], "dms": [1.0, 2.0, 3.0]})
+        Datapoint('reference', sequence='ACAAGU', structure=((1, 2), (3, 4)), dms=(1.0, 2.0, 3.0))
+        >>> DatapointFactory.from_json_line("reference", {"sequence": "something else than ACGTUacgtu", "structure": [[1, 2], [3, 4]], "dms": [1.0, 2.0, 3.0]})
         """
 
         # create the datapoint
@@ -252,11 +247,8 @@ class DatapointFactory:
         sequence = standardize_sequence(sequence)
 
         # hack
-        if "structure" in d:
-            d["paired_bases"] = d.pop("structure")
-
-        if predict_structure and (not "structure" in d) and (not "paired_bases" in d):
-            d["structure"] = RNAstructure_singleton.predictStructure(
+        if predict_structure and (not "structure" in d) and (not "dotbracket" in d):
+            d["dotbracket"] = RNAstructure_singleton.predictStructure(
                 sequence, dms=d["dms"] if "dms" in d else None
             )
 
@@ -265,6 +257,6 @@ class DatapointFactory:
                 reference=ref,
                 sequence=sequence,
                 structure=d["structure"] if "structure" in d else None,
-                paired_bases=d["paired_bases"] if "paired_bases" in d else None,
+                dotbracket=d["dotbracket"] if "dotbracket" in d else None,
                 dms=d["dms"] if "dms" in d else None,
             )

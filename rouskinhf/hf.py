@@ -11,16 +11,15 @@ from .path import Path
 from .env import Env
 
 
-
 def get_dataset(name: str, force_download=False, tqdm=True):
     """Get a dataset from HuggingFace or from the local cache.
-    
+
     Args:
         name (str): Name of the dataset.
         force_download (bool, optional): Whether to force the download or not. Defaults to False.
         tqdm (bool, optional): Whether to display a progress bar or not. Defaults to True.
     """
-    
+
     path = Path(name=name)
 
     if force_download:
@@ -45,8 +44,6 @@ def download_dataset(name: str):
         token=Env.get_hf_token(),
         allow_patterns=["data.json"],
     )
-
-
 
 
 def name_from_path(datapath: str):
@@ -157,4 +154,3 @@ date: {}
             f.write("\n\n" + conversion)
 
     return path.get_card()
-

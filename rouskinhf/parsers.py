@@ -13,14 +13,12 @@ class Ct:
             ct_file (str): path to ct file
 
         Returns:
-            (str,str,str): (reference, sequence, paired_bases)
-
-
+            (str,str,str): (reference, sequence, structure)
         """
         with open(ct_file, "r") as f:
             lines = f.readlines()
 
-        paired_bases, sequence = [], ""
+        structure, sequence = [], ""
         for line in lines[1:]:
             if line.strip() == "":
                 break
@@ -40,9 +38,9 @@ class Ct:
                 )
             sequence += base
             if int(utr3) > int(utr5) and int(utr3) != 0:
-                paired_bases.append([int(utr5) - 1, int(utr3) - 1])
+                structure.append([int(utr5) - 1, int(utr3) - 1])
 
-        return Ct.get_reference_from_title(ct_file), sequence, paired_bases
+        return Ct.get_reference_from_title(ct_file), sequence, structure
 
     def parse_list(ct_files):
         """Parse a list of ct files and return the sequences and structures"""
@@ -65,14 +63,14 @@ class BPseq:
             bpseq_file (str): path to bpseq file
 
         Returns:
-            (str,str,str): (reference, sequence, paired_bases)
+            (str,str,str): (reference, sequence, structure)
 
 
         """
         with open(bpseq_file, "r") as f:
             lines = f.readlines()
 
-        paired_bases, sequence = [], ""
+        structure, sequence = [], ""
         for line in lines:
             if line.strip() == "":
                 break
@@ -92,9 +90,9 @@ class BPseq:
                 )
             sequence += base
             if int(utr3) > int(utr5) and int(utr3) != 0:
-                paired_bases.append([int(utr5) - 1, int(utr3) - 1])
+                structure.append([int(utr5) - 1, int(utr3) - 1])
 
-        return BPseq.get_reference_from_title(bpseq_file), sequence, paired_bases
+        return BPseq.get_reference_from_title(bpseq_file), sequence, structure
 
     def parse_list(bpseq_files):
         """Parse a list of ct files and return the sequences and structures"""

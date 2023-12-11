@@ -26,7 +26,7 @@ class Path:
     PathDatafolder(name='my_test_datafolder_pytest')
     """
 
-    def __init__(self, name, root=Env.get_data_folder()) -> None:
+    def __init__(self, name, root) -> None:
         assert isinstance(name, str), f"name {name} is not a string"
         assert isinstance(root, str), f"root {root} is not a string"
         self.root = root

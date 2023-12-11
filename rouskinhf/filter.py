@@ -28,7 +28,7 @@ def filter(listofdatapoints:ListofDatapoints, min_AUROC: int = 0.8):
         # Remove bad structures
         bad_structures_idx = []
         for idx, datapoint in enumerate(datapoints):
-            if not datapoint._assert_paired_bases():
+            if not datapoint._assert_structure():
                 bad_structures_idx.append(idx)
         datapoints = [
             datapoint
@@ -65,17 +65,18 @@ def filter(listofdatapoints:ListofDatapoints, min_AUROC: int = 0.8):
                 keep="first",
             )
 
-        # Keep only one datapoint per sequence and dms
-        if "dms" in df.columns:
-            if not "structure" in df.columns:
-                n_duplicates_datapoints = 0
-            n_duplicates_datapoints += drop_duplicates(
-                df,
-                subset=["sequence", "dms"],
-                inplace=True,
-                ignore_index=True,
-                keep="first",
-            )
+        # Keep only one datapoint per sequence and signal
+        for signal in ["dms", "shape"]:
+            if signal in df.columns:
+                if not "structure" in df.columns:
+                    n_duplicates_datapoints = 0
+                n_duplicates_datapoints += drop_duplicates(
+                    df,
+                    subset=["sequence", signal],
+                    inplace=True,
+                    ignore_index=True,
+                    keep="first",
+                )
 
         # If there are multiple structures / dms with the same sequence, keep none
         n_same_seq_datapoints = drop_duplicates(
@@ -84,15 +85,16 @@ def filter(listofdatapoints:ListofDatapoints, min_AUROC: int = 0.8):
 
         ## Filter out references with low AUROC
         mask_high_AUROC = None
-        if "structure" in df.columns and "dms" in df.columns:
-
+        if "structure" in df.columns and "dms" in df.columns or "shape" in df.columns:
+            
+            signal = "dms" if "dms" in df.columns else "shape"
             def calculate_auroc(row):
-                dms = np.array(row["dms"])
-                isUnpaired = np.ones_like(dms)
+                sig = np.array(row[signal])
+                isUnpaired = np.ones_like(sig)
                 isUnpaired[np.array(row["structure"]).flatten()] = 0
-                if set(isUnpaired[dms != UKN]) != set([0, 1]):
+                if set(isUnpaired[sig != UKN]) != set([0, 1]):
                     return 0
-                return roc_auc_score(isUnpaired[dms != UKN], dms[dms != UKN])
+                return roc_auc_score(isUnpaired[sig != UKN], sig[sig != UKN])
 
             # Create a boolean mask for rows with auroc score greater than or equal to a threshold
             mask_high_AUROC = df.apply(
@@ -112,10 +114,10 @@ def filter(listofdatapoints:ListofDatapoints, min_AUROC: int = 0.8):
 ### FILTERED OUT
 - {n_unvalid_datapoints} invalid datapoints (ex: sequence with non-regular characters)
 - {n_bad_structures_datapoints} datapoints with bad structures"""
-        if "structure" in df.columns or "dms" in df.columns:
+        if "structure" in df.columns or "dms" in df.columns or "shape" in df.columns:
             report += f"""
-- {n_duplicates_datapoints} duplicate sequences with the same structure / dms
-- {n_same_seq_datapoints} duplicate sequences with different structure / dms"""
+- {n_duplicates_datapoints} duplicate sequences with the same structure / dms / shape
+- {n_same_seq_datapoints} duplicate sequences with different structure / dms / shape"""
         else:
             report += f"""
 - {n_same_seq_datapoints} duplicate sequences"""
