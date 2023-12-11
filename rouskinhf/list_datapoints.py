@@ -40,8 +40,9 @@ class ListofDatapoints:
         )
 
     @classmethod
-    def from_bpseq(cls, bpseq_files, tqdm=True, verbose=True):
+    def from_bpseq(cls, bpseq_folder, tqdm=True, verbose=True):
         """Create a list of datapoint from a bpseq file. The dms will be predicted if predict_dms is True."""
+        bpseq_files = [f.path for f in os.scandir(bpseq_folder) if f.path.endswith(".bpseq")]
         return cls(
             [
                 DatapointFactory.from_bpseq(ct_file)
@@ -56,8 +57,9 @@ class ListofDatapoints:
         )
 
     @classmethod
-    def from_ct(cls, ct_files, tqdm=True, verbose=True):
+    def from_ct(cls, ct_folder, tqdm=True, verbose=True):
         """Create a list of datapoint from a list of ct files. The dms will be predicted if predict_dms is True."""
+        ct_files = [f.path for f in os.scandir(ct_folder) if f.path.endswith(".ct")]
         return cls(
             [
                 DatapointFactory.from_ct(ct_file)

@@ -11,7 +11,7 @@ from .path import Path
 from .env import Env
 
 
-def get_dataset(name: str, force_download=False, tqdm=True):
+def get_dataset(name: str, path='data', force_download=False, tqdm=True):
     """Get a dataset from HuggingFace or from the local cache.
 
     Args:
@@ -20,7 +20,7 @@ def get_dataset(name: str, force_download=False, tqdm=True):
         tqdm (bool, optional): Whether to display a progress bar or not. Defaults to True.
     """
 
-    path = Path(name=name)
+    path = Path(name=name, root=path)
 
     if force_download:
         os.system(f"rm -rf {path.get_main_folder()}")
@@ -35,12 +35,12 @@ def get_dataset(name: str, force_download=False, tqdm=True):
     return json.load(open(path.get_data_json(), "r"))
 
 
-def download_dataset(name: str):
+def download_dataset(name: str, root="data"):
     """Download a dataset from HuggingFace Hub. The name corresponds to the name of the dataset on HuggingFace Hub."""
     snapshot_download(
         repo_id="rouskinlab/" + name,
         repo_type="dataset",
-        local_dir=Path(name).get_main_folder(),
+        local_dir=Path(name, root).get_main_folder(),
         token=Env.get_hf_token(),
         allow_patterns=["data.json"],
     )
