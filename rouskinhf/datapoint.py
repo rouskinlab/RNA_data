@@ -259,4 +259,5 @@ class DatapointFactory:
                 structure=d["structure"] if "structure" in d else None,
                 dotbracket=d["dotbracket"] if "dotbracket" in d else None,
                 dms=d["dms"] if "dms" in d else None,
+                shape = d["shape"] if "shape" in d else None,
             )

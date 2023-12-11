@@ -53,7 +53,7 @@ def filter(listofdatapoints:ListofDatapoints, min_AUROC: int = 0.8):
             if row["reference"] in refs:
                 df.at[idx, "reference"] = f"{row['reference']}_{refs[row['reference']]}"
                 n_same_ref_datapoints += 1
-            refs[row["reference"]] = 1
+            refs[row["reference"]] = refs.get(row["reference"], 0) + 1
 
         # Keep only one datapoint per sequence and structure
         if "structure" in df.columns:

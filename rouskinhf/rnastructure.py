@@ -14,21 +14,7 @@ def run_command(cmd):
 
 class RNAstructure(object):
 
-    """RNAstructure wrapper.
-
-    Example
-    -------
-    >>> rnastructure = RNAstructure()
-    >>> seq = 'TTAAACCGGCCAACATACCGCATATGAGGATCACCCATATGCTCAAGATATTCGAAAGAATATCTTTCCACAGTCGAAAGACTGTGTCTCTCTCTTCCTTTTTCTCTTCCTCTTTCTCTTTCTCTTTCTCTTCTCTTCTGTATTACGAGTTCGCTACTCGTTCCTTTCGA'
-    >>> np.random.seed(seed=0)
-    >>> dms = np.random.random(len(seq))
-    >>> rnastructure.predictStructure(seq)
-    '..............((((.(((((((.((....)))))))))..(((((((((....)))))))))..(((((((....))))))).....................................................)))).((((((.....)))))).........'
-    >>> rnastructure.predictStructure(seq, dms)
-    '.........................(((.............))).((((((...........((((((.......))))))..)))))).................................................................................'
-    >>> len(rnastructure.predictPairingProbability(seq, dms))
-    170
-    """
+    """RNAstructure wrapper."""
 
     def __init__(self) -> None:
         pass
