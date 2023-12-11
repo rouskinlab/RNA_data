@@ -81,7 +81,7 @@ class ListofDatapoints:
         """
         if datapoints is None: datapoints = self.datapoints
         for dp in datapoints:
-            dp.convert_structure_to_tuple()
+            dp.convert_arrays_to_tuple()
         return pd.DataFrame([datapoint.to_flat_dict() for datapoint in datapoints])
     
     def from_pandas(self, df: pd.DataFrame) -> None:
@@ -95,7 +95,7 @@ class ListofDatapoints:
         df.rename(columns={'structure': 'paired_bases'}, inplace=True)
         datapoints = [Datapoint.from_flat_dict(datapoint_dict) for datapoint_dict in df.to_dict('records')]
         for dp in datapoints:
-            dp.convert_structure_to_list()
+            dp.convert_arrays_to_list()
         return datapoints
     
     def drop_none_dp(self):
@@ -169,6 +169,7 @@ class ListofDatapoints:
         n_same_seq_datapoints = drop_duplicates(df, subset=['sequence'], inplace=True, ignore_index=True, keep='first')
 
         ## Filter out references with low AUROC 
+        mask_high_AUROC = None
         if 'structure' in df.columns and 'dms' in df.columns:
             def calculate_auroc(row):
                 dms = np.array(row['dms'])
@@ -187,23 +188,23 @@ class ListofDatapoints:
 
         # Write report
         report = f"""Over a total of {n_input_datapoints} datapoints, there are:
-    OUTPUT
-    - {len(self.datapoints)} valid datapoints
-    MODIFIED
-    - {n_same_ref_datapoints} multiple sequences with the same reference (renamed reference)
-    FILTERED OUT
-    - {n_unvalid_datapoints} invalid datapoints (ex: sequence with non-regular characters)
-    - {n_bad_structures_datapoints} datapoints with bad structures"""
+### OUTPUT
+- {len(self.datapoints)} valid datapoints
+### MODIFIED
+- {n_same_ref_datapoints} multiple sequences with the same reference (renamed reference)
+### FILTERED OUT
+- {n_unvalid_datapoints} invalid datapoints (ex: sequence with non-regular characters)
+- {n_bad_structures_datapoints} datapoints with bad structures"""
         if 'structure' in df.columns or 'dms' in df.columns:
             report += f"""
-    - {n_duplicates_datapoints} duplicate sequences with the same structure / dms
-    - {n_same_seq_datapoints} duplicate sequences with different structure / dms"""
+- {n_duplicates_datapoints} duplicate sequences with the same structure / dms
+- {n_same_seq_datapoints} duplicate sequences with different structure / dms"""
         else:
             report += f"""
-    - {n_same_seq_datapoints} duplicate sequences"""
-        if 'structure' in df.columns and 'dms' in df.columns:
+- {n_same_seq_datapoints} duplicate sequences"""
+        if mask_high_AUROC is not None:
             report += f"""
-    - {np.sum(~mask_high_AUROC)} datapoints removed because of low AUROC (<{min_AUROC})"""
+- {np.sum(~mask_high_AUROC)} datapoints removed because of low AUROC (<{min_AUROC})"""
 
         return report
     

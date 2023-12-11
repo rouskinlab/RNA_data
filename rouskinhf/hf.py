@@ -125,6 +125,12 @@ date: {}
     os.makedirs(os.path.dirname(path.get_card()), exist_ok=True)
     with open(path.get_card(), "w") as f:
         f.write(out)
+    
+    if os.path.exists(path.get_conversion_report()):    
+        conversion = open(path.get_conversion_report(), "r").read()
+        with open(path.get_card(), "a") as f:
+            f.write("\n\n"+conversion)
+    
     return path.get_card()
 
     

@@ -87,29 +87,30 @@ class Datapoint:
             if hasattr(self, attr)
         }
 
-    def convert_structure_to_tuple(self):
-        """Returns a set of tuples.
-        >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
-        >>> datapoint._format_paired_bases([[1, 4], [0, 5]])
-        ((0, 5), (1, 4))
-        """
-        if self.structure is None:
-            return None
-        self.structure = tuple(sorted([tuple(sorted(pair)) for pair in self.structure]))
-        
-    def convert_structure_to_list(self):
-        if self.structure is None:
-            return None
-        self.structure = [list(pair) for pair in self.structure]
+    def convert_arrays_to_tuple(self):
+        if hasattr(self, "dms") and self.dms is not None:
+            self.dms = tuple(self.dms)
+        if hasattr(self, "shape") and self.shape is not None:
+            self.shape = tuple(self.shape)
+        if hasattr(self, "structure") and self.structure is not None:
+            self.structure = tuple([tuple(pair) for pair in self.structure])
 
-    def _format_signal(self):
+    def convert_arrays_to_list(self):
+        if hasattr(self, "dms") and self.dms is not None:
+            self.dms = list(self.dms)
+        if hasattr(self, "shape") and self.shape is not None:
+            self.shape = list(self.shape)
+        if hasattr(self, "structure") and self.structure is not None:
+            self.structure = [list(pair) for pair in self.structure]
+
+    def _format_signal(self, signal):
         """Returns a list of floats corresponding to the dms.
 
         >>> from numpy import array, float32
         >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure='((..))', dms=[1.0, 2.0, 3.0])
         >>> assert (datapoint.embed_dms() == array([1., 2., 3.], dtype=float32)).all(), 'The dms are not embedded correctly.'
         """
-        return np.array([round(d, 4) for d in self.dms], dtype=np.float32)
+        return [round(d, 4) for d in signal]
 
     def to_dict(self):
         return self.reference, {
@@ -283,6 +284,10 @@ class DatapointFactory:
         # create the datapoint
         sequence = d["sequence"]
         sequence = standardize_sequence(sequence)
+        
+        # hack 
+        if "structure" in d:
+            d['paired_bases'] = d.pop('structure')
 
         if predict_structure and (not "structure" in d) and (not "paired_bases" in d):
             d["structure"] = RNAstructure_singleton.predictStructure(
