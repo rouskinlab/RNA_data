@@ -34,7 +34,12 @@ class Datapoint:
         # Check if the conditions are met before creating the object
         sequence = kwargs.get("sequence", args[0] if len(args) > 0 else None)
         reference = kwargs.get("reference", args[1] if len(args) > 1 else None)
-        if sequence is None or reference is None or len(sequence) == 0 or len(reference) == 0:
+        if (
+            sequence is None
+            or reference is None
+            or len(sequence) == 0
+            or len(reference) == 0
+        ):
             return None
 
         # If conditions are met, create and return the new instance
@@ -134,19 +139,12 @@ class Datapoint:
         )
 
     def __str__(self):
-        return (
-            f'"{self.reference}":'
-            + str(
-                {
-                    "sequence": self.sequence,
-                    **{k: v for k, v in self.get_opt_dict().items() if v is not None},
-                }
-            )
-            .replace("'", '"')
-            .replace("(", "[")
-            .replace(")", "]")
-            .replace("None", "null")
-        )
+        return f'"{self.reference}":' + str(
+            {
+                "sequence": self.sequence,
+                **{k: v for k, v in self.get_opt_dict().items() if v is not None},
+            }
+        ).replace("'", '"').replace("(", "[").replace(")", "]").replace("None", "null")
 
     def __repr__(self) -> str:
         out = (
@@ -185,7 +183,7 @@ class Datapoint:
         """
         sequence = self.sequence
         paired_bases = self.structure
-        
+
         if paired_bases is None:
             return True
         return (
@@ -284,10 +282,10 @@ class DatapointFactory:
         # create the datapoint
         sequence = d["sequence"]
         sequence = standardize_sequence(sequence)
-        
-        # hack 
+
+        # hack
         if "structure" in d:
-            d['paired_bases'] = d.pop('structure')
+            d["paired_bases"] = d.pop("structure")
 
         if predict_structure and (not "structure" in d) and (not "paired_bases" in d):
             d["structure"] = RNAstructure_singleton.predictStructure(

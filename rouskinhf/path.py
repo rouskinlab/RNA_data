@@ -2,6 +2,7 @@ from os.path import join
 import os
 from .env import Env
 
+
 class Path:
     """Path to files and folders of a datafolder of name `name`. The path to the data folder is `DATA_FOLDER`, which is defined in `env`.
 

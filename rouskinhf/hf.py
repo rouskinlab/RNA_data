@@ -1,7 +1,6 @@
-
 from huggingface_hub import snapshot_download
 import os
-from os.path import dirname
+from os.path import dirname, exists
 import json
 from huggingface_hub import HfApi
 import datetime
@@ -20,13 +19,6 @@ def download_dataset(name: str):
         token=Env.get_hf_token(),
         allow_patterns=["data.json"],
     )
-
-def get_dataset(name: str, force_download=False):
-    path = Path(name=name)
-    if force_download:
-        path.clear()
-        download_dataset(name)
-    return json.load(open(Path(name).get_data_json(), "r"))
 
 
 def name_from_path(datapath: str):
@@ -47,11 +39,8 @@ def clean_data(datapath: str):
 
 
 def upload_dataset(
-        datapath: str,
-        exist_ok=False,
-        commit_message: str = None,
-        add_card=True,
-        **kwargs):
+    datapath: str, exist_ok=False, commit_message: str = None, add_card=True, **kwargs
+):
     api = HfApi()
     name = name_from_path(datapath)
     # data = clean_data(datapath)
@@ -133,12 +122,28 @@ date: {}
     os.makedirs(os.path.dirname(path.get_card()), exist_ok=True)
     with open(path.get_card(), "w") as f:
         f.write(out)
-    
-    if os.path.exists(path.get_conversion_report()):    
+
+    if os.path.exists(path.get_conversion_report()):
         conversion = open(path.get_conversion_report(), "r").read()
         with open(path.get_card(), "a") as f:
-            f.write("\n\n"+conversion)
-    
+            f.write("\n\n" + conversion)
+
     return path.get_card()
 
-    
+
+def get_dataset(name: str, force_download=False, tqdm=True):
+    """This function returns a list of datapoints, similar to what's in the data.json file."""
+
+    path = Path(name=name)
+
+    if force_download:
+        os.system(f"rm -rf {path.get_main_folder()}")
+
+    if not exists(path.get_data_json()):
+        print("{}: Downloading dataset from HuggingFace Hub...".format(name))
+        download_dataset(name)
+        print(
+            "{}: Download complete. File saved at {}".format(name, path.get_data_json())
+        )
+
+    return json.load(open(path.get_data_json(), "r"))
