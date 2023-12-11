@@ -6,6 +6,7 @@ import json
 from huggingface_hub import HfApi
 import datetime
 import numpy as np
+import json
 
 from .path import Path
 from .env import Env
@@ -19,6 +20,13 @@ def download_dataset(name: str):
         token=Env.get_hf_token(),
         allow_patterns=["data.json"],
     )
+
+def get_dataset(name: str, force_download=False):
+    path = Path(name=name)
+    if force_download:
+        path.clear()
+        download_dataset(name)
+    return json.load(open(Path(name).get_data_json(), "r"))
 
 
 def name_from_path(datapath: str):

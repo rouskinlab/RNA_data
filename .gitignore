@@ -19,3 +19,5 @@ build
 .vscode
 *.tar.gz
 *.whl
+
+data/testing
