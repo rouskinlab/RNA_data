@@ -20,6 +20,8 @@ class Ct:
 
         structure, sequence = [], ""
         for line in lines[1:]:
+            if line.replace(" ", "")[0] == "#":
+                continue
             if line.strip() == "":
                 break
             try:
@@ -72,6 +74,8 @@ class BPseq:
 
         structure, sequence = [], ""
         for line in lines:
+            if line.replace(" ", "")[0] == "#":
+                continue
             if line.strip() == "":
                 break
             try:
