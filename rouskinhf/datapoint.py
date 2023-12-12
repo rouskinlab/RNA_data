@@ -136,7 +136,9 @@ class Datapoint:
         if hasattr(self, "structure") and self.structure is not None:
             self.structure = [list(pair) for pair in self.structure]
 
-    def _format_signal(self, signal):
+    def _format_signal(self, signal): 
+        if not hasattr(signal, "__iter__"): # handles none and nan
+            return signal
         return [round(d, 4) for d in signal]
 
     def to_dict(self):
