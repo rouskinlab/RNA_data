@@ -62,9 +62,11 @@ def filter(listofdatapoints:ListofDatapoints, min_AUROC: int = 0.8):
         n_same_ref_datapoints = 0
         for idx, row in df.iterrows():
             if row["reference"] in refs:
+                refs[row['reference']] += 1
                 df.at[idx, "reference"] = f"{row['reference']}_{refs[row['reference']]}"
                 n_same_ref_datapoints += 1
-            refs[row["reference"]] = refs.get(row["reference"], 0) + 1
+            else:
+                refs[row["reference"]] = 0
 
         # Keep only one datapoint per sequence and structure
         if "structure" in df.columns:
@@ -101,7 +103,16 @@ def filter(listofdatapoints:ListofDatapoints, min_AUROC: int = 0.8):
             
             signal = "dms" if "dms" in df.columns else "shape"
             def calculate_auroc(row):
+                # best signal is DMS, if unavailable use SHAPE
+                signal = "dms" if "dms" in row and not type(row['dms']) == float else "shape"
+                if (not 'structure' in row) or (row['structure'] is None) or (type(row['structure']) == float and np.isnan(row['structure'])) or len(row['structure']) == 0:
+                    return 1 #  if you can't calculate the AUROC, don't filter it out
+                
                 sig = np.array(row[signal])
+                if signal == 'dms': # mask G/T/U bases for DMS
+                    mask_UKN = np.array([s in 'GTU' for s in row['sequence'].upper()])
+                    sig[mask_UKN] = UKN
+                    
                 isUnpaired = np.ones_like(sig)
                 isUnpaired[np.array(row["structure"]).flatten()] = 0
                 if set(isUnpaired[sig != UKN]) != set([0, 1]):
@@ -120,10 +131,10 @@ def filter(listofdatapoints:ListofDatapoints, min_AUROC: int = 0.8):
         # Write report
         report = f"""Over a total of {n_input_datapoints} datapoints, there are:
 ### OUTPUT
-- {len(listofdatapoints)} valid datapoints
+- ALL: {len(listofdatapoints)} valid datapoints
+- INCLUDED: {n_same_seq_datapoints} duplicate sequences with different structure / dms / shape
 ### MODIFIED
 - {n_same_ref_datapoints} multiple sequences with the same reference (renamed reference)
-- {n_same_seq_datapoints} duplicate sequences with different structure / dms / shape
 ### FILTERED OUT
 - {n_unvalid_datapoints} invalid datapoints (ex: sequence with non-regular characters)
 - {n_bad_structures_datapoints} datapoints with bad structures"""
