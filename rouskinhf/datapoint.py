@@ -164,7 +164,7 @@ class Datapoint:
         return f'"{self.reference}":' + str(
             {
                 "sequence": self.sequence,
-                **{k: v for k, v in self.get_opt_dict().items() if v is not None},
+                **{k: v for k, v in self.get_opt_dict().items() if v is not None and not (type(v) == float and np.isnan(v))},
             }
         ).replace("'", '"').replace("(", "[").replace(")", "]").replace("None", "null")
 
@@ -200,8 +200,8 @@ class DatapointFactory:
 
         if sequence_has_regular_characters(sequence):
             return Datapoint(
-                sequence,
-                reference,
+                sequence=sequence,
+                reference=reference,
                 structure=structure,
             )
 
@@ -212,8 +212,8 @@ class DatapointFactory:
 
         if sequence_has_regular_characters(sequence):
             return Datapoint(
-                sequence,
-                reference,
+                sequence=sequence,
+                reference=reference,
                 structure=structure,
             )
 
