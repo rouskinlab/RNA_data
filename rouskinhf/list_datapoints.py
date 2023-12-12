@@ -172,7 +172,7 @@ class ListofDatapoints:
 
     def drop_none_dp(self):
         n_input_datapoints = len(self.datapoints)
-        self.datapoints = list(filter(lambda x: x is not None, self.datapoints))
+        self.datapoints = [d for d in self.datapoints if d != None]
         n_unvalid_datapoints = n_input_datapoints - len(self.datapoints)
         return self.datapoints, n_unvalid_datapoints
 
