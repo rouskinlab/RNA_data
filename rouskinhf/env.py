@@ -3,6 +3,7 @@ import os
 
 class Env:
     """Class to get environment variables."""
+
     def get_hf_token() -> str:
         if "HUGGINGFACE_TOKEN" in os.environ:
             return os.environ["HUGGINGFACE_TOKEN"]

@@ -11,7 +11,7 @@ from .path import Path
 from .env import Env
 
 
-def get_dataset(name: str, path='data', force_download=False, tqdm=True):
+def get_dataset(name: str, path="data", force_download=False, tqdm=True):
     """Get a dataset from HuggingFace or from the local cache.
 
     Args:

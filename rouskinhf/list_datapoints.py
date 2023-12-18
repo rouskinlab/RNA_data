@@ -11,12 +11,13 @@ import json
 
 class ListofDatapoints:
     """Class to store a list of datapoints."""
+
     def __init__(self, datapoints=[], verbose=True):
         self.datapoints = datapoints
 
     def __call__(self) -> List[Datapoint]:
         return self.datapoints
-    
+
     def __len__(self) -> int:
         return len(self.datapoints)
 
@@ -42,7 +43,9 @@ class ListofDatapoints:
     @classmethod
     def from_bpseq(cls, bpseq_folder, tqdm=True, verbose=True):
         """Create a list of datapoint from a bpseq file. The dms will be predicted if predict_dms is True."""
-        bpseq_files = [f.path for f in os.scandir(bpseq_folder) if f.path.endswith(".bpseq")]
+        bpseq_files = [
+            f.path for f in os.scandir(bpseq_folder) if f.path.endswith(".bpseq")
+        ]
         return cls(
             [
                 DatapointFactory.from_bpseq(ct_file)
@@ -175,5 +178,3 @@ class ListofDatapoints:
         self.datapoints = [d for d in self.datapoints if d != None]
         n_unvalid_datapoints = n_input_datapoints - len(self.datapoints)
         return self.datapoints, n_unvalid_datapoints
-
-    

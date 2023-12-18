@@ -23,11 +23,11 @@ class Datapoint:
             or len(reference) == 0
         ):
             return None
-        
+
         if dotbracket is not None:
             if not dotbracket.count("(") == dotbracket.count(")"):
                 return None
-            
+
         if not sequence_has_regular_characters(sequence):
             return None
 
@@ -61,7 +61,7 @@ class Datapoint:
         self.reference = reference
         self.sequence = sequence
         self.structure = structure
-        
+
         if structure is None and dotbracket is not None:
             self.structure = self.dotbracket_to_structure(dotbracket)
         if dms is not None:
@@ -90,7 +90,7 @@ class Datapoint:
         False
         >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure=[[1, 2], [3, 6]])
         >>> datapoint._assert_structure()
-        False   
+        False
         >>> datapoint = Datapoint(reference='reference', sequence='AACCGG', structure=[[1, 2], [3, -1]])
         >>> datapoint._assert_structure()
         False
@@ -112,32 +112,38 @@ class Datapoint:
             )
             # check that there's maximum one pair per base
             and len(
-                set(
-                    [pair[0] for pair in structure]
-                    + [pair[1] for pair in structure]
-                )
+                set([pair[0] for pair in structure] + [pair[1] for pair in structure])
             )
             == len(structure) * 2
         )
 
+    def _assert_exists(self, attr):
+        if not hasattr(self, attr):
+            return False
+        if getattr(self, attr) is None:
+            return False
+        if isinstance(getattr(self, attr), float) and np.isnan(getattr(self, attr)):
+            return False
+        return True
+
     def convert_arrays_to_tuple(self):
-        if hasattr(self, "dms") and self.dms is not None:
+        if self._assert_exists("dms"):
             self.dms = tuple(self.dms)
-        if hasattr(self, "shape") and self.shape is not None:
+        if self._assert_exists("shape"):
             self.shape = tuple(self.shape)
-        if hasattr(self, "structure") and self.structure is not None:
+        if self._assert_exists("structure"):
             self.structure = tuple([tuple(pair) for pair in self.structure])
 
     def convert_arrays_to_list(self):
-        if hasattr(self, "dms") and self.dms is not None:
+        if self._assert_exists("dms"):
             self.dms = list(self.dms)
-        if hasattr(self, "shape") and self.shape is not None:
+        if self._assert_exists("shape"):
             self.shape = list(self.shape)
-        if hasattr(self, "structure") and self.structure is not None:
+        if self._assert_exists("structure"):
             self.structure = [list(pair) for pair in self.structure]
 
-    def _format_signal(self, signal): 
-        if not hasattr(signal, "__iter__"): # handles none and nan
+    def _format_signal(self, signal):
+        if not hasattr(signal, "__iter__"):  # handles none and nan
             return signal
         return [round(d, 4) for d in signal]
 
@@ -166,7 +172,11 @@ class Datapoint:
         return f'"{self.reference}":' + str(
             {
                 "sequence": self.sequence,
-                **{k: v for k, v in self.get_opt_dict().items() if v is not None and not (type(v) == float and np.isnan(v))},
+                **{
+                    k: v
+                    for k, v in self.get_opt_dict().items()
+                    if v is not None and not (type(v) == float and np.isnan(v))
+                },
             }
         ).replace("'", '"').replace("(", "[").replace(")", "]").replace("None", "null")
 
@@ -274,5 +284,5 @@ class DatapointFactory:
                 structure=d["structure"] if "structure" in d else None,
                 dotbracket=d["dotbracket"] if "dotbracket" in d else None,
                 dms=d["dms"] if "dms" in d else None,
-                shape = d["shape"] if "shape" in d else None,
+                shape=d["shape"] if "shape" in d else None,
             )

@@ -2,6 +2,7 @@ from .list_datapoints import ListofDatapoints
 from .path import Path
 from .filter import filter as filter_datapoints
 
+
 def convert(
     format: str,
     file_or_folder: str,
@@ -13,7 +14,7 @@ def convert(
     verbose: bool = True,
 ):
     """Converts a file or folder into a json file. Different formats are supported.
-    
+
     Args:
         format (str): Format of the input file. Can be 'ct', 'seismic', 'json', 'bpseq' or 'fasta'.
         file_or_folder (str): Path to the file or folder to convert.
