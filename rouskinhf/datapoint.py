@@ -271,11 +271,12 @@ class DatapointFactory:
         sequence = d["sequence"]
         sequence = standardize_sequence(sequence)
 
-        # hack
-        if predict_structure and (not "structure" in d) and (not "dotbracket" in d):
+        if predict_structure:
             d["dotbracket"] = RNAstructure_singleton.predictStructure(
-                sequence, dms=d["dms"] if "dms" in d else None
+                sequence, dms=d["dms"] if "dms" in d else None, shape=d["shape"] if "shape" in d and "dms" not in d else None
             )
+            if 'structure' in d:
+                del d['structure']  # delete the structure if it exists
 
         if sequence_has_regular_characters(sequence):
             return Datapoint(

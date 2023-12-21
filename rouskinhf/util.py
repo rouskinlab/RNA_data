@@ -64,3 +64,15 @@ def standardize_sequence(sequence):
 
 def sequence_has_regular_characters(sequence):
     return not (set(sequence) - set("ACGU"))
+
+
+def dump_json(data, path):
+    if os.path.dirname(path) != "":
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
+        f.write("{\n")
+        for idx, (ref, attr) in enumerate(
+            data.items()
+        ):  # write the datapoints one by one to avoid memory issues
+            f.write(str({ref: attr})[1:-1].replace("'", '"'))
+            f.write(",\n" if idx != len(data) - 1 else "\n}")
