@@ -276,7 +276,7 @@ class DatapointFactory:
                 sequence, dms=d["dms"] if "dms" in d else None, shape=d["shape"] if "shape" in d and "dms" not in d else None
             )
             if 'structure' in d:
-                del d['structure']  # delete the structure if it exists
+                del d['structure']  # otherwise the dotbracket won't be used
 
         if sequence_has_regular_characters(sequence):
             return Datapoint(
