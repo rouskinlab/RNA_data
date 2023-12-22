@@ -1,4 +1,5 @@
 import os
+import numpy as np
 
 # Define the one-hot encodings for the sequences and structures
 seq2int = {
@@ -74,5 +75,15 @@ def dump_json(data, path):
         for idx, (ref, attr) in enumerate(
             data.items()
         ):  # write the datapoints one by one to avoid memory issues
+            remove_keys = []
+            for k, v in attr.items():
+                if (
+                    v is None
+                    or (type(v) == float and np.isnan(v))
+                    or (hasattr(v, "__iter__") and not len(v))
+                ):
+                    remove_keys.append(k)
+            for k in remove_keys:
+                del attr[k]
             f.write(str({ref: attr})[1:-1].replace("'", '"'))
             f.write(",\n" if idx != len(data) - 1 else "\n}")
