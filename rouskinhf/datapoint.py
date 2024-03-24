@@ -98,7 +98,7 @@ class Datapoint:
         sequence = self.sequence
         structure = self.structure
 
-        if structure is None:
+        if structure is None or structure == [[]]:
             return True
         return (
             all(

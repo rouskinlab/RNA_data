@@ -80,9 +80,11 @@ def dump_json(data, path):
                 if (
                     v is None
                     or (type(v) == float and np.isnan(v))
-                    or (hasattr(v, "__iter__") and not len(v))
+                    # or (hasattr(v, "__iter__") and not len(v))
                 ):
                     remove_keys.append(k)
+                if isinstance(v, np.ndarray):
+                    v = v.tolist()
             for k in remove_keys:
                 del attr[k]
             f.write(str({ref: attr})[1:-1].replace("'", '"'))

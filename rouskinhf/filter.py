@@ -112,9 +112,12 @@ def filter(listofdatapoints: ListofDatapoints, min_AUROC: int = 0.8):
                 or (row["structure"] is None)
                 or (type(row["structure"]) == float and np.isnan(row["structure"]))
                 or len(row["structure"]) == 0
+                or row['structure'] == [[]]
             ):
                 return 1  #  if you can't calculate the AUROC, don't filter it out
 
+            if row[signal] is None or (type(row[signal]) == float and np.isnan(row[signal])):
+                return 1
             sig = np.array(row[signal])
             if signal == "dms":  # mask G/T/U bases for DMS
                 mask_UKN = np.array([s in "GTU" for s in row["sequence"].upper()])

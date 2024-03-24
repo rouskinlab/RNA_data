@@ -27,7 +27,7 @@ def get_dataset(name: str, path="data", force_download=False, tqdm=True):
 
     if not exists(path.get_data_json()):
         print("{}: Downloading dataset from HuggingFace Hub...".format(name))
-        download_dataset(name)
+        download_dataset(path)
         print(
             "{}: Download complete. File saved at {}".format(name, path.get_data_json())
         )
@@ -35,12 +35,12 @@ def get_dataset(name: str, path="data", force_download=False, tqdm=True):
     return json.load(open(path.get_data_json(), "r"))
 
 
-def download_dataset(name: str, root="data"):
+def download_dataset(path: Path):
     """Download a dataset from HuggingFace Hub. The name corresponds to the name of the dataset on HuggingFace Hub."""
     snapshot_download(
-        repo_id="rouskinlab/" + name,
+        repo_id="rouskinlab/" + path.name,
         repo_type="dataset",
-        local_dir=Path(name, root).get_main_folder(),
+        local_dir=dirname(path.get_data_json()),
         token=Env.get_hf_token(),
         allow_patterns=["data.json"],
     )
