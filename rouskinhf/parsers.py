@@ -49,7 +49,7 @@ class Ct:
         return [Ct.parse(ct_file) for ct_file in ct_files]
 
     def get_reference_from_title(ct_file):
-        return os.path.basename(ct_file).split(".")[0]
+        return '_'.join(os.path.basename(ct_file).split(".")[:-1])
 
     def predict_dms(ct_file):
         """Predict the dms of a ct file using RNAstructure"""
